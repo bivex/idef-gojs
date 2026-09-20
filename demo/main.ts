@@ -1,20 +1,9 @@
 import { IDEF1Editor, RelationshipType, Cardinality } from '../src/index';
+import { loadRussianEnterpriseModel } from './russian_enterprise_model';
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const container = document.getElementById('diagramDiv');
-  if (!container) return;
+let currentEditor: IDEF1Editor | null = null;
 
-  // Initialize IDEF1 Editor Facade (driving port / inbound adapter)
-  const editor = new IDEF1Editor({
-    container,
-    modelName: 'Enterprise IDEF1X Data Model',
-    diagramOptions: {
-      gridVisible: true,
-    },
-  });
-
-  // Populate sample IDEF1X information model
-  // 1. Independent Entity: DEPARTMENT (Square corners)
+async function loadDefaultEnglishModel(editor: IDEF1Editor): Promise<void> {
   const deptId = await editor.addEntity('DEPARTMENT', {
     isDependent: false,
     position: { x: 80, y: 80 },
@@ -25,20 +14,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     ],
   });
 
-  // 2. Dependent Entity: EMPLOYEE (Dependent on Department, rounded corners)
   const empId = await editor.addEntity('EMPLOYEE', {
     isDependent: false,
     position: { x: 380, y: 80 },
     primaryKeys: [{ name: 'emp_no', dataType: 'INTEGER' }],
     nonKeys: [
-      { name: 'ssn', dataType: 'CHAR(9)', alternateKeyIndex: 1 }, // Alternate Key (AK1) per FIPS 184 §3.8.2
+      { name: 'ssn', dataType: 'CHAR(9)', alternateKeyIndex: 1 },
       { name: 'first_name', dataType: 'VARCHAR(30)' },
       { name: 'last_name', dataType: 'VARCHAR(30)' },
       { name: 'hire_date', dataType: 'DATE' },
     ],
   });
 
-  // 3. Dependent Entity: PROJECT_ASSIGNMENT (Identifying relationship with Employee)
   const projAssignId = await editor.addEntity('PROJECT_ASSIGNMENT', {
     isDependent: true,
     position: { x: 380, y: 320 },
@@ -49,7 +36,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     ],
   });
 
-  // 4. Subtypes: FULL_TIME_EMPLOYEE and PART_TIME_EMPLOYEE
   const ftId = await editor.addEntity('FULL_TIME_EMP', {
     isDependent: true,
     position: { x: 680, y: 50 },
@@ -62,7 +48,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     nonKeys: [{ name: 'hourly_rate', dataType: 'DECIMAL(6,2)' }],
   });
 
-  // 5. Independent Entity: PROJECT (for Non-Specific N:M demo)
   const projId = await editor.addEntity('PROJECT', {
     isDependent: false,
     position: { x: 80, y: 240 },
@@ -70,33 +55,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     nonKeys: [{ name: 'title', dataType: 'VARCHAR(60)' }],
   });
 
-  // Add Non-Identifying Relationship (dashed line) from DEPARTMENT to EMPLOYEE
-  // (Optional = true displays diamond on DEPARTMENT parent side)
   await editor.addRelationship(deptId, empId, {
     name: 'employs',
     inverseName: 'is employed by',
     type: RelationshipType.NON_IDENTIFYING,
-    cardinality: Cardinality.ONE_OR_MORE, // Dot + 'P'
-    isOptional: true, // Diamond on parent side!
+    cardinality: Cardinality.ONE_OR_MORE,
+    isOptional: true,
   });
 
-  // Add Identifying Relationship (solid line) from EMPLOYEE to PROJECT_ASSIGNMENT
   await editor.addRelationship(empId, projAssignId, {
     name: 'works on',
     inverseName: 'is staffed by',
     type: RelationshipType.IDENTIFYING,
-    cardinality: Cardinality.ZERO_OR_MORE, // Standard dot
+    cardinality: Cardinality.ZERO_OR_MORE,
   });
 
-  // Add Non-Specific (Many-to-Many) Relationship: PROJECT <-> EMPLOYEE
-  // (Displays solid line with dots on BOTH ends)
   await editor.addRelationship(projId, empId, {
     name: 'participates in',
     inverseName: 'involves',
     type: RelationshipType.NON_SPECIFIC,
   });
 
-  // Add Self-Referencing / Recursive Relationship (EMPLOYEE manages EMPLOYEE)
   await editor.addRelationship(empId, empId, {
     name: 'manages',
     inverseName: 'reports to',
@@ -106,54 +85,113 @@ document.addEventListener('DOMContentLoaded', async () => {
     isOptional: true,
   });
 
-  // Add Categorization Cluster (Subtype circle with double line for complete)
   await editor.addCategorization(empId, 'emp_type', [ftId, ptId], true);
 
-  // Add IDEF1X Note
   editor.addNote(
     'Total hours allocated across all assignments cannot exceed 40 hours per week.',
     { number: 1, position: { x: 680, y: 320 } }
   );
+}
 
-  // Wire UI action buttons
+async function setupEditor(modelType: 'ru' | 'en' = 'ru') {
+  const container = document.getElementById('diagramDiv');
+  if (!container) return;
+
+  if (currentEditor) {
+    currentEditor.destroy();
+  }
+
+  const modelName =
+    modelType === 'ru'
+      ? 'Информационная модель ERP-системы предприятия (IDEF1X)'
+      : 'Enterprise IDEF1X Data Model';
+
+  currentEditor = new IDEF1Editor({
+    container,
+    modelName,
+    diagramOptions: {
+      gridVisible: true,
+    },
+  });
+
+  if (modelType === 'ru') {
+    await loadRussianEnterpriseModel(currentEditor);
+  } else {
+    await loadDefaultEnglishModel(currentEditor);
+  }
+
   const entityCountEl = document.getElementById('entityCount');
   const relCountEl = document.getElementById('relCount');
   const updateStats = () => {
-    const model = editor.getModel();
+    if (!currentEditor) return;
+    const model = currentEditor.getModel();
     if (entityCountEl) entityCountEl.textContent = `${model.entities.length}`;
     if (relCountEl) relCountEl.textContent = `${model.relationships.length}`;
   };
   updateStats();
 
-  // Listen to domain events
-  editor.onEvent('EntityCreated', () => updateStats());
-  editor.onEvent('EntityRemoved', () => updateStats());
-  editor.onEvent('RelationshipAdded', () => updateStats());
-  editor.onEvent('RelationshipRemoved', () => updateStats());
+  currentEditor.onEvent('EntityCreated', () => updateStats());
+  currentEditor.onEvent('EntityRemoved', () => updateStats());
+  currentEditor.onEvent('RelationshipAdded', () => updateStats());
+  currentEditor.onEvent('RelationshipRemoved', () => updateStats());
+
+  // Restore current view level selection
+  const viewLevelSelect = document.getElementById('selectViewLevel') as HTMLSelectElement;
+  if (viewLevelSelect) {
+    currentEditor.setViewLevel(viewLevelSelect.value as any);
+  }
+
+  // Auto Layout after mount
+  setTimeout(() => {
+    currentEditor?.autoLayout({ direction: 0 });
+  }, 80);
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await setupEditor('ru');
+
+  document.getElementById('selectModel')?.addEventListener('change', async (e: any) => {
+    await setupEditor(e.target.value);
+  });
+
+  document.getElementById('selectViewLevel')?.addEventListener('change', (e: any) => {
+    currentEditor?.setViewLevel(e.target.value);
+  });
+
+  document.getElementById('btnAutoLayout')?.addEventListener('click', () => {
+    currentEditor?.autoLayout({ direction: 0 });
+  });
+
+  document.getElementById('btnZoomFit')?.addEventListener('click', () => {
+    currentEditor?.zoomToFit();
+  });
 
   document.getElementById('btnAddEntity')?.addEventListener('click', async () => {
-    const name = prompt('Enter Entity Name:', 'CUSTOMER');
+    if (!currentEditor) return;
+    const name = prompt('Введите имя сущности (Entity Name):', 'ДОГОВОР');
     if (!name) return;
-    await editor.addEntity(name.toUpperCase(), {
-      position: { x: 150 + Math.random() * 200, y: 200 + Math.random() * 200 },
-      primaryKeys: [{ name: `${name.toLowerCase()}_id`, dataType: 'INTEGER' }],
-      nonKeys: [{ name: 'description', dataType: 'VARCHAR(100)' }],
+    await currentEditor.addEntity(name.toUpperCase(), {
+      position: { x: 200 + Math.random() * 200, y: 200 + Math.random() * 200 },
+      primaryKeys: [{ name: `код_${name.toLowerCase()}`, dataType: 'INTEGER' }],
+      nonKeys: [{ name: 'описание', dataType: 'VARCHAR(150)' }],
     });
   });
 
   document.getElementById('btnExportJson')?.addEventListener('click', () => {
-    const json = editor.exportJson();
+    if (!currentEditor) return;
+    const json = currentEditor.exportJson();
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'idef1_model.json';
+    a.download = 'idef1_erp_model.json';
     a.click();
     URL.revokeObjectURL(url);
   });
 
   document.getElementById('btnExportSvg')?.addEventListener('click', () => {
-    const svg = editor.exportSvg();
+    if (!currentEditor) return;
+    const svg = currentEditor.exportSvg();
     const blob = new Blob([svg], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -169,33 +207,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     input.accept = 'application/json';
     input.onchange = async (e: any) => {
       const file = e.target.files[0];
-      if (file) {
+      if (file && currentEditor) {
         const text = await file.text();
-        await editor.importJson(text);
-        updateStats();
+        await currentEditor.importJson(text);
       }
     };
     input.click();
   });
-
-  // Switch View Level (ER, KB, FA) per FIPS 184 §3.10
-  document.getElementById('selectViewLevel')?.addEventListener('change', (e: any) => {
-    const level = e.target.value as 'ER' | 'KB' | 'FA';
-    editor.setViewLevel(level);
-  });
-
-  // Auto Layout action
-  document.getElementById('btnAutoLayout')?.addEventListener('click', () => {
-    editor.autoLayout({ direction: 0 });
-  });
-
-  // Zoom to Fit action
-  document.getElementById('btnZoomFit')?.addEventListener('click', () => {
-    editor.zoomToFit();
-  });
-
-  // Initial Auto Layout on startup
-  setTimeout(() => {
-    editor.autoLayout({ direction: 0 });
-  }, 100);
 });

@@ -149,19 +149,28 @@
     </div>
     <div class="toolbar">
       <label style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
-        View Level (§3.10):
-        <select id="selectViewLevel" style="background: #334155; color: #f8fafc; border: 1px solid #475569; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">
-          <option value="FA" selected>Fully-Attributed (FA)</option>
-          <option value="KB">Key-Based (KB)</option>
-          <option value="ER">Entity-Relationship (ER)</option>
+        Модель:
+        <select id="selectModel" style="background: #1e293b; color: #38bdf8; border: 1px solid #38bdf8; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">
+          <option value="ru" selected>🇷🇺 ERP-система Предприятия (Большая)</option>
+          <option value="en">🇺🇸 Simple Demo (EN)</option>
         </select>
       </label>
-      <button class="primary" id="btnAutoLayout">✨ Auto Layout</button>
-      <button id="btnZoomFit">🔍 Fit</button>
-      <button class="primary" id="btnAddEntity">+ Add Entity</button>
-      <button id="btnExportJson">Export JSON</button>
-      <button id="btnImportJson">Import JSON</button>
-      <button id="btnExportSvg">Export SVG</button>
+
+      <label style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+        Уровень (§3.10):
+        <select id="selectViewLevel" style="background: #334155; color: #f8fafc; border: 1px solid #475569; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">
+          <option value="FA" selected>Полный (FA: Full)</option>
+          <option value="KB">Ключевой (KB: Keys)</option>
+          <option value="ER">Сущность-Связь (ER)</option>
+        </select>
+      </label>
+
+      <button class="primary" id="btnAutoLayout">✨ Авто-выравнивание</button>
+      <button id="btnZoomFit">🔍 Центрировать</button>
+      <button class="primary" id="btnAddEntity">+ Добавить сущность</button>
+      <button id="btnExportJson">Экспорт JSON</button>
+      <button id="btnImportJson">Импорт JSON</button>
+      <button id="btnExportSvg">Экспорт SVG</button>
     </div>
   </header>
 
@@ -170,33 +179,35 @@
       <div class="stats">
         <div class="stat-box">
           <div class="stat-val" id="entityCount">0</div>
-          <div class="stat-lbl">Entities</div>
+          <div class="stat-lbl">Сущностей</div>
         </div>
         <div class="stat-box">
           <div class="stat-val" id="relCount">0</div>
-          <div class="stat-lbl">Relationships</div>
+          <div class="stat-lbl">Связей</div>
         </div>
       </div>
 
       <div class="card">
-        <h3>Architecture (DDD-HEX)</h3>
-        <p><strong>Hexagonal (Ports & Adapters):</strong></p>
+        <h3>Архитектура DDD-HEX</h3>
+        <p><strong>Ports & Adapters (Чистый домен):</strong></p>
         <ul>
-          <li><strong>Domain:</strong> Pure TypeScript Aggregate Root (<code>IDEF1Model</code>), Entities, Value Objects, Domain Events, Invariants.</li>
-          <li><strong>Ports:</strong> <code>IIDEF1EditorUseCase</code> (driving), <code>IDiagramRendererPort</code> (driven).</li>
-          <li><strong>Adapters:</strong> <code>GoJSDiagramAdapter</code>, <code>InMemoryOrJsonRepository</code>, <code>IDEF1Editor</code> facade.</li>
+          <li><strong>Domain:</strong> Агрегат <code>IDEF1Model</code>, Сущности, Value Objects, Доменные события и правила FIPS 184.</li>
+          <li><strong>Ports:</strong> Входящий <code>IIDEF1EditorUseCase</code>, исходящий <code>IDiagramRendererPort</code>.</li>
+          <li><strong>Adapters:</strong> Адаптер GoJS, JSON-репозиторий, Фасад <code>IDEF1Editor</code>.</li>
         </ul>
       </div>
 
       <div class="card">
-        <h3>IDEF1X Standard Notation</h3>
+        <h3>Нотация стандарта IDEF1X (FIPS 184)</h3>
         <ul>
-          <li><strong>Square corners:</strong> Independent entity</li>
-          <li><strong>Rounded corners:</strong> Dependent entity</li>
-          <li><strong>Solid line:</strong> Identifying relationship</li>
-          <li><strong>Dashed line:</strong> Non-identifying relationship</li>
-          <li><strong>Dot + 'P':</strong> Cardinality (1 or more)</li>
-          <li><strong>Subtype circle:</strong> Categorization cluster</li>
+          <li><strong>Прямые углы:</strong> Независимая сущность (ОТДЕЛ, КЛИЕНТ, СКЛАД, ТОВАР)</li>
+          <li><strong>Скругленные углы:</strong> Зависимая сущность (ПОЗИЦИЯ_ЗАКАЗА, ОПЛАТА, ДОСТАВКА)</li>
+          <li><strong>Сплошная линия:</strong> Идентифицирующее отношение (миграция ключей в PK)</li>
+          <li><strong>Пунктирная линия:</strong> Неидентифицирующее отношение (миграция ключей в Non-Key)</li>
+          <li><strong>Ромб у родителя:</strong> Опциональная связь (курирует: СОТРУДНИК → ЗАКАЗ)</li>
+          <li><strong>Точки на обоих концах:</strong> Связь N:M (АКЦИЯ ↔ ТОВАР)</li>
+          <li><strong>(AK1), (AK2):</strong> Альтернативные уникальные ключи (ИНН, СНИЛС, Артикул)</li>
+          <li><strong>Кружок с двойной линией:</strong> Полная категоризация (ФИЗ_ЛИЦО / ЮР_ЛИЦО)</li>
         </ul>
       </div>
     </aside>
