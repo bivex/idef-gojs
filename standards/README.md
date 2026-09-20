@@ -1,65 +1,65 @@
-# Официальная спецификация стандарта IDEF1X (FIPS PUB 184)
+# Официальные спецификации стандартов IDEF (FIPS PUB 183 & FIPS PUB 184)
 
-В этой папке размещен полный официальный текст государственного стандарта США:
+В этой директории размещены официальные документы государственных стандартов США (National Institute of Standards and Technology - NIST / IEEE):
 
-- **[FIPS_PUB_184.doc](./FIPS_PUB_184.doc)** — Полный официальный исходный документ стандарта National Institute of Standards and Technology (NIST) от 21 декабря 1993 года в формате Microsoft Word (со всеми встроенными графическими иллюстрациями нотации).
-- **[FIPS_PUB_184.txt](./FIPS_PUB_184.txt)** — Полная текстовая версия стандарта (304 КБ) для быстрого поиска, индексации и верификации правил в коде.
+- **[FIPS_PUB_183.pdf](./FIPS_PUB_183.pdf)** — **IDEF0**: Integration Definition for Function Modeling (Функциональное моделирование процессов, 4.67 МБ).
+- **[FIPS_PUB_184.doc](./FIPS_PUB_184.doc)** — **IDEF1X**: Integration Definition for Information Modeling (Информационное моделирование данных, 823 КБ).
+- **[FIPS_PUB_184.txt](./FIPS_PUB_184.txt)** — Полная текстовая версия стандарта FIPS 184 (304 КБ) для индексации и верификации правил.
 
 ---
 
-## 📑 Оглавление стандарта FIPS PUB 184
+## 📘 1. Стандарт IDEF0 (FIPS PUB 183) — Функциональное моделирование
 
-### 1. Overview (Обзор)
-- **1.1 Scope** — Область применения языка IDEF1X.
-- **1.2 Purpose** — Назначение стандарта при моделировании данных и проектировании баз данных.
+### Ключевые положения нотации:
+1. **Функциональный блок (Activity Box)**:
+   - Прямоугольник, представляющий действие, процесс или функцию предприятия.
+   - Имя формулируется в виде **активной глагольной фразы** (Active Verb Phrase).
+   - В правом нижнем углу — номер детализации блока (от `1` до `6`).
+   - Под блоком — код родительского контекста (например, `A0`, `A1`, `A2.1`).
+   - Индикатор декомпозиции (D-number) при наличии дочерней диаграммы.
+2. **Семантика стрелок ICOM**:
+   - **Input (Вход, I)**: Стрелки входят в блок с **ЛЕВОЙ** стороны. Преобразуются функцией в выход.
+   - **Control (Управление, C)**: Стрелки входят в блок с **ВЕРХНЕЙ** стороны. Регламентируют, управляют или ограничивают выполнение функции (стандарты, регламенты, планы).
+   - **Output (Выход, O)**: Стрелки выходят из блока с **ПРАВОЙ** стороны. Результат выполнения функции.
+   - **Mechanism (Механизм, M)**: Стрелки входят в блок с **НИЖНЕЙ** стороны. Ресурсы для исполнения (персонал, станки, ПО).
+   - **Call (Вызов)**: Стрелки выходят из блока **СНИЗУ** и направлены вниз. Ссылка на другую модель или внешнюю подсистему.
+3. **Правило 3-6 блоков (§3.3.2)**:
+   - Каждая диаграмма декомпозиции должна содержать от **3 до 6** функциональных блоков.
+   - Исключение: контекстная диаграмма верхнего уровня **A-0**, содержащая ровно **1** блок **A0**.
+4. **Диагональное доминирование (Diagonal Dominance)**:
+   - Блоки располагаются по диагонали сверху-вниз слева-направо в порядке их системного приоритета и потока управления.
+5. **Туннелирование стрелок (Tunneling, §3.4)**:
+   - Обозначается круглыми скобками `( )` у начала или конца стрелки.
+   - Туннель у источника (`AT_SOURCE`): стрелка не отображается на родительской диаграмме, а возникает на дочерней.
+   - Туннель у цели (`AT_TARGET`): стрелка с родительской диаграммы не переносится в дочернюю декомпозицию.
 
-### 2. Definitions (Термины и определения)
-- Полный глоссарий стандартизированных терминов: *Entity*, *Domain*, *Attribute*, *Identifying / Non-identifying Relationship*, *Categorization*, *Foreign Key Migration*, *Cardinality*, *Role Name*.
+---
 
-### 3. IDEF1X Syntax and Semantics (Синтаксис и семантика)
-- **3.1 Entities**
-  - Определение независимых (*Independent*) и зависимых (*Dependent*) сущностей.
-  - Графический синтаксис: прямоугольник с прямыми углами vs скругленными углами.
-  - Именование сущности и уникальный номер (`E/<number>`).
-- **3.2 Domains**
-  - Определение доменов значений атрибутов и базовых типов данных.
-- **3.3 Views**
-  - Контекст представления подмножества сущностей и связей.
-- **3.4 Attributes**
-  - Разделение атрибутов горизонтальной чертой на **Primary Key** (над линией) и **Non-Key** (под линией).
-  - Правило уникальности имен атрибутов.
-- **3.5 Connection Relationships**
-  - **Identifying Relationships**: сплошная линия, дочерняя сущность обязана быть зависимой, PK мигрирует в PK потомка.
-  - **Non-Identifying Relationships**: пунктирная линия, PK мигрирует в Non-Key.
-  - **Optionality**: ромб (`Diamond`) со стороны родителя, если внешний ключ может принимать `NULL`.
-  - **Cardinality**: мощности на дочернем конце (0, 1 или много — точка; 1 или много — точка с `P`; 0 или 1 — точка с `Z`; ровно N или диапазон).
-  - Глагольные фразы (*Verb Phrases*).
-- **3.6 Categorization Relationships (Подтипы / Subtypes)**
-  - Родовая сущность (*Generic Entity*) и специфические сущности (*Specific Entities*).
-  - Дискриминатор подтипа (*Discriminator*).
-  - Неполная категоризация (*Incomplete*): кружок над одной чертой.
-  - Полная категоризация (*Complete*): кружок над двумя параллельными чертами.
-- **3.7 Non-Specific Relationships (Many-to-Many)**
-  - Сплошная линия со сплошными кружками на обоих концах.
-  - Применяется на концептуальном уровне до декомпозиции на ассоциативную сущность.
-- **3.8 Primary and Alternate Keys**
-  - Первичные (PK) и альтернативные (AK) ключи.
-- **3.9 Foreign Keys & Role Names**
-  - Правила миграции ключей (*Key Migration Rules*).
-  - Ролевые имена (*Role Names*) при рекурсивных связях и для разрешения коллизий имён.
-- **3.10 View Levels**
-  - Уровни детализации диаграмм (ER-уровень, Key-уровень, Полный атрибутивный уровень).
+## 📙 2. Стандарт IDEF1X (FIPS PUB 184) — Информационное моделирование данных
+
+### Ключевые положения нотации:
+- **§3.1 Entities**: Независимые (прямоугольные) и зависимые (со скругленными углами) сущности.
+- **§3.4 Attributes**: Разделение на Primary Key (над чертой) и Non-Key (под чертой).
+- **§3.5 Connection Relationships**:
+  - Identifying: сплошная линия, дочерняя зависима, PK мигрирует в PK потомка.
+  - Non-identifying: пунктирная линия, PK мигрирует в Non-Key.
+  - Опциональность: ромб (`Diamond`) на стороне родителя при Nullable FK.
+  - Мощности: точка (0..*), точка с P (1..*), точка с Z (0..1), диапазон.
+- **§3.6 Categorization (Подтипы)**: Родовая сущность, дискриминатор, полная (две черты) и неполная (одна черта) категоризация.
+- **§3.7 Non-Specific (N:M)**: Сплошная линия со сплошными кружками на обоих концах.
+- **§3.9 Foreign Key Migration & Role Names**: Автоматическая миграция ключей и ролевые имена при рекурсивных связях.
 
 ---
 
 ## 🔗 Соответствие кодовой базе репозитория
 
-| Раздел стандарта FIPS 184 | Реализующий модуль в `src/` |
-|---|---|
-| **§3.1 Entities** | `src/domain/models/Entity.ts`, `src/infrastructure/adapters/outbound/gojs/templates/EntityNodeTemplate.ts` |
-| **§3.4 Attributes** | `src/domain/models/Attribute.ts` |
-| **§3.5 Connection Relationships** | `src/domain/models/Relationship.ts`, `src/infrastructure/adapters/outbound/gojs/templates/RelationshipLinkTemplate.ts` |
-| **§3.6 Categorization Relationships** | `src/domain/models/Categorization.ts`, `src/infrastructure/adapters/outbound/gojs/templates/SubtypeNodeTemplate.ts` |
-| **§3.7 Non-Specific Relationships** | `RelationshipType.NON_SPECIFIC` в `Relationship.ts` |
-| **§3.9 Foreign Key Migration & Rules** | `src/domain/models/IDEF1Model.ts`, `src/domain/rules/IDEF1Rules.ts` |
-| **Notes & Constraints** | `src/infrastructure/adapters/outbound/gojs/templates/NoteNodeTemplate.ts` |
+| Стандарт | Раздел | Реализующий модуль в репозитории |
+|---|---|---|
+| **IDEF0** | Activity & ICOM Ports | `src/idef0/domain/models/Activity.ts`, `src/idef0/infrastructure/adapters/outbound/gojs/templates/ActivityNodeTemplate.ts` |
+| **IDEF0** | ICOM Arrows & Tunneling | `src/idef0/domain/models/Arrow.ts`, `src/idef0/infrastructure/adapters/outbound/gojs/templates/ArrowLinkTemplate.ts` |
+| **IDEF0** | Hierarchy & Decomposition | `src/idef0/domain/models/IDEF0Model.ts`, `src/idef0/domain/models/IDEF0Diagram.ts` |
+| **IDEF0** | FIPS 183 Rules (3-6 boxes, DAG) | `src/idef0/domain/rules/IDEF0Rules.ts` |
+| **IDEF0** | Diagonal Layout Engine | `src/idef0/infrastructure/adapters/outbound/gojs/GoJSIDEF0Adapter.ts` |
+| **IDEF1X** | Entities & Attributes | `src/domain/models/Entity.ts`, `src/domain/models/Attribute.ts` |
+| **IDEF1X** | Relationships & Migration | `src/domain/models/Relationship.ts`, `src/domain/rules/IDEF1Rules.ts` |
+| **IDEF1X** | Categorization / Subtypes | `src/domain/models/Categorization.ts` |

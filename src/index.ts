@@ -76,3 +76,53 @@ export { createEntityNodeTemplate } from './infrastructure/adapters/outbound/goj
 export { createRelationshipLinkTemplate } from './infrastructure/adapters/outbound/gojs/templates/RelationshipLinkTemplate';
 export { createSubtypeNodeTemplate } from './infrastructure/adapters/outbound/gojs/templates/SubtypeNodeTemplate';
 export { createNoteNodeTemplate } from './infrastructure/adapters/outbound/gojs/templates/NoteNodeTemplate';
+
+// ==========================================
+// IDEF0 Functional Modeling Module (FIPS PUB 183)
+// ==========================================
+export { ICOMType, TunnelType } from './idef0/domain/models/ICOMType';
+export { Activity } from './idef0/domain/models/Activity';
+export type { ActivityProps } from './idef0/domain/models/Activity';
+export { Arrow } from './idef0/domain/models/Arrow';
+export type { ArrowProps } from './idef0/domain/models/Arrow';
+export { IDEF0Diagram } from './idef0/domain/models/IDEF0Diagram';
+export type { IDEF0DiagramProps } from './idef0/domain/models/IDEF0Diagram';
+export { IDEF0Model } from './idef0/domain/models/IDEF0Model';
+export type { IDEF0ModelProps } from './idef0/domain/models/IDEF0Model';
+export { IDEF0Rules } from './idef0/domain/rules/IDEF0Rules';
+export type { IDEF0ValidationIssue } from './idef0/domain/rules/IDEF0Rules';
+export {
+  IDEF0Error,
+  ActivityNotFoundError as IDEF0ActivityNotFoundError,
+  ArrowNotFoundError as IDEF0ArrowNotFoundError,
+  DiagramNotFoundError as IDEF0DiagramNotFoundError,
+  InvalidIDEF0RuleError,
+} from './idef0/domain/errors/IDEF0Error';
+
+export type {
+  ActivityDTO as IDEF0ActivityDTO,
+  ArrowDTO as IDEF0ArrowDTO,
+  DiagramDTO as IDEF0DiagramDTO,
+  ModelDTO as IDEF0ModelDTO,
+} from './idef0/application/dtos/IDEF0DTO';
+
+export type {
+  IIDEF0EditorUseCase,
+  CreateActivityCommand,
+  CreateArrowCommand,
+  DecomposeActivityCommand,
+} from './idef0/application/ports/inbound/IIDEF0EditorUseCase';
+
+export type {
+  IIDEF0DiagramRendererPort,
+  DiagramSelectionCallback as IDEF0DiagramSelectionCallback,
+} from './idef0/application/ports/outbound/IIDEF0DiagramRendererPort';
+
+export type { IIDEF0ModelRepositoryPort } from './idef0/application/ports/outbound/IIDEF0ModelRepositoryPort';
+export type { IIDEF0EventPublisherPort } from './idef0/application/ports/outbound/IIDEF0EventPublisherPort';
+export { IDEF0ApplicationService } from './idef0/application/services/IDEF0ApplicationService';
+export { IDEF0Editor } from './idef0/infrastructure/adapters/inbound/IDEF0Editor';
+export { GoJSIDEF0Adapter } from './idef0/infrastructure/adapters/outbound/gojs/GoJSIDEF0Adapter';
+export { createActivityNodeTemplate } from './idef0/infrastructure/adapters/outbound/gojs/templates/ActivityNodeTemplate';
+export { createArrowLinkTemplate } from './idef0/infrastructure/adapters/outbound/gojs/templates/ArrowLinkTemplate';
+export { createBoundaryNodeTemplate } from './idef0/infrastructure/adapters/outbound/gojs/templates/BoundaryNodeTemplate';
