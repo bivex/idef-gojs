@@ -403,3 +403,51 @@ export { GoJSIDEF8Adapter } from './idef8/infrastructure/adapters/outbound/gojs/
 export { createIDEF8NodeTemplateMap } from './idef8/infrastructure/adapters/outbound/gojs/templates/ScreenNodeTemplate';
 export { createInteractionLinkTemplate } from './idef8/infrastructure/adapters/outbound/gojs/templates/InteractionLinkTemplate';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// IDEF9 — Business Rules & Constraints Capture (KBSI / US Air Force / IICE)
+// ─────────────────────────────────────────────────────────────────────────────
+export {
+  ConstraintType,
+  ConstraintSeverity,
+  ConstraintStatus,
+  IDEF9Constraint,
+} from './idef9/domain/models/IDEF9Constraint';
+export { ControlledObjectType, IDEF9ControlledObject } from './idef9/domain/models/IDEF9ControlledObject';
+export { MechanismType, IDEF9EnforcementMechanism } from './idef9/domain/models/IDEF9EnforcementMechanism';
+export { DocumentType, IDEF9SourceDocument } from './idef9/domain/models/IDEF9SourceDocument';
+export { ConstraintLinkType, IDEF9Link } from './idef9/domain/models/IDEF9Link';
+export { IDEF9Diagram } from './idef9/domain/models/IDEF9Diagram';
+export { IDEF9Model } from './idef9/domain/models/IDEF9Model';
+export { IDEF9Rules } from './idef9/domain/rules/IDEF9Rules';
+export type { IDEF9ValidationIssue } from './idef9/domain/rules/IDEF9Rules';
+
+export type {
+  ConstraintDTO as IDEF9ConstraintDTO,
+  ControlledObjectDTO as IDEF9ControlledObjectDTO,
+  EnforcementMechanismDTO as IDEF9EnforcementMechanismDTO,
+  SourceDocumentDTO as IDEF9SourceDocumentDTO,
+  LinkDTO as IDEF9LinkDTO,
+  DiagramDTO as IDEF9DiagramDTO,
+  ModelDTO as IDEF9ModelDTO,
+} from './idef9/application/dtos/IDEF9DTO';
+
+export type {
+  IIDEF9EditorUseCase,
+  CreateConstraintCommand,
+  CreateControlledObjectCommand,
+  CreateEnforcementMechanismCommand,
+  CreateSourceDocumentCommand,
+  CreateIDEF9LinkCommand,
+} from './idef9/application/ports/inbound/IIDEF9EditorUseCase';
+
+export type {
+  IIDEF9DiagramRendererPort,
+  IDEF9SelectionCallback,
+} from './idef9/application/ports/outbound/IIDEF9DiagramRendererPort';
+
+export type { IIDEF9ModelRepositoryPort } from './idef9/application/ports/outbound/IIDEF9ModelRepositoryPort';
+export { IDEF9ApplicationService } from './idef9/application/services/IDEF9ApplicationService';
+export { IDEF9Editor } from './idef9/infrastructure/adapters/inbound/IDEF9Editor';
+export { GoJSIDEF9Adapter } from './idef9/infrastructure/adapters/outbound/gojs/GoJSIDEF9Adapter';
+export { createIDEF9NodeTemplateMap } from './idef9/infrastructure/adapters/outbound/gojs/templates/ConstraintNodeTemplate';
+export { createConstraintLinkTemplate } from './idef9/infrastructure/adapters/outbound/gojs/templates/ConstraintLinkTemplate';

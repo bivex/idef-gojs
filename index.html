@@ -205,9 +205,10 @@
       <span class="badge">DDD-HEX Architecture</span>
     </div>
 
-    <!-- Mode Toggle: IDEF8 vs IDEF6 vs IDEF5 vs IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
+    <!-- Mode Toggle: IDEF9 vs IDEF8 vs IDEF6 vs IDEF5 vs IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
     <div class="mode-toggle">
-      <button class="mode-btn active" id="tabIdef8">🖥️ IDEF8 (ЧМИ / UI KBSI)</button>
+      <button class="mode-btn active" id="tabIdef9">🔒 IDEF9 (Ограничения KBSI)</button>
+      <button class="mode-btn" id="tabIdef8">🖥️ IDEF8 (ЧМИ / UI KBSI)</button>
       <button class="mode-btn" id="tabIdef6">🎯 IDEF6 (Обоснование KBSI)</button>
       <button class="mode-btn" id="tabIdef5">🌐 IDEF5 (Онтологии KBSI)</button>
       <button class="mode-btn" id="tabIdef4">📐 IDEF4 (ОО-дизайн KBSI)</button>
@@ -216,8 +217,20 @@
       <button class="mode-btn" id="tabIdef1">📊 IDEF1X (Данные FIPS 184)</button>
     </div>
 
-    <!-- IDEF8 Toolbar -->
-    <div class="toolbar" id="toolbarIdef8">
+    <!-- IDEF9 Toolbar -->
+    <div class="toolbar" id="toolbarIdef9">
+      <button class="primary" id="btnIdef9AutoLayout">✨ Выравнивание ограничений</button>
+      <button id="btnIdef9ZoomFit">🔍 Центрировать</button>
+      <button class="primary" id="btnAddIdef9Constraint">+ Ограничение (Constraint)</button>
+      <button id="btnAddIdef9Object">+ Объект (Controlled Object)</button>
+      <button id="btnAddIdef9Mechanism">+ Механизм (Enforcement)</button>
+      <button id="btnAddIdef9Document">+ Документ (Source Doc)</button>
+      <button class="success" id="btnValidateIdef9">✓ Проверить IDEF9</button>
+      <button id="btnIdef9ExportJson">Экспорт JSON</button>
+      <button id="btnIdef9ImportJson">Импорт JSON</button>
+    </div>
+
+    <div class="toolbar" id="toolbarIdef8" style="display: none;">
       <button class="primary" id="btnIdef8AutoLayout">✨ Выравнивание сценария</button>
       <button id="btnIdef8ZoomFit">🔍 Центрировать</button>
       <button class="primary" id="btnAddIdef8Screen">+ Экран / Окно</button>
@@ -329,8 +342,72 @@
   </header>
 
   <div class="main-content">
+    <!-- IDEF9 Sidebar -->
+    <aside class="sidebar" id="sidebarIdef9">
+      <div class="breadcrumb-bar" id="idef9Breadcrumb">
+        Ограничения: <strong>Производство лопаток ГТД — ОАО «Металл-Авиа» (KBSI IDEF9)</strong>
+      </div>
+
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-val" id="constraintCount">4</div>
+          <div class="stat-lbl">Ограничений</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="objCount">3</div>
+          <div class="stat-lbl">Объектов</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="mechCount">3</div>
+          <div class="stat-lbl">Механизмов</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="docCount">3</div>
+          <div class="stat-lbl">Документов</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Нотация IDEF9 (Business Rules & Constraints)</h3>
+        <p><strong>Концептуальные элементы:</strong></p>
+        <ul>
+          <li><strong>Ограничение (Constraint):</strong> бизнес-правило с кодом, формулировкой и категорией жёсткости (MANDATORY / CONDITIONAL / WARNING).</li>
+          <li><strong>Объект управления (Controlled Object):</strong> процесс, изделие, оборудование, ресурс или персонал, на который накладывается ограничение.</li>
+          <li><strong>Механизм исполнения (Enforcement Mechanism):</strong> ПЛК, программный регламент, ОТК, ЭЦП или ERP-аудит, обеспечивающий соблюдение правила.</li>
+          <li><strong>Нормативный документ (Source Document):</strong> ГОСТ, ОСТ, ТК РФ, СТП или договор — источник ограничения.</li>
+        </ul>
+        <p style="margin-top: 8px;"><strong>Типы связей:</strong></p>
+        <ul>
+          <li><span style="color: #ef4444;">■ constrains:</span> ограничение накладывается на объект/процесс.</li>
+          <li><span style="color: #22c55e;">■ enforced-by:</span> ограничение контролируется механизмом.</li>
+          <li><span style="color: #f59e0b;">■ derived-from:</span> ограничение выведено из документа/ГОСТа.</li>
+          <li><span style="color: #c084fc;">■ conflicts-with:</span> противоречие между ограничениями.</li>
+          <li><span style="color: #94a3b8;">■ supersedes:</span> новое ограничение замещает устаревшее.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Правила валидации IDEF9</h3>
+        <ul>
+          <li><strong>Механизм принуждения:</strong> MANDATORY-ограничения обязаны иметь хотя бы один ENFORCED_BY-механизм.</li>
+          <li><strong>Привязка к объекту:</strong> каждое ограничение должно иметь хотя бы один CONSTRAINS-переход.</li>
+          <li><strong>Уникальность кодов:</strong> коды CR-xx уникальны в рамках модели.</li>
+          <li><strong>Конфликты:</strong> явная маркировка CONFLICTS_WITH требует гармонизации.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Стандарты в репозитории</h3>
+        <ul>
+          <li><a href="#" style="color: #38bdf8;">IDEF9_Report.pdf (1.2 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">ГОСТ Р 55892-2013 Термообработка.pdf</a></li>
+          <li><a href="#" style="color: #38bdf8;">ОСТ 1 90218-76 Лопатки турбин.pdf</a></li>
+        </ul>
+      </div>
+    </aside>
+
     <!-- IDEF8 Sidebar -->
-    <aside class="sidebar" id="sidebarIdef8">
+    <aside class="sidebar" id="sidebarIdef8" style="display: none;">
       <div class="breadcrumb-bar" id="idef8Breadcrumb">
         Интерфейс: <strong>ЧМИ АСУ ТП станков ЧПУ (KBSI IDEF8)</strong>
       </div>

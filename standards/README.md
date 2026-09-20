@@ -116,6 +116,9 @@
 | **IDEF8** | Screens, User Actions, System Responses, User Roles | `src/idef8/domain/models/`, `src/idef8/infrastructure/adapters/outbound/gojs/templates/ScreenNodeTemplate.ts` |
 | **IDEF8** | Interaction Links (navigates-to, triggers, opens-modal, returns-to, performed-by) | `src/idef8/domain/models/IDEF8Link.ts`, `src/idef8/infrastructure/adapters/outbound/gojs/templates/InteractionLinkTemplate.ts` |
 | **IDEF8** | Interaction Rules (Modal Trap Detection, Unhandled Actions) | `src/idef8/domain/rules/IDEF8Rules.ts` |
+| **IDEF9** | Constraints, Controlled Objects, Enforcement Mechanisms, Source Documents | `src/idef9/domain/models/`, `src/idef9/infrastructure/adapters/outbound/gojs/templates/ConstraintNodeTemplate.ts` |
+| **IDEF9** | Constraint Links (constrains, enforced-by, derived-from, conflicts-with, supersedes) | `src/idef9/domain/models/IDEF9Link.ts`, `src/idef9/infrastructure/adapters/outbound/gojs/templates/ConstraintLinkTemplate.ts` |
+| **IDEF9** | Constraint Rules (Mandatory Enforcement, Unattached Constraints, Duplicate Codes, Conflict Detection) | `src/idef9/domain/rules/IDEF9Rules.ts` |
 | **IDEF6** | Issues, Alternatives, Criteria, Arguments | `src/idef6/domain/models/`, `src/idef6/infrastructure/adapters/outbound/gojs/templates/RationaleNodeTemplate.ts` |
 | **IDEF6** | Rationale Links (responds-to, supports, objects-to, evaluates, resolves) | `src/idef6/domain/models/IDEF6Link.ts`, `src/idef6/infrastructure/adapters/outbound/gojs/templates/RationaleLinkTemplate.ts` |
 | **IDEF6** | Rationale Rules (Resolution Integrity, Unique Names) | `src/idef6/domain/rules/IDEF6Rules.ts` |
@@ -129,4 +132,38 @@
 | **IDEF3** | Links (Precedence, Relational, Object Flow) | `src/idef3/domain/models/Link.ts` |
 | **IDEF0** | Function Boxes & ICOM Ports | `src/idef0/domain/models/Activity.ts`, `src/idef0/domain/models/Arrow.ts` |
 | **IDEF1X** | Entities, Attributes, Relationships | `src/domain/models/Entity.ts`, `src/domain/models/Relationship.ts` |
+
+---
+
+## 🔒 8. Стандарт IDEF9 — Business Rules & Constraints Capture Method (KBSI / US Air Force / IICE)
+
+**IDEF9** — стандарт KBSI (Knowledge Based Systems Inc.) / US Air Force для формализованного описания **бизнес-правил, ограничений и регламентов**, которые управляют поведением предприятия и его процессов.
+
+> «IDEF9 provides a method for identifying, analyzing, and stating the business rules that constrain the conduct of business activities.» — KBSI IICE Technical Report
+
+### Основные концепции IDEF9:
+
+| Концепция | Описание | Пример (ОАО «Металл-Авиа») |
+|-----------|----------|---------------------------|
+| **Ограничение (Constraint)** | Бизнес-правило с кодом CR-xx, текстовой формулировкой/математическим выражением, типом и степенью жёсткости | CR-01: T_закалки ∈ [1050°C, 1080°C] |
+| **Объект управления (Controlled Object)** | Процесс, изделие, оборудование, ресурс или персонал, на который накладывается ограничение | Термообработка (Процесс), Лопатка ГТД (Изделие), ПАП-6 (Оборудование) |
+| **Механизм исполнения (Enforcement Mechanism)** | Технический, программный или организационный механизм, обеспечивающий соблюдение ограничения | ПЛК Siemens S7-1500, MES Opcenter, ОТК (КИМ Zeiss), ЭЦП главного металлурга |
+| **Нормативный документ (Source Document)** | Источник ограничения — ГОСТ, ОСТ, ФЗ, СТП, договор | ГОСТ Р 55892-2013, ОСТ 1 90218-76, ТК РФ ст.103 |
+
+### Типы связей IDEF9:
+
+| Тип связи | Семантика | Визуализация |
+|-----------|-----------|--------------|
+| **CONSTRAINS** | Ограничение накладывается на объект/процесс | 🔴 Красная сплошная |
+| **ENFORCED_BY** | Ограничение обеспечивается механизмом | 🟢 Зелёная сплошная |
+| **DERIVED_FROM** | Ограничение выведено из нормативного документа | 🟡 Янтарная пунктирная |
+| **CONFLICTS_WITH** | Противоречие/конфликт между ограничениями | 🟣 Фиолетовая пунктирная |
+| **SUPERSEDES** | Новое ограничение замещает устаревшее | ⬜ Серая пунктирная |
+
+### Правила валидации IDEF9:
+1. **MANDATORY без механизма**: строго обязательное ограничение (MANDATORY) без ENFORCED_BY → предупреждение `IDEF9_MANDATORY_WITHOUT_ENFORCEMENT`.
+2. **Изолированное ограничение**: ограничение без ни одного CONSTRAINS-перехода → предупреждение `IDEF9_UNATTACHED_CONSTRAINT`.
+3. **Дублирование кодов**: два ограничения с одинаковым кодом CR-xx → ошибка `IDEF9_DUPLICATE_CONSTRAINT_CODE`.
+4. **Конфликт**: любая CONFLICTS_WITH-связь → предупреждение `IDEF9_ACTIVE_CONFLICT` (требует гармонизации).
+5. **Разорванные связи**: link с несуществующим source/target → ошибка `IDEF9_DANGLING_LINK_SOURCE/TARGET`.
 

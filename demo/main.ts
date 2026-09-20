@@ -8,6 +8,7 @@ import {
   IDEF5Editor,
   IDEF6Editor,
   IDEF8Editor,
+  IDEF9Editor,
   ScreenType,
   ScreenState,
   ActionModality,
@@ -21,6 +22,13 @@ import {
   ArgumentType,
   ArgumentStrength,
   RationaleLinkType,
+  ConstraintType,
+  ConstraintSeverity,
+  ConstraintStatus,
+  ControlledObjectType,
+  MechanismType,
+  DocumentType,
+  ConstraintLinkType,
 } from '../src/index';
 import { loadRussianEnterpriseModel } from './russian_enterprise_model';
 import { createRussianEnterpriseIDEF0Model } from './russian_enterprise_idef0';
@@ -29,6 +37,7 @@ import { createRussianEnterpriseIDEF4Model } from './russian_enterprise_idef4';
 import { loadRussianEnterpriseIDEF5Demo } from './russian_enterprise_idef5';
 import { loadRussianEnterpriseIDEF6Demo } from './russian_enterprise_idef6';
 import { loadRussianEnterpriseIDEF8Demo } from './russian_enterprise_idef8';
+import { setupIDEF9 as loadIDEF9Demo } from './russian_enterprise_idef9';
 
 let idef1Editor: IDEF1Editor | null = null;
 let idef0Editor: IDEF0Editor | null = null;
@@ -37,9 +46,11 @@ let idef4Editor: IDEF4Editor | null = null;
 let idef5Editor: IDEF5Editor | null = null;
 let idef6Editor: IDEF6Editor | null = null;
 let idef8Editor: IDEF8Editor | null = null;
-let activeMode: 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef8';
+let idef9Editor: IDEF9Editor | null = null;
+let activeMode: 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef9';
 
 function destroyAllEditors() {
+  if (idef9Editor) { idef9Editor.destroy(); idef9Editor = null; }
   if (idef8Editor) { idef8Editor.destroy(); idef8Editor = null; }
   if (idef6Editor) { idef6Editor.destroy(); idef6Editor = null; }
   if (idef5Editor) { idef5Editor.destroy(); idef5Editor = null; }
@@ -52,6 +63,140 @@ function destroyAllEditors() {
   if (container) {
     container.innerHTML = '';
   }
+}
+
+// ==========================================
+// IDEF9 Setup (KBSI Business Rules & Constraints)
+// ==========================================
+function setupIDEF9() {
+  destroyAllEditors();
+  const container = document.getElementById('diagramDiv');
+  if (!container) return;
+
+  idef9Editor = new IDEF9Editor();
+  idef9Editor.initialize(container);
+  idef9Editor.createModel(
+    'metal-avia-constraints-v1',
+    'IDEF9: Ограничения производства лопаток ГТД — ОАО «Металл-Авиа»'
+  );
+
+  // Load demo data
+  const docGOST = idef9Editor.addSourceDocument({
+    code: 'ГОСТ Р 55892',
+    name: 'ГОСТ Р 55892-2013 — Термообработка никелевых сплавов',
+    documentType: DocumentType.STATE_STANDARD,
+    x: 50, y: 80,
+  });
+  const docOST = idef9Editor.addSourceDocument({
+    code: 'ОСТ 1 90218',
+    name: 'ОСТ 1 90218-76 — Лопатки турбин авиадвигателей',
+    documentType: DocumentType.INDUSTRY_CODE,
+    x: 50, y: 280,
+  });
+  const docTK = idef9Editor.addSourceDocument({
+    code: 'ТК РФ ст.103',
+    name: 'Трудовой кодекс РФ — Ст. 103 Сменная работа',
+    documentType: DocumentType.LAW_REGULATION,
+    x: 50, y: 480,
+  });
+  const cTemp = idef9Editor.addConstraint({
+    code: 'CR-01',
+    name: 'Температурный режим закалки лопатки',
+    statement: 'T_закалки ∈ [1050°C, 1080°C] при выдержке τ = 2±0.1 ч.',
+    constraintType: ConstraintType.TECHNICAL,
+    severity: ConstraintSeverity.MANDATORY,
+    x: 380, y: 80,
+  });
+  const cTool = idef9Editor.addConstraint({
+    code: 'CR-02',
+    name: 'Износ режущего инструмента ЧПУ',
+    statement: 'VB_инструмента ≤ 0.3 мм',
+    constraintType: ConstraintType.TECHNICAL,
+    severity: ConstraintSeverity.MANDATORY,
+    x: 380, y: 260,
+  });
+  const cShift = idef9Editor.addConstraint({
+    code: 'CR-03',
+    name: 'Продолжительность смены у термоагрегата',
+    statement: 'Оператор работает не более 12 ч. непрерывно',
+    constraintType: ConstraintType.REGULATORY,
+    severity: ConstraintSeverity.MANDATORY,
+    x: 380, y: 440,
+  });
+  const cSLA = idef9Editor.addConstraint({
+    code: 'CR-04',
+    name: 'SLA отклика MES на аварийный сигнал',
+    statement: 'T_resp ≤ 2 сек',
+    constraintType: ConstraintType.TIME,
+    severity: ConstraintSeverity.CONDITIONAL,
+    x: 380, y: 620,
+  });
+  const objThermo = idef9Editor.addControlledObject({
+    name: 'Термообработка — Закалка лопатки',
+    objectType: ControlledObjectType.PROCESS,
+    description: 'Электровакуумная печь ПАП-6',
+    x: 720, y: 80,
+  });
+  const objBlade = idef9Editor.addControlledObject({
+    name: 'Лопатка турбины 1-й ступени ГТД',
+    objectType: ControlledObjectType.PRODUCT,
+    description: 'Сплав ЖС6У, ОСТ 1 90218-76',
+    x: 720, y: 300,
+  });
+  const objOperator = idef9Editor.addControlledObject({
+    name: 'Операторы термического участка',
+    objectType: ControlledObjectType.PERSONNEL,
+    x: 720, y: 520,
+  });
+  const mechPLC = idef9Editor.addEnforcementMechanism({
+    name: 'ПЛК Siemens S7-1500 (блокировка нагрева)',
+    mechanismType: MechanismType.AUTOMATED_PLC,
+    x: 1060, y: 80,
+  });
+  const mechMES = idef9Editor.addEnforcementMechanism({
+    name: 'MES Opcenter — контроль инструмента',
+    mechanismType: MechanismType.SOFTWARE_RULE,
+    x: 1060, y: 280,
+  });
+  const mechERP = idef9Editor.addEnforcementMechanism({
+    name: 'Аудит 1С:ERP — рабочее время',
+    mechanismType: MechanismType.ERP_AUDIT,
+    x: 1060, y: 480,
+  });
+
+  idef9Editor.addLink({ sourceId: cTemp.id, targetId: docGOST.id, type: ConstraintLinkType.DERIVED_FROM });
+  idef9Editor.addLink({ sourceId: cShift.id, targetId: docTK.id, type: ConstraintLinkType.DERIVED_FROM });
+  idef9Editor.addLink({ sourceId: cTemp.id, targetId: objThermo.id, type: ConstraintLinkType.CONSTRAINS });
+  idef9Editor.addLink({ sourceId: cTool.id, targetId: objBlade.id, type: ConstraintLinkType.CONSTRAINS });
+  idef9Editor.addLink({ sourceId: cShift.id, targetId: objOperator.id, type: ConstraintLinkType.CONSTRAINS });
+  idef9Editor.addLink({ sourceId: cTemp.id, targetId: mechPLC.id, type: ConstraintLinkType.ENFORCED_BY });
+  idef9Editor.addLink({ sourceId: cTool.id, targetId: mechMES.id, type: ConstraintLinkType.ENFORCED_BY });
+  idef9Editor.addLink({ sourceId: cShift.id, targetId: mechERP.id, type: ConstraintLinkType.ENFORCED_BY });
+  idef9Editor.addLink({ sourceId: cSLA.id, targetId: mechMES.id, type: ConstraintLinkType.ENFORCED_BY });
+  idef9Editor.addLink({
+    sourceId: cTemp.id, targetId: cSLA.id, type: ConstraintLinkType.CONFLICTS_WITH,
+    label: 'SLA под угрозой при аварии печи',
+  });
+
+  const updateIdef9UI = () => {
+    if (!idef9Editor) return;
+    const diag = idef9Editor.getActiveDiagram();
+    const el = document.getElementById('constraintCount');
+    if (el) el.textContent = `${diag.constraints.length}`;
+    const el2 = document.getElementById('objCount');
+    if (el2) el2.textContent = `${diag.controlledObjects.length}`;
+    const el3 = document.getElementById('mechCount');
+    if (el3) el3.textContent = `${diag.enforcementMechanisms.length}`;
+    const el4 = document.getElementById('docCount');
+    if (el4) el4.textContent = `${diag.sourceDocuments.length}`;
+  };
+
+  idef9Editor.setOnDiagramChanged(() => {
+    updateIdef9UI();
+    setTimeout(() => { idef9Editor?.autoLayout(); }, 50);
+  });
+  updateIdef9UI();
+  setTimeout(() => { idef9Editor?.autoLayout(); }, 80);
 }
 
 // ==========================================
@@ -466,8 +611,9 @@ async function setupIDEF1(modelType: 'ru' | 'en' = 'ru') {
 // ==========================================
 // Mode Switcher
 // ==========================================
-function switchMode(mode: 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
+function switchMode(mode: 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
   activeMode = mode;
+  const tabIdef9 = document.getElementById('tabIdef9');
   const tabIdef8 = document.getElementById('tabIdef8');
   const tabIdef6 = document.getElementById('tabIdef6');
   const tabIdef5 = document.getElementById('tabIdef5');
@@ -476,6 +622,7 @@ function switchMode(mode: 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'ide
   const tabIdef0 = document.getElementById('tabIdef0');
   const tabIdef1 = document.getElementById('tabIdef1');
 
+  const tbIdef9 = document.getElementById('toolbarIdef9');
   const tbIdef8 = document.getElementById('toolbarIdef8');
   const tbIdef6 = document.getElementById('toolbarIdef6');
   const tbIdef5 = document.getElementById('toolbarIdef5');
@@ -484,6 +631,7 @@ function switchMode(mode: 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'ide
   const tbIdef0 = document.getElementById('toolbarIdef0');
   const tbIdef1 = document.getElementById('toolbarIdef1');
 
+  const sbIdef9 = document.getElementById('sidebarIdef9');
   const sbIdef8 = document.getElementById('sidebarIdef8');
   const sbIdef6 = document.getElementById('sidebarIdef6');
   const sbIdef5 = document.getElementById('sidebarIdef5');
@@ -493,6 +641,7 @@ function switchMode(mode: 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'ide
   const sbIdef1 = document.getElementById('sidebarIdef1');
 
   // Reset tabs
+  tabIdef9?.classList.remove('active');
   tabIdef8?.classList.remove('active');
   tabIdef6?.classList.remove('active');
   tabIdef5?.classList.remove('active');
@@ -502,6 +651,7 @@ function switchMode(mode: 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'ide
   tabIdef1?.classList.remove('active');
 
   // Hide toolbars
+  if (tbIdef9) tbIdef9.style.display = 'none';
   if (tbIdef8) tbIdef8.style.display = 'none';
   if (tbIdef6) tbIdef6.style.display = 'none';
   if (tbIdef5) tbIdef5.style.display = 'none';
@@ -511,6 +661,7 @@ function switchMode(mode: 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'ide
   if (tbIdef1) tbIdef1.style.display = 'none';
 
   // Hide sidebars
+  if (sbIdef9) sbIdef9.style.display = 'none';
   if (sbIdef8) sbIdef8.style.display = 'none';
   if (sbIdef6) sbIdef6.style.display = 'none';
   if (sbIdef5) sbIdef5.style.display = 'none';
@@ -519,7 +670,12 @@ function switchMode(mode: 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'ide
   if (sbIdef0) sbIdef0.style.display = 'none';
   if (sbIdef1) sbIdef1.style.display = 'none';
 
-  if (mode === 'idef8') {
+  if (mode === 'idef9') {
+    tabIdef9?.classList.add('active');
+    if (tbIdef9) tbIdef9.style.display = 'flex';
+    if (sbIdef9) sbIdef9.style.display = 'flex';
+    setupIDEF9();
+  } else if (mode === 'idef8') {
     tabIdef8?.classList.add('active');
     if (tbIdef8) tbIdef8.style.display = 'flex';
     if (sbIdef8) sbIdef8.style.display = 'flex';
@@ -562,6 +718,7 @@ function switchMode(mode: 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'ide
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   // Tabs
+  document.getElementById('tabIdef9')?.addEventListener('click', () => switchMode('idef9'));
   document.getElementById('tabIdef8')?.addEventListener('click', () => switchMode('idef8'));
   document.getElementById('tabIdef6')?.addEventListener('click', () => switchMode('idef6'));
   document.getElementById('tabIdef5')?.addEventListener('click', () => switchMode('idef5'));
@@ -1098,7 +1255,110 @@ document.addEventListener('DOMContentLoaded', () => {
     input.click();
   });
 
-  // Initial startup with IDEF8 mode
-  setupIDEF8();
-});
+  // ----------------------------------------
+  // IDEF9 Toolbar Handlers
+  // ----------------------------------------
+  document.getElementById('btnIdef9AutoLayout')?.addEventListener('click', () => {
+    idef9Editor?.autoLayout();
+  });
 
+  document.getElementById('btnIdef9ZoomFit')?.addEventListener('click', () => {
+    idef9Editor?.zoomToFit();
+  });
+
+  document.getElementById('btnAddIdef9Constraint')?.addEventListener('click', () => {
+    if (!idef9Editor) return;
+    const code = prompt('Введите код ограничения (например, CR-05):', 'CR-05');
+    if (!code) return;
+    const name = prompt('Введите наименование ограничения:', 'Давление в гидравлической магистрали');
+    if (!name) return;
+    idef9Editor.addConstraint({
+      code,
+      name,
+      statement: 'Введите формулировку ограничения',
+      constraintType: ConstraintType.TECHNICAL,
+      severity: ConstraintSeverity.MANDATORY,
+      x: 300 + Math.random() * 200,
+      y: 100 + Math.random() * 300,
+    });
+  });
+
+  document.getElementById('btnAddIdef9Object')?.addEventListener('click', () => {
+    if (!idef9Editor) return;
+    const name = prompt('Введите наименование объекта (процесс/изделие/оборудование):', 'Гидропривод ЦЗС-1');
+    if (!name) return;
+    idef9Editor.addControlledObject({
+      name,
+      objectType: ControlledObjectType.EQUIPMENT,
+      x: 600 + Math.random() * 200,
+      y: 100 + Math.random() * 300,
+    });
+  });
+
+  document.getElementById('btnAddIdef9Mechanism')?.addEventListener('click', () => {
+    if (!idef9Editor) return;
+    const name = prompt('Введите наименование механизма исполнения:', 'Клапан-ограничитель давления КОД-10');
+    if (!name) return;
+    idef9Editor.addEnforcementMechanism({
+      name,
+      mechanismType: MechanismType.AUTOMATED_PLC,
+      x: 900 + Math.random() * 200,
+      y: 100 + Math.random() * 300,
+    });
+  });
+
+  document.getElementById('btnAddIdef9Document')?.addEventListener('click', () => {
+    if (!idef9Editor) return;
+    const code = prompt('Введите код документа (например, ГОСТ 12.1.003):', 'ГОСТ 12.1.003');
+    if (!code) return;
+    const name = prompt('Введите наименование документа:', 'ГОСТ 12.1.003-2014 — Шум. Общие требования безопасности');
+    if (!name) return;
+    idef9Editor.addSourceDocument({
+      code,
+      name,
+      documentType: DocumentType.STATE_STANDARD,
+      x: 50 + Math.random() * 100,
+      y: 100 + Math.random() * 400,
+    });
+  });
+
+  document.getElementById('btnValidateIdef9')?.addEventListener('click', () => {
+    if (!idef9Editor) return;
+    const issues = idef9Editor.validate();
+    if (issues.length === 0) {
+      alert('✓ Все бизнес-правила и ограничения корректно оформлены по стандарту IDEF9!\n\n- Обязательные ограничения имеют механизмы принуждения\n- Все ограничения привязаны к объектам\n- Дублирование кодов отсутствует\n- Конфликтующие ограничения не обнаружены');
+    } else {
+      const msg = issues.map((i) => `[${i.severity}] ${i.code}: ${i.message}`).join('\n\n');
+      alert(`Результаты проверки IDEF9:\n\n${msg}`);
+    }
+  });
+
+  document.getElementById('btnIdef9ExportJson')?.addEventListener('click', () => {
+    if (!idef9Editor) return;
+    const json = idef9Editor.exportJSON();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'idef9_business_rules.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('btnIdef9ImportJson')?.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = async (e: any) => {
+      const file = e.target.files[0];
+      if (file && idef9Editor) {
+        const text = await file.text();
+        idef9Editor.importJSON(text);
+      }
+    };
+    input.click();
+  });
+
+  // Initial startup — IDEF9 is the newest and active tab
+  setupIDEF9();
+});
