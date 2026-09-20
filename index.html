@@ -205,9 +205,10 @@
       <span class="badge">DDD-HEX Architecture</span>
     </div>
 
-    <!-- Mode Toggle: IDEF6 vs IDEF5 vs IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
+    <!-- Mode Toggle: IDEF8 vs IDEF6 vs IDEF5 vs IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
     <div class="mode-toggle">
-      <button class="mode-btn active" id="tabIdef6">🎯 IDEF6 (Обоснование KBSI)</button>
+      <button class="mode-btn active" id="tabIdef8">🖥️ IDEF8 (ЧМИ / UI KBSI)</button>
+      <button class="mode-btn" id="tabIdef6">🎯 IDEF6 (Обоснование KBSI)</button>
       <button class="mode-btn" id="tabIdef5">🌐 IDEF5 (Онтологии KBSI)</button>
       <button class="mode-btn" id="tabIdef4">📐 IDEF4 (ОО-дизайн KBSI)</button>
       <button class="mode-btn" id="tabIdef3">🔄 IDEF3 (Процессы KBSI)</button>
@@ -215,8 +216,21 @@
       <button class="mode-btn" id="tabIdef1">📊 IDEF1X (Данные FIPS 184)</button>
     </div>
 
+    <!-- IDEF8 Toolbar -->
+    <div class="toolbar" id="toolbarIdef8">
+      <button class="primary" id="btnIdef8AutoLayout">✨ Выравнивание сценария</button>
+      <button id="btnIdef8ZoomFit">🔍 Центрировать</button>
+      <button class="primary" id="btnAddIdef8Screen">+ Экран / Окно</button>
+      <button id="btnAddIdef8UserAction">+ Действие (User Action)</button>
+      <button id="btnAddIdef8SystemResponse">+ Реакция системы</button>
+      <button id="btnAddIdef8UserRole">+ Роль (User Role)</button>
+      <button class="success" id="btnValidateIdef8">✓ Проверить IDEF8</button>
+      <button id="btnIdef8ExportJson">Экспорт JSON</button>
+      <button id="btnIdef8ImportJson">Импорт JSON</button>
+    </div>
+
     <!-- IDEF6 Toolbar -->
-    <div class="toolbar" id="toolbarIdef6">
+    <div class="toolbar" id="toolbarIdef6" style="display: none;">
       <button class="primary" id="btnIdef6AutoLayout">✨ Выравнивание графа</button>
       <button id="btnIdef6ZoomFit">🔍 Центрировать</button>
       <button class="primary" id="btnAddIdef6Issue">+ Вопрос (Issue)</button>
@@ -315,8 +329,65 @@
   </header>
 
   <div class="main-content">
+    <!-- IDEF8 Sidebar -->
+    <aside class="sidebar" id="sidebarIdef8">
+      <div class="breadcrumb-bar" id="idef8Breadcrumb">
+        Интерфейс: <strong>ЧМИ АСУ ТП станков ЧПУ (KBSI IDEF8)</strong>
+      </div>
+
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-val" id="screenCount">5</div>
+          <div class="stat-lbl">Экранов/Окон</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="actionCount">5</div>
+          <div class="stat-lbl">Действий</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Нотация IDEF8 (Human-System Interaction)</h3>
+        <p><strong>Концептуальные элементы интерфейса:</strong></p>
+        <ul>
+          <li><strong>Экран / Окно (Screen/Dialog):</strong> объект взаимодействия (DASHBOARD, CONTROL_PANEL, FORM, MODAL_DIALOG, REPORT_VIEW).</li>
+          <li><strong>Действие (User Action):</strong> операция пользователя (Click, Input, Gesture, Hotkey) над виджетом.</li>
+          <li><strong>Реакция системы (System Response):</strong> отклик системы (State Change, Data Update, Feedback, Error).</li>
+          <li><strong>Роль / Персона (User Role):</strong> класс пользователя и уровень прав (OPERATOR, SUPERVISOR, ENGINEER, ADMIN).</li>
+        </ul>
+        <p style="margin-top: 8px;"><strong>Связи взаимодействия (Transitions):</strong></p>
+        <ul>
+          <li><span style="color: #60a5fa;">■ navigates-to:</span> переход к целевому экрану.</li>
+          <li><span style="color: #f59e0b;">■ triggers:</span> действие запускает реакцию системы.</li>
+          <li><span style="color: #ef4444;">■ opens-modal:</span> вызов модального окна аварии/блокировки.</li>
+          <li><span style="color: #94a3b8;">■ returns-to:</span> закрытие диалога / возврат назад.</li>
+          <li><span style="color: #c084fc;">■ performed-by:</span> действие выполняется ролью.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Правила валидации IDEF8</h3>
+        <ul>
+          <li><strong>Защита от блокировки (Modal Trap):</strong> модальный экран обязан иметь переход возврата/закрытия.</li>
+          <li><strong>Обработка действий:</strong> каждое действие пользователя обязано вызывать переход или реакцию системы.</li>
+          <li><strong>Контроль дубликатов:</strong> уникальность заголовков экранов.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Стандарты в репозитории</h3>
+        <ul>
+          <li><a href="#" style="color: #38bdf8;">IDEF5_Report.pdf (1.4 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">IDEF4_Report.pdf (1.6 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">IDEF3_Report.pdf (1.8 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">FIPS PUB 183.pdf (4.67 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">FIPS PUB 184.doc (823 KB)</a></li>
+        </ul>
+      </div>
+    </aside>
+
     <!-- IDEF6 Sidebar -->
-    <aside class="sidebar" id="sidebarIdef6">
+    <aside class="sidebar" id="sidebarIdef6" style="display: none;">
       <div class="breadcrumb-bar" id="idef6Breadcrumb">
         Обоснование: <strong>АСУ ТП и MES (KBSI IDEF6)</strong>
       </div>

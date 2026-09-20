@@ -7,6 +7,13 @@ import {
   IDEF4Editor,
   IDEF5Editor,
   IDEF6Editor,
+  IDEF8Editor,
+  ScreenType,
+  ScreenState,
+  ActionModality,
+  ResponseType,
+  PrivilegeLevel,
+  InteractionLinkType,
   IssueStatus,
   AlternativeStatus,
   CriterionType,
@@ -21,6 +28,7 @@ import { createRussianEnterpriseIDEF3Model } from './russian_enterprise_idef3';
 import { createRussianEnterpriseIDEF4Model } from './russian_enterprise_idef4';
 import { loadRussianEnterpriseIDEF5Demo } from './russian_enterprise_idef5';
 import { loadRussianEnterpriseIDEF6Demo } from './russian_enterprise_idef6';
+import { loadRussianEnterpriseIDEF8Demo } from './russian_enterprise_idef8';
 
 let idef1Editor: IDEF1Editor | null = null;
 let idef0Editor: IDEF0Editor | null = null;
@@ -28,9 +36,11 @@ let idef3Editor: IDEF3Editor | null = null;
 let idef4Editor: IDEF4Editor | null = null;
 let idef5Editor: IDEF5Editor | null = null;
 let idef6Editor: IDEF6Editor | null = null;
-let activeMode: 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef6';
+let idef8Editor: IDEF8Editor | null = null;
+let activeMode: 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef8';
 
 function destroyAllEditors() {
+  if (idef8Editor) { idef8Editor.destroy(); idef8Editor = null; }
   if (idef6Editor) { idef6Editor.destroy(); idef6Editor = null; }
   if (idef5Editor) { idef5Editor.destroy(); idef5Editor = null; }
   if (idef4Editor) { idef4Editor.destroy(); idef4Editor = null; }
@@ -42,6 +52,47 @@ function destroyAllEditors() {
   if (container) {
     container.innerHTML = '';
   }
+}
+
+// ==========================================
+// IDEF8 Setup (KBSI Human-System Interaction)
+// ==========================================
+function setupIDEF8() {
+  destroyAllEditors();
+  const container = document.getElementById('diagramDiv');
+  if (!container) return;
+
+  idef8Editor = new IDEF8Editor();
+  idef8Editor.initialize(container);
+
+  loadRussianEnterpriseIDEF8Demo(idef8Editor);
+
+  const updateIdef8UI = () => {
+    if (!idef8Editor) return;
+    const diag = idef8Editor.getActiveDiagram();
+
+    const screenCountEl = document.getElementById('screenCount');
+    if (screenCountEl) {
+      screenCountEl.textContent = `${diag.screens.length}`;
+    }
+
+    const actionCountEl = document.getElementById('actionCount');
+    if (actionCountEl) {
+      actionCountEl.textContent = `${diag.userActions.length}`;
+    }
+  };
+
+  idef8Editor.setOnDiagramChanged(() => {
+    updateIdef8UI();
+    setTimeout(() => {
+      idef8Editor?.autoLayout();
+    }, 50);
+  });
+
+  updateIdef8UI();
+  setTimeout(() => {
+    idef8Editor?.autoLayout();
+  }, 80);
 }
 
 // ==========================================
@@ -415,8 +466,9 @@ async function setupIDEF1(modelType: 'ru' | 'en' = 'ru') {
 // ==========================================
 // Mode Switcher
 // ==========================================
-function switchMode(mode: 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
+function switchMode(mode: 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
   activeMode = mode;
+  const tabIdef8 = document.getElementById('tabIdef8');
   const tabIdef6 = document.getElementById('tabIdef6');
   const tabIdef5 = document.getElementById('tabIdef5');
   const tabIdef4 = document.getElementById('tabIdef4');
@@ -424,6 +476,7 @@ function switchMode(mode: 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'ide
   const tabIdef0 = document.getElementById('tabIdef0');
   const tabIdef1 = document.getElementById('tabIdef1');
 
+  const tbIdef8 = document.getElementById('toolbarIdef8');
   const tbIdef6 = document.getElementById('toolbarIdef6');
   const tbIdef5 = document.getElementById('toolbarIdef5');
   const tbIdef4 = document.getElementById('toolbarIdef4');
@@ -431,6 +484,7 @@ function switchMode(mode: 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'ide
   const tbIdef0 = document.getElementById('toolbarIdef0');
   const tbIdef1 = document.getElementById('toolbarIdef1');
 
+  const sbIdef8 = document.getElementById('sidebarIdef8');
   const sbIdef6 = document.getElementById('sidebarIdef6');
   const sbIdef5 = document.getElementById('sidebarIdef5');
   const sbIdef4 = document.getElementById('sidebarIdef4');
@@ -439,6 +493,7 @@ function switchMode(mode: 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'ide
   const sbIdef1 = document.getElementById('sidebarIdef1');
 
   // Reset tabs
+  tabIdef8?.classList.remove('active');
   tabIdef6?.classList.remove('active');
   tabIdef5?.classList.remove('active');
   tabIdef4?.classList.remove('active');
@@ -447,6 +502,7 @@ function switchMode(mode: 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'ide
   tabIdef1?.classList.remove('active');
 
   // Hide toolbars
+  if (tbIdef8) tbIdef8.style.display = 'none';
   if (tbIdef6) tbIdef6.style.display = 'none';
   if (tbIdef5) tbIdef5.style.display = 'none';
   if (tbIdef4) tbIdef4.style.display = 'none';
@@ -455,6 +511,7 @@ function switchMode(mode: 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'ide
   if (tbIdef1) tbIdef1.style.display = 'none';
 
   // Hide sidebars
+  if (sbIdef8) sbIdef8.style.display = 'none';
   if (sbIdef6) sbIdef6.style.display = 'none';
   if (sbIdef5) sbIdef5.style.display = 'none';
   if (sbIdef4) sbIdef4.style.display = 'none';
@@ -462,7 +519,12 @@ function switchMode(mode: 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'ide
   if (sbIdef0) sbIdef0.style.display = 'none';
   if (sbIdef1) sbIdef1.style.display = 'none';
 
-  if (mode === 'idef6') {
+  if (mode === 'idef8') {
+    tabIdef8?.classList.add('active');
+    if (tbIdef8) tbIdef8.style.display = 'flex';
+    if (sbIdef8) sbIdef8.style.display = 'flex';
+    setupIDEF8();
+  } else if (mode === 'idef6') {
     tabIdef6?.classList.add('active');
     if (tbIdef6) tbIdef6.style.display = 'flex';
     if (sbIdef6) sbIdef6.style.display = 'flex';
@@ -500,12 +562,113 @@ function switchMode(mode: 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'ide
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   // Tabs
+  document.getElementById('tabIdef8')?.addEventListener('click', () => switchMode('idef8'));
   document.getElementById('tabIdef6')?.addEventListener('click', () => switchMode('idef6'));
   document.getElementById('tabIdef5')?.addEventListener('click', () => switchMode('idef5'));
   document.getElementById('tabIdef4')?.addEventListener('click', () => switchMode('idef4'));
   document.getElementById('tabIdef3')?.addEventListener('click', () => switchMode('idef3'));
   document.getElementById('tabIdef0')?.addEventListener('click', () => switchMode('idef0'));
   document.getElementById('tabIdef1')?.addEventListener('click', () => switchMode('idef1'));
+
+  // ----------------------------------------
+  // IDEF8 Toolbar Handlers
+  // ----------------------------------------
+  document.getElementById('btnIdef8AutoLayout')?.addEventListener('click', () => {
+    idef8Editor?.autoLayout();
+  });
+
+  document.getElementById('btnIdef8ZoomFit')?.addEventListener('click', () => {
+    idef8Editor?.zoomToFit();
+  });
+
+  document.getElementById('btnAddIdef8Screen')?.addEventListener('click', () => {
+    if (!idef8Editor) return;
+    const name = prompt('Введите наименование экрана / окна (Screen/Dialog):', 'Экран настройки приводов');
+    if (!name) return;
+    idef8Editor.addScreen({
+      name,
+      screenType: ScreenType.CONTROL_PANEL,
+      widgets: [
+        { id: `w-${Date.now()}-1`, name: 'Кнопка "Тест привода"', widgetType: 'BUTTON' },
+        { id: `w-${Date.now()}-2`, name: 'Шкала тока фазы А (Ампер)', widgetType: 'GAUGE' },
+      ],
+      x: 350 + Math.random() * 150,
+      y: 200 + Math.random() * 150,
+    });
+  });
+
+  document.getElementById('btnAddIdef8UserAction')?.addEventListener('click', () => {
+    if (!idef8Editor) return;
+    const name = prompt('Введите действие пользователя (User Action):', 'Нажатие кнопки "Калибровка оси Z"');
+    if (!name) return;
+    idef8Editor.addUserAction({
+      name,
+      modality: ActionModality.CLICK,
+      x: 550 + Math.random() * 150,
+      y: 200 + Math.random() * 150,
+    });
+  });
+
+  document.getElementById('btnAddIdef8SystemResponse')?.addEventListener('click', () => {
+    if (!idef8Editor) return;
+    const name = prompt('Введите реакцию системы (System Response):', 'Запуск цикла калибровки индуктивных датчиков');
+    if (!name) return;
+    idef8Editor.addSystemResponse({
+      name,
+      responseType: ResponseType.STATE_CHANGE,
+      x: 750 + Math.random() * 150,
+      y: 200 + Math.random() * 150,
+    });
+  });
+
+  document.getElementById('btnAddIdef8UserRole')?.addEventListener('click', () => {
+    if (!idef8Editor) return;
+    const name = prompt('Введите наименование роли пользователя (User Role):', 'Инженер по наладке ЧПУ');
+    if (!name) return;
+    idef8Editor.addUserRole({
+      name,
+      privilegeLevel: PrivilegeLevel.ENGINEER,
+      x: 100 + Math.random() * 150,
+      y: 200 + Math.random() * 150,
+    });
+  });
+
+  document.getElementById('btnValidateIdef8')?.addEventListener('click', () => {
+    if (!idef8Editor) return;
+    const issues = idef8Editor.validate();
+    if (issues.length === 0) {
+      alert('✓ Модель интерфейса человека-системы полностью соответствует стандарту IDEF8!\n\n- Модальные окна не содержат тупиковых блокировок\n- Все действия пользователей обрабатываются переходами или откликами системы\n- Отсутствуют дубликаты имен экранов и разорванные связи');
+    } else {
+      const msg = issues.map((i) => `[${i.severity}] ${i.code}: ${i.message}`).join('\n\n');
+      alert(`Результаты проверки IDEF8:\n\n${msg}`);
+    }
+  });
+
+  document.getElementById('btnIdef8ExportJson')?.addEventListener('click', () => {
+    if (!idef8Editor) return;
+    const json = idef8Editor.exportJSON();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'idef8_interaction_model.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('btnIdef8ImportJson')?.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = async (e: any) => {
+      const file = e.target.files[0];
+      if (file && idef8Editor) {
+        const text = await file.text();
+        idef8Editor.importJSON(text);
+      }
+    };
+    input.click();
+  });
 
   // ----------------------------------------
   // IDEF6 Toolbar Handlers
@@ -935,7 +1098,7 @@ document.addEventListener('DOMContentLoaded', () => {
     input.click();
   });
 
-  // Initial startup with IDEF6 mode
-  setupIDEF6();
+  // Initial startup with IDEF8 mode
+  setupIDEF8();
 });
 

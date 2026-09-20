@@ -343,3 +343,63 @@ export { GoJSIDEF6Adapter } from './idef6/infrastructure/adapters/outbound/gojs/
 export { createRationaleNodeTemplateMap } from './idef6/infrastructure/adapters/outbound/gojs/templates/RationaleNodeTemplate';
 export { createRationaleLinkTemplate } from './idef6/infrastructure/adapters/outbound/gojs/templates/RationaleLinkTemplate';
 
+// ==========================================
+// IDEF8 Human-System Interaction Design Module (KBSI / US Air Force)
+// ==========================================
+export { ScreenType, ScreenState, IDEF8Screen } from './idef8/domain/models/IDEF8Screen';
+export type { UIWidget, IDEF8ScreenProps } from './idef8/domain/models/IDEF8Screen';
+export { ActionModality, IDEF8UserAction } from './idef8/domain/models/IDEF8UserAction';
+export type { IDEF8UserActionProps } from './idef8/domain/models/IDEF8UserAction';
+export { ResponseType, IDEF8SystemResponse } from './idef8/domain/models/IDEF8SystemResponse';
+export type { IDEF8SystemResponseProps } from './idef8/domain/models/IDEF8SystemResponse';
+export { PrivilegeLevel, IDEF8UserRole } from './idef8/domain/models/IDEF8UserRole';
+export type { IDEF8UserRoleProps } from './idef8/domain/models/IDEF8UserRole';
+export { InteractionLinkType, IDEF8Link } from './idef8/domain/models/IDEF8Link';
+export type { IDEF8LinkProps } from './idef8/domain/models/IDEF8Link';
+export { IDEF8Diagram } from './idef8/domain/models/IDEF8Diagram';
+export type { IDEF8DiagramProps } from './idef8/domain/models/IDEF8Diagram';
+export { IDEF8Model } from './idef8/domain/models/IDEF8Model';
+export type { IDEF8ModelProps } from './idef8/domain/models/IDEF8Model';
+export { IDEF8Rules } from './idef8/domain/rules/IDEF8Rules';
+export type { IDEF8ValidationIssue as IDEF8ValidationIssue } from './idef8/domain/rules/IDEF8Rules';
+export {
+  IDEF8Error,
+  ScreenNotFoundError as IDEF8ScreenNotFoundError,
+  UserActionNotFoundError as IDEF8UserActionNotFoundError,
+  SystemResponseNotFoundError as IDEF8SystemResponseNotFoundError,
+  UserRoleNotFoundError as IDEF8UserRoleNotFoundError,
+  LinkNotFoundError as IDEF8LinkNotFoundError,
+  DiagramNotFoundError as IDEF8DiagramNotFoundError,
+} from './idef8/domain/errors/IDEF8Error';
+
+export type {
+  ScreenDTO as IDEF8ScreenDTO,
+  UserActionDTO as IDEF8UserActionDTO,
+  SystemResponseDTO as IDEF8SystemResponseDTO,
+  UserRoleDTO as IDEF8UserRoleDTO,
+  LinkDTO as IDEF8LinkDTO,
+  DiagramDTO as IDEF8DiagramDTO,
+  ModelDTO as IDEF8ModelDTO,
+} from './idef8/application/dtos/IDEF8DTO';
+
+export type {
+  IIDEF8EditorUseCase,
+  CreateScreenCommand,
+  CreateUserActionCommand,
+  CreateSystemResponseCommand,
+  CreateUserRoleCommand,
+  CreateIDEF8LinkCommand,
+} from './idef8/application/ports/inbound/IIDEF8EditorUseCase';
+
+export type {
+  IIDEF8DiagramRendererPort,
+  IDEF8SelectionCallback,
+} from './idef8/application/ports/outbound/IIDEF8DiagramRendererPort';
+
+export type { IIDEF8ModelRepositoryPort as IIDEF8ModelRepositoryPort } from './idef8/application/ports/outbound/IIDEF8ModelRepositoryPort';
+export { IDEF8ApplicationService } from './idef8/application/services/IDEF8ApplicationService';
+export { IDEF8Editor } from './idef8/infrastructure/adapters/inbound/IDEF8Editor';
+export { GoJSIDEF8Adapter } from './idef8/infrastructure/adapters/outbound/gojs/GoJSIDEF8Adapter';
+export { createIDEF8NodeTemplateMap } from './idef8/infrastructure/adapters/outbound/gojs/templates/ScreenNodeTemplate';
+export { createInteractionLinkTemplate } from './idef8/infrastructure/adapters/outbound/gojs/templates/InteractionLinkTemplate';
+

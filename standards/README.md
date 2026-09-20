@@ -9,6 +9,7 @@
 - **[IDEF4_Report.pdf](./IDEF4_Report.pdf)** — **IDEF4**: Object-Oriented Design Method Report (KBSI / IICE, 1.6 МБ).
 - **[IDEF5_Report.pdf](./IDEF5_Report.pdf)** — **IDEF5**: Ontology Description Capture Method Report (KBSI / IICE, 1.4 МБ).
 - **IDEF6**: Design Rationale Capture Method (KBSI / US Air Force / IICE) — фиксация обоснований архитектурных и инженерных решений ("ПОЧЕМУ" система спроектирована именно так).
+- **IDEF8**: Human-System Interaction Design Method (KBSI / US Air Force / IICE) — проектирование взаимодействия человек-система, человеко-машинных интерфейсов (ЧМИ / HMI / SCADA) и диалоговых сценариев.
 
 ---
 
@@ -89,10 +90,32 @@
 
 ---
 
+## 🖥️ 7. Стандарт IDEF8 (KBSI / US Air Force) — Проектирование взаимодействия человек-система (Human-System Interaction)
+- **Концептуальные элементы интерфейса (Interaction Model)**:
+  - **Экраны и окна (Screens / Dialogs)**: объекты взаимодействия (`DASHBOARD`, `CONTROL_PANEL`, `FORM`, `MODAL_DIALOG`, `REPORT_VIEW`) со списком виджетов (кнопки, индикаторы, датчики).
+  - **Действия пользователя (User Actions)**: операции оператора над виджетами (`CLICK`, `INPUT_TEXT`, `TOUCH_GESTURE`, `HOTKEY`).
+  - **Реакции системы (System Responses)**: отклики оборудования/ПО (`STATE_CHANGE`, `FEEDBACK_MESSAGE`, `ERROR_ALERT`, `DATA_UPDATE`).
+  - **Роли пользователей (User Roles / Personas)**: категории пользователей с правами (`OPERATOR`, `SUPERVISOR`, `ENGINEER`, `ADMINISTRATOR`).
+- **Связи взаимодействия (Interaction Links)**:
+  - `navigates-to`: переход между экранами (синяя стрелка).
+  - `triggers`: действие запускает реакцию системы (оранжевая стрелка).
+  - `opens-modal`: открытие модального окна блокировки/аварии (красный пунктир).
+  - `returns-to`: возврат из модального окна в рабочий экран (серый пунктир).
+  - `performed-by`: действие закреплено за ролью (фиолетовый пунктир).
+- **Правила валидации**:
+  - Защита от тупиковых модальных окон (Modal Trap Detection: каждый модальный экран обязан иметь возврат).
+  - Проверка необработанных действий пользователя (Unhandled Actions).
+  - Контроль уникальности наименований экранов.
+
+---
+
 ## 🔗 Соответствие кодовой базе репозитория
 
 | Нотация | Раздел стандарта | Реализующий модуль в `src/` |
 |---|---|---|
+| **IDEF8** | Screens, User Actions, System Responses, User Roles | `src/idef8/domain/models/`, `src/idef8/infrastructure/adapters/outbound/gojs/templates/ScreenNodeTemplate.ts` |
+| **IDEF8** | Interaction Links (navigates-to, triggers, opens-modal, returns-to, performed-by) | `src/idef8/domain/models/IDEF8Link.ts`, `src/idef8/infrastructure/adapters/outbound/gojs/templates/InteractionLinkTemplate.ts` |
+| **IDEF8** | Interaction Rules (Modal Trap Detection, Unhandled Actions) | `src/idef8/domain/rules/IDEF8Rules.ts` |
 | **IDEF6** | Issues, Alternatives, Criteria, Arguments | `src/idef6/domain/models/`, `src/idef6/infrastructure/adapters/outbound/gojs/templates/RationaleNodeTemplate.ts` |
 | **IDEF6** | Rationale Links (responds-to, supports, objects-to, evaluates, resolves) | `src/idef6/domain/models/IDEF6Link.ts`, `src/idef6/infrastructure/adapters/outbound/gojs/templates/RationaleLinkTemplate.ts` |
 | **IDEF6** | Rationale Rules (Resolution Integrity, Unique Names) | `src/idef6/domain/rules/IDEF6Rules.ts` |
