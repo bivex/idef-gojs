@@ -21,11 +21,14 @@ export class GoJSIDEF5Adapter implements IIDEF5DiagramRendererPort {
       allowDelete: true,
       'toolManager.mouseWheelBehavior': go.WheelMode.Zoom,
       initialContentAlignment: go.Spot.Center,
+      padding: new go.Margin(40, 40, 40, 40),
       layout: $(go.LayeredDigraphLayout, {
-        direction: 90, // Top-to-bottom taxonomy
-        layerSpacing: 70,
-        columnSpacing: 50,
+        direction: 270, // Bottom-to-top taxonomy (leaves at bottom, superkinds at top)
+        layerSpacing: 110,
+        columnSpacing: 85,
         setsPortSpots: false,
+        isRouting: true,
+        packOption: go.LayeredDigraphPack.Expand,
         isInitial: false,
         isOngoing: false,
       }),
@@ -70,14 +73,17 @@ export class GoJSIDEF5Adapter implements IIDEF5DiagramRendererPort {
     }
 
     for (const r of diagram.relations) {
-      const isTaxonomy = r.type === OntologyRelationType.SUBKIND_OF;
+      const isTaxonomyOrInst =
+        r.type === OntologyRelationType.SUBKIND_OF ||
+        r.type === OntologyRelationType.INSTANTIATES;
+
       linkDataArray.push({
         key: r.id,
         id: r.id,
         from: r.sourceKindId,
-        fromPort: isTaxonomy ? 'TOP' : 'RIGHT',
+        fromPort: isTaxonomyOrInst ? 'TOP' : '',
         to: r.targetKindId,
-        toPort: isTaxonomy ? 'BOTTOM' : 'LEFT',
+        toPort: isTaxonomyOrInst ? 'BOTTOM' : '',
         type: r.type,
         name: r.name,
         isTransitive: r.isTransitive,
@@ -101,16 +107,38 @@ export class GoJSIDEF5Adapter implements IIDEF5DiagramRendererPort {
 
   public autoLayout(): void {
     if (!this._diagram) return;
-    const layout = this._diagram.layout;
-    if (layout) {
-      layout.invalidateLayout();
-    }
+
+    this._diagram.startTransaction('idef5-auto-layout');
+
+    const layout = new go.LayeredDigraphLayout({
+      direction: 270, // 270: bottom-to-top so roots (Product, Equipment) are at top
+      layerSpacing: 110,
+      columnSpacing: 85,
+      setsPortSpots: false,
+      isRouting: true,
+      aggressiveOption: go.LayeredDigraphAggressive.More,
+      packOption: go.LayeredDigraphPack.Expand,
+    });
+
+    layout.doLayout(this._diagram);
+
+    // Sync calculated positions to model data
+    this._diagram.nodes.each((node) => {
+      const pt = node.location;
+      this._diagram!.model.setDataProperty(node.data, 'loc', go.Point.stringify(pt));
+    });
+
+    this._diagram.commitTransaction('idef5-auto-layout');
     this.zoomToFit();
   }
 
   public zoomToFit(): void {
     if (!this._diagram) return;
     this._diagram.zoomToFit();
+    if (this._diagram.scale > 1) {
+      this._diagram.scale = 1;
+    }
+    this._diagram.contentAlignment = go.Spot.Center;
   }
 
   public destroy(): void {

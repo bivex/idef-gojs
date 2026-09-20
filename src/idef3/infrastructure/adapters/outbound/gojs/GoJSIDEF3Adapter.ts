@@ -158,16 +158,37 @@ export class GoJSIDEF3Adapter implements IIDEF3DiagramRendererPort {
 
   public autoLayout(): void {
     if (!this._diagram) return;
-    const layout = this._diagram.layout;
-    if (layout) {
-      layout.invalidateLayout();
-    }
+
+    this._diagram.startTransaction('idef3-auto-layout');
+
+    const layout = new go.LayeredDigraphLayout({
+      direction: 0, // Left-to-right process flow
+      layerSpacing: 95,
+      columnSpacing: 65,
+      setsPortSpots: false,
+      isRouting: true,
+      aggressiveOption: go.LayeredDigraphAggressive.More,
+      packOption: go.LayeredDigraphPack.Expand,
+    });
+
+    layout.doLayout(this._diagram);
+
+    this._diagram.nodes.each((node) => {
+      const pt = node.location;
+      this._diagram!.model.setDataProperty(node.data, 'loc', go.Point.stringify(pt));
+    });
+
+    this._diagram.commitTransaction('idef3-auto-layout');
     this.zoomToFit();
   }
 
   public zoomToFit(): void {
     if (!this._diagram) return;
     this._diagram.zoomToFit();
+    if (this._diagram.scale > 1) {
+      this._diagram.scale = 1;
+    }
+    this._diagram.contentAlignment = go.Spot.Center;
   }
 
   public destroy(): void {

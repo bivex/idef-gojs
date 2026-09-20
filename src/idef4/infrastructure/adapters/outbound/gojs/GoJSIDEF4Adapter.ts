@@ -76,9 +76,9 @@ export class GoJSIDEF4Adapter implements IIDEF4DiagramRendererPort {
         key: r.id,
         id: r.id,
         from: r.sourceClassId,
-        fromPort: isInheritance ? 'TOP' : 'RIGHT',
+        fromPort: isInheritance ? 'TOP' : '',
         to: r.targetClassId,
-        toPort: isInheritance ? 'BOTTOM' : 'LEFT',
+        toPort: isInheritance ? 'BOTTOM' : '',
         kind: r.kind,
         name: r.name,
         sourceMultiplicity: r.sourceMultiplicity,
@@ -102,16 +102,37 @@ export class GoJSIDEF4Adapter implements IIDEF4DiagramRendererPort {
 
   public autoLayout(): void {
     if (!this._diagram) return;
-    const layout = this._diagram.layout;
-    if (layout) {
-      layout.invalidateLayout();
-    }
+
+    this._diagram.startTransaction('idef4-auto-layout');
+
+    const layout = new go.LayeredDigraphLayout({
+      direction: 270, // 270: bottom-to-top (subclasses below, superclasses above)
+      layerSpacing: 110,
+      columnSpacing: 85,
+      setsPortSpots: false,
+      isRouting: true,
+      aggressiveOption: go.LayeredDigraphAggressive.More,
+      packOption: go.LayeredDigraphPack.Expand,
+    });
+
+    layout.doLayout(this._diagram);
+
+    this._diagram.nodes.each((node) => {
+      const pt = node.location;
+      this._diagram!.model.setDataProperty(node.data, 'loc', go.Point.stringify(pt));
+    });
+
+    this._diagram.commitTransaction('idef4-auto-layout');
     this.zoomToFit();
   }
 
   public zoomToFit(): void {
     if (!this._diagram) return;
     this._diagram.zoomToFit();
+    if (this._diagram.scale > 1) {
+      this._diagram.scale = 1;
+    }
+    this._diagram.contentAlignment = go.Spot.Center;
   }
 
   public destroy(): void {

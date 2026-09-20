@@ -19,7 +19,7 @@ export function loadRussianEnterpriseIDEF5Demo(editor: IDEF5Editor): void {
       { name: 'артикул_гост', valueType: 'string', isMandatory: true },
       { name: 'наименование', valueType: 'string', isMandatory: true },
     ],
-    x: 200,
+    x: 400,
     y: 80,
   });
 
@@ -30,8 +30,8 @@ export function loadRussianEnterpriseIDEF5Demo(editor: IDEF5Editor): void {
       { name: 'номер_сборочного_чертежа', valueType: 'string', isMandatory: true },
       { name: 'масса_брутто_кг', valueType: 'float' },
     ],
-    x: 80,
-    y: 220,
+    x: 180,
+    y: 260,
   });
 
   const kindPart = editor.addKind({
@@ -41,8 +41,8 @@ export function loadRussianEnterpriseIDEF5Demo(editor: IDEF5Editor): void {
       { name: 'шероховатость_Ra_мкм', valueType: 'float' },
       { name: 'квалитет_точности', valueType: 'int', defaultValue: '7' },
     ],
-    x: 320,
-    y: 220,
+    x: 580,
+    y: 260,
   });
 
   const kindMaterial = editor.addKind({
@@ -52,8 +52,8 @@ export function loadRussianEnterpriseIDEF5Demo(editor: IDEF5Editor): void {
       { name: 'марка_стали_сплава', valueType: 'string', isMandatory: true },
       { name: 'предел_текучести_МПа', valueType: 'int' },
     ],
-    x: 520,
-    y: 220,
+    x: 950,
+    y: 260,
   });
 
   const kindEquipment = editor.addKind({
@@ -63,8 +63,8 @@ export function loadRussianEnterpriseIDEF5Demo(editor: IDEF5Editor): void {
       { name: 'потребляемая_мощность_кВт', valueType: 'float' },
       { name: 'класс_точности', valueType: 'string' },
     ],
-    x: 250,
-    y: 380,
+    x: 450,
+    y: 450,
   });
 
   const kindCncMilling = editor.addKind({
@@ -74,8 +74,8 @@ export function loadRussianEnterpriseIDEF5Demo(editor: IDEF5Editor): void {
       { name: 'число_управляемых_осей', valueType: 'int', defaultValue: '5' },
       { name: 'макс_обороты_шпинделя', valueType: 'int', defaultValue: '18000' },
     ],
-    x: 100,
-    y: 520,
+    x: 240,
+    y: 640,
   });
 
   const kindLathe = editor.addKind({
@@ -84,8 +84,8 @@ export function loadRussianEnterpriseIDEF5Demo(editor: IDEF5Editor): void {
     properties: [
       { name: 'макс_диаметр_точения_мм', valueType: 'float' },
     ],
-    x: 400,
-    y: 520,
+    x: 660,
+    y: 640,
   });
 
   const kindTool = editor.addKind({
@@ -95,8 +95,8 @@ export function loadRussianEnterpriseIDEF5Demo(editor: IDEF5Editor): void {
       { name: 'сплав_пластины', valueType: 'string' },
       { name: 'период_стойкости_мин', valueType: 'int' },
     ],
-    x: 650,
-    y: 380,
+    x: 950,
+    y: 450,
   });
 
   const kindEndMill = editor.addKind({
@@ -106,8 +106,8 @@ export function loadRussianEnterpriseIDEF5Demo(editor: IDEF5Editor): void {
       { name: 'диаметр_d_мм', valueType: 'float', isMandatory: true },
       { name: 'число_зубьев_z', valueType: 'int', defaultValue: '4' },
     ],
-    x: 650,
-    y: 520,
+    x: 950,
+    y: 640,
   });
 
   const kindOperator = editor.addKind({
@@ -117,8 +117,8 @@ export function loadRussianEnterpriseIDEF5Demo(editor: IDEF5Editor): void {
       { name: 'табельный_номер', valueType: 'string', isMandatory: true },
       { name: 'разряд_квалификации', valueType: 'int', defaultValue: '6' },
     ],
-    x: -120,
-    y: 380,
+    x: -80,
+    y: 450,
   });
 
   // 2. Individuals (KBSI IDEF5 individual concepts)
@@ -130,8 +130,8 @@ export function loadRussianEnterpriseIDEF5Demo(editor: IDEF5Editor): void {
       { name: 'инвентарный_номер', valueType: 'string', defaultValue: 'INV-DMG-00104' },
       { name: 'статус', valueType: 'string', defaultValue: 'В_РАБОТЕ' },
     ],
-    x: 100,
-    y: 670,
+    x: 240,
+    y: 830,
   });
 
   const indAssemblyInstance = editor.addKind({
@@ -143,7 +143,7 @@ export function loadRussianEnterpriseIDEF5Demo(editor: IDEF5Editor): void {
       { name: 'дата_сборки', valueType: 'string', defaultValue: '2026-03-15' },
     ],
     x: -120,
-    y: 220,
+    y: 260,
   });
 
   // 3. Taxonomy Relations (subkind-of)

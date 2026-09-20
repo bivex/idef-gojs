@@ -23,6 +23,12 @@ export function createClassNodeTemplate(): go.Node {
         fill: '#FFFFFF',
         stroke: '#1E293B',
         strokeWidth: 2,
+        portId: '',
+        cursor: 'pointer',
+        fromLinkable: true,
+        toLinkable: true,
+        fromSpot: go.Spot.AllSides,
+        toSpot: go.Spot.AllSides,
       }),
 
       $(
