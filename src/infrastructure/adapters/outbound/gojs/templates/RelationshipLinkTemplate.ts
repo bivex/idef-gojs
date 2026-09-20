@@ -28,24 +28,36 @@ export function createRelationshipLinkTemplate(): go.Link {
       )
     ),
 
-    // Optional parent marker (diamond) if non-identifying & optional
+    // Parent marker:
+    // - Solid dot on parent end for NON_SPECIFIC (Many-to-Many)
+    // - Diamond on parent end for Optional Non-Identifying
     $(
       go.Shape,
       {
-        fromArrow: '',
+        segmentIndex: 0,
+        segmentFraction: 0,
+        alignmentFocus: go.Spot.Center,
         visible: false,
         stroke: '#1E293B',
         fill: '#1E293B',
-        scale: 0.8,
       },
       new go.Binding('visible', '', (data: any) => {
-        return data.type === RelationshipType.NON_IDENTIFYING && !!data.isOptional;
+        return (
+          data.type === RelationshipType.NON_SPECIFIC ||
+          (data.type === RelationshipType.NON_IDENTIFYING && !!data.isOptional)
+        );
       }),
-      new go.Binding('fromArrow', '', (data: any) => {
-        return data.type === RelationshipType.NON_IDENTIFYING && !!data.isOptional
-          ? 'Diamond'
-          : '';
-      })
+      new go.Binding('figure', '', (data: any) => {
+        if (data.type === RelationshipType.NON_SPECIFIC) return 'Circle';
+        if (data.type === RelationshipType.NON_IDENTIFYING && !!data.isOptional) return 'Diamond';
+        return 'Circle';
+      }),
+      new go.Binding('width', '', (data: any) =>
+        data.type === RelationshipType.NON_SPECIFIC ? 10 : 12
+      ),
+      new go.Binding('height', '', (data: any) =>
+        data.type === RelationshipType.NON_SPECIFIC ? 10 : 12
+      )
     ),
 
     // Child marker (Circle / Dot for IDEF1X)
@@ -89,7 +101,7 @@ export function createRelationshipLinkTemplate(): go.Link {
       })
     ),
 
-    // Relationship Verb Phrase (Name) in the middle of the link
+    // Relationship Verb Phrase (Name & Inverse Name) in the middle of the link
     $(
       go.Panel,
       'Auto',
@@ -97,6 +109,7 @@ export function createRelationshipLinkTemplate(): go.Link {
         segmentIndex: NaN,
         segmentFraction: 0.5,
       },
+      new go.Binding('visible', '', (data: any) => !!(data.name || data.inverseName)),
       $(go.Shape, 'RoundedRectangle', {
         fill: '#FFFFFF',
         stroke: '#CBD5E1',
@@ -110,7 +123,12 @@ export function createRelationshipLinkTemplate(): go.Link {
           font: 'italic 10px "Segoe UI", sans-serif',
           stroke: '#475569',
         },
-        new go.Binding('text', 'name')
+        new go.Binding('text', '', (data: any) => {
+          if (data.name && data.inverseName) {
+            return `${data.name} / ${data.inverseName}`;
+          }
+          return data.name || data.inverseName || '';
+        })
       )
     )
   );

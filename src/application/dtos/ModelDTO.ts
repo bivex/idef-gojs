@@ -21,6 +21,8 @@ export interface EntityDTO {
 export interface RelationshipDTO {
   id: string;
   name: string;
+  inverseName?: string;
+  roleName?: string;
   parentEntityId: string;
   childEntityId: string;
   type: RelationshipType;

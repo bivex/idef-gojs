@@ -107,6 +107,8 @@ export class IDEF1Editor {
     options: {
       id?: string;
       name?: string;
+      inverseName?: string;
+      roleName?: string;
       type?: RelationshipType;
       cardinality?: Cardinality;
       cardinalityValue?: string;
@@ -116,6 +118,8 @@ export class IDEF1Editor {
     return await this.appService.addRelationship({
       id: options.id,
       name: options.name,
+      inverseName: options.inverseName,
+      roleName: options.roleName,
       parentEntityId,
       childEntityId,
       type: options.type ?? RelationshipType.IDENTIFYING,
@@ -137,6 +141,24 @@ export class IDEF1Editor {
       specificEntityIds,
       isComplete,
     });
+  }
+
+  /**
+   * Adds an IDEF1X Note / constraint block to the diagram
+   */
+  public addNote(
+    text: string,
+    options: { number?: number; position?: { x: number; y: number } } = {}
+  ): void {
+    const diagram = this.diagramAdapter.getGoJSDiagram();
+    diagram.startTransaction('addNote');
+    (diagram.model as any).addNodeData({
+      category: 'note',
+      text,
+      number: options.number ?? 1,
+      loc: `${options.position?.x ?? 100} ${options.position?.y ?? 100}`,
+    });
+    diagram.commitTransaction('addNote');
   }
 
   public async addAttribute(

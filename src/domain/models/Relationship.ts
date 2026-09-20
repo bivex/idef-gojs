@@ -1,6 +1,7 @@
 export enum RelationshipType {
   IDENTIFYING = 'IDENTIFYING',
   NON_IDENTIFYING = 'NON_IDENTIFYING',
+  NON_SPECIFIC = 'NON_SPECIFIC', // IDEF1X Many-to-Many (N:M): solid line with dots on both ends
 }
 
 export enum Cardinality {
@@ -21,17 +22,21 @@ export interface RelationshipProps {
   cardinality?: Cardinality;
   cardinalityValue?: string; // For SPECIFIC_RANGE or EXACTLY_N
   isOptional?: boolean;      // For non-identifying relationships (null foreign key allowed)
+  inverseName?: string;     // Child-to-parent verb phrase (IDEF1X dual verb phrases)
+  roleName?: string;        // Explicit role name for migrated FK (e.g. manager_no)
 }
 
 export class Relationship {
   public readonly id: string;
   private _name: string;
+  private _inverseName?: string;
   public readonly parentEntityId: string;
   public readonly childEntityId: string;
   private _type: RelationshipType;
   private _cardinality: Cardinality;
   private _cardinalityValue?: string;
   private _isOptional: boolean;
+  private _roleName?: string;
 
   constructor(props: RelationshipProps) {
     if (!props.id || props.id.trim().length === 0) {
@@ -43,12 +48,14 @@ export class Relationship {
 
     this.id = props.id;
     this._name = props.name || '';
+    this._inverseName = props.inverseName;
     this.parentEntityId = props.parentEntityId;
     this.childEntityId = props.childEntityId;
     this._type = props.type ?? RelationshipType.IDENTIFYING;
     this._cardinality = props.cardinality ?? Cardinality.ZERO_OR_MORE;
     this._cardinalityValue = props.cardinalityValue;
     this._isOptional = props.isOptional ?? false;
+    this._roleName = props.roleName;
   }
 
   public get name(): string {
@@ -71,6 +78,14 @@ export class Relationship {
     return this._isOptional;
   }
 
+  public get inverseName(): string | undefined {
+    return this._inverseName;
+  }
+
+  public get roleName(): string | undefined {
+    return this._roleName;
+  }
+
   public isIdentifying(): boolean {
     return this._type === RelationshipType.IDENTIFYING;
   }
@@ -79,8 +94,20 @@ export class Relationship {
     return this._type === RelationshipType.NON_IDENTIFYING;
   }
 
+  public isNonSpecific(): boolean {
+    return this._type === RelationshipType.NON_SPECIFIC;
+  }
+
   public setName(name: string): void {
     this._name = name.trim();
+  }
+
+  public setInverseName(inverseName?: string): void {
+    this._inverseName = inverseName?.trim();
+  }
+
+  public setRoleName(roleName?: string): void {
+    this._roleName = roleName?.trim();
   }
 
   public setType(type: RelationshipType): void {
@@ -100,6 +127,8 @@ export class Relationship {
     return {
       id: this.id,
       name: this.name,
+      inverseName: this.inverseName,
+      roleName: this.roleName,
       parentEntityId: this.parentEntityId,
       childEntityId: this.childEntityId,
       type: this.type,

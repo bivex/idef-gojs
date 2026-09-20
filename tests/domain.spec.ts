@@ -184,4 +184,61 @@ describe('IDEF1X Domain Model', () => {
     expect(student.primaryKeyAttributes.find((a) => a.name === 'ssn')).toBeDefined();
     expect(professor.primaryKeyAttributes.find((a) => a.name === 'ssn')).toBeDefined();
   });
+
+  it('should handle self-referencing recursive relationships with role names', () => {
+    const model = new IDEF1Model({ id: 'rec_test', name: 'Recursive Test' });
+
+    const emp = new Entity({ id: 'emp', name: 'EMPLOYEE' });
+    emp.addAttribute(new Attribute('emp_id', true, false, 'INTEGER'));
+
+    model.addEntity(emp);
+
+    // Self-reference: EMPLOYEE manages EMPLOYEE
+    model.addRelationship(
+      new Relationship({
+        id: 'rel_manages',
+        name: 'manages',
+        inverseName: 'is managed by',
+        roleName: 'manager',
+        parentEntityId: 'emp',
+        childEntityId: 'emp',
+        type: RelationshipType.NON_IDENTIFYING,
+        isOptional: true,
+      })
+    );
+
+    const migratedFk = emp.nonKeyAttributes.find((a) => a.name === 'manager_emp_id');
+    expect(migratedFk).toBeDefined();
+    expect(migratedFk?.isForeignKey).toBe(true);
+    expect(migratedFk?.roleName).toBe('manager');
+  });
+
+  it('should support non-specific (Many-to-Many) relationships without premature key migration', () => {
+    const model = new IDEF1Model({ id: 'm2m_test', name: 'M2M Test' });
+
+    const student = new Entity({ id: 'st', name: 'STUDENT' });
+    student.addAttribute(new Attribute('student_id', true, false, 'INTEGER'));
+
+    const course = new Entity({ id: 'co', name: 'COURSE' });
+    course.addAttribute(new Attribute('course_id', true, false, 'INTEGER'));
+
+    model.addEntity(student);
+    model.addEntity(course);
+
+    const rel = new Relationship({
+      id: 'rel_st_co',
+      name: 'enrolls in',
+      inverseName: 'is taken by',
+      parentEntityId: 'st',
+      childEntityId: 'co',
+      type: RelationshipType.NON_SPECIFIC,
+    });
+
+    model.addRelationship(rel);
+
+    expect(rel.isNonSpecific()).toBe(true);
+    // Keys should NOT migrate into each other in non-specific relationship
+    expect(course.attributes.find((a) => a.name === 'student_id')).toBeUndefined();
+    expect(student.attributes.find((a) => a.name === 'course_id')).toBeUndefined();
+  });
 });

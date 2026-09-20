@@ -71,3 +71,4 @@ export { SimpleEventPublisher } from './infrastructure/events/SimpleEventPublish
 export { createEntityNodeTemplate } from './infrastructure/adapters/outbound/gojs/templates/EntityNodeTemplate';
 export { createRelationshipLinkTemplate } from './infrastructure/adapters/outbound/gojs/templates/RelationshipLinkTemplate';
 export { createSubtypeNodeTemplate } from './infrastructure/adapters/outbound/gojs/templates/SubtypeNodeTemplate';
+export { createNoteNodeTemplate } from './infrastructure/adapters/outbound/gojs/templates/NoteNodeTemplate';

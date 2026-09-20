@@ -61,23 +61,58 @@ document.addEventListener('DOMContentLoaded', async () => {
     nonKeys: [{ name: 'hourly_rate', dataType: 'DECIMAL(6,2)' }],
   });
 
+  // 5. Independent Entity: PROJECT (for Non-Specific N:M demo)
+  const projId = await editor.addEntity('PROJECT', {
+    isDependent: false,
+    position: { x: 80, y: 240 },
+    primaryKeys: [{ name: 'proj_no', dataType: 'CHAR(6)' }],
+    nonKeys: [{ name: 'title', dataType: 'VARCHAR(60)' }],
+  });
+
   // Add Non-Identifying Relationship (dashed line) from DEPARTMENT to EMPLOYEE
+  // (Optional = true displays diamond on DEPARTMENT parent side)
   await editor.addRelationship(deptId, empId, {
     name: 'employs',
+    inverseName: 'is employed by',
     type: RelationshipType.NON_IDENTIFYING,
-    cardinality: Cardinality.ZERO_OR_MORE,
-    isOptional: false,
+    cardinality: Cardinality.ONE_OR_MORE, // Dot + 'P'
+    isOptional: true, // Diamond on parent side!
   });
 
   // Add Identifying Relationship (solid line) from EMPLOYEE to PROJECT_ASSIGNMENT
   await editor.addRelationship(empId, projAssignId, {
     name: 'works on',
+    inverseName: 'is staffed by',
     type: RelationshipType.IDENTIFYING,
-    cardinality: Cardinality.ONE_OR_MORE, // Dot with 'P'
+    cardinality: Cardinality.ZERO_OR_MORE, // Standard dot
   });
 
-  // Add Categorization Cluster (Subtype circle)
+  // Add Non-Specific (Many-to-Many) Relationship: PROJECT <-> EMPLOYEE
+  // (Displays solid line with dots on BOTH ends)
+  await editor.addRelationship(projId, empId, {
+    name: 'participates in',
+    inverseName: 'involves',
+    type: RelationshipType.NON_SPECIFIC,
+  });
+
+  // Add Self-Referencing / Recursive Relationship (EMPLOYEE manages EMPLOYEE)
+  await editor.addRelationship(empId, empId, {
+    name: 'manages',
+    inverseName: 'reports to',
+    roleName: 'manager',
+    type: RelationshipType.NON_IDENTIFYING,
+    cardinality: Cardinality.ZERO_OR_MORE,
+    isOptional: true,
+  });
+
+  // Add Categorization Cluster (Subtype circle with double line for complete)
   await editor.addCategorization(empId, 'emp_type', [ftId, ptId], true);
+
+  // Add IDEF1X Note
+  editor.addNote(
+    'Total hours allocated across all assignments cannot exceed 40 hours per week.',
+    { number: 1, position: { x: 680, y: 320 } }
+  );
 
   // Wire UI action buttons
   const entityCountEl = document.getElementById('entityCount');

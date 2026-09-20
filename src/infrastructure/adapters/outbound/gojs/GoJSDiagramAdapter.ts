@@ -7,6 +7,7 @@ import { Position } from '../../../../domain/models/Position';
 import { createEntityNodeTemplate } from './templates/EntityNodeTemplate';
 import { createRelationshipLinkTemplate } from './templates/RelationshipLinkTemplate';
 import { createSubtypeNodeTemplate } from './templates/SubtypeNodeTemplate';
+import { createNoteNodeTemplate } from './templates/NoteNodeTemplate';
 
 export interface GoJSDiagramOptions {
   readOnly?: boolean;
@@ -60,11 +61,11 @@ export class GoJSDiagramAdapter implements IDiagramRendererPort {
       'draggingTool.isGridSnapEnabled': true,
     });
 
-    // Register Templates
     const nodeTemplateMap = new go.Map<string, go.Node>();
     nodeTemplateMap.add('', createEntityNodeTemplate());
     nodeTemplateMap.add('entity', createEntityNodeTemplate());
     nodeTemplateMap.add('subtype', createSubtypeNodeTemplate());
+    nodeTemplateMap.add('note', createNoteNodeTemplate());
     diagram.nodeTemplateMap = nodeTemplateMap;
 
     diagram.linkTemplate = createRelationshipLinkTemplate();
@@ -187,6 +188,8 @@ export class GoJSDiagramAdapter implements IDiagramRendererPort {
         from: rel.parentEntityId,
         to: rel.childEntityId,
         name: rel.name,
+        inverseName: rel.inverseName,
+        roleName: rel.roleName,
         type: rel.type,
         cardinality: rel.cardinality,
         cardinalityValue: rel.cardinalityValue,
@@ -251,6 +254,8 @@ export class GoJSDiagramAdapter implements IDiagramRendererPort {
       from: relationship.parentEntityId,
       to: relationship.childEntityId,
       name: relationship.name,
+      inverseName: relationship.inverseName,
+      roleName: relationship.roleName,
       type: relationship.type,
       cardinality: relationship.cardinality,
       cardinalityValue: relationship.cardinalityValue,
@@ -262,6 +267,8 @@ export class GoJSDiagramAdapter implements IDiagramRendererPort {
 
     if (existing) {
       graphModel.set(existing, 'name', linkData.name);
+      graphModel.set(existing, 'inverseName', linkData.inverseName);
+      graphModel.set(existing, 'roleName', linkData.roleName);
       graphModel.set(existing, 'type', linkData.type);
       graphModel.set(existing, 'cardinality', linkData.cardinality);
       graphModel.set(existing, 'cardinalityValue', linkData.cardinalityValue);

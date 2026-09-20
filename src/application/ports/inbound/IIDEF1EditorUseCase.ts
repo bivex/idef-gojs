@@ -21,6 +21,8 @@ export interface AddAttributeParams {
 export interface AddRelationshipParams {
   id?: string;
   name?: string;
+  inverseName?: string;
+  roleName?: string;
   parentEntityId: string;
   childEntityId: string;
   type?: RelationshipType;

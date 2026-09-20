@@ -161,6 +161,8 @@ export class IDEF1ApplicationService implements IIDEF1EditorUseCase {
     const rel = new Relationship({
       id,
       name: params.name || '',
+      inverseName: params.inverseName,
+      roleName: params.roleName,
       parentEntityId: params.parentEntityId,
       childEntityId: params.childEntityId,
       type: params.type ?? RelationshipType.IDENTIFYING,
@@ -272,6 +274,8 @@ export class IDEF1ApplicationService implements IIDEF1EditorUseCase {
       const rel = new Relationship({
         id: relData.id,
         name: relData.name,
+        inverseName: relData.inverseName,
+        roleName: relData.roleName,
         parentEntityId: relData.parentEntityId,
         childEntityId: relData.childEntityId,
         type: relData.type,

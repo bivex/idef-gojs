@@ -252,21 +252,30 @@ export class IDEF1Model {
     const childRelationships = this.relationships.filter((r) => r.parentEntityId === parentId);
 
     for (const rel of childRelationships) {
+      // In IDEF1X, non-specific (N:M) relationships do not migrate keys until resolved into an associative entity
+      if (rel.type === RelationshipType.NON_SPECIFIC) {
+        continue;
+      }
+
       const child = this.getEntity(rel.childEntityId);
       const isIdentifying = rel.type === RelationshipType.IDENTIFYING;
 
       for (const parentPk of parent.primaryKeyAttributes) {
+        // Handle role name / self-referencing relationships
+        const effectiveRole = rel.roleName || (parent.id === child.id ? 'parent' : undefined);
+        const attrName = effectiveRole ? `${effectiveRole}_${parentPk.name}` : parentPk.name;
+
         const fkAttr = new Attribute(
-          parentPk.name,
+          attrName,
           isIdentifying, // If identifying, goes to PK; if non-identifying, goes to Non-PK
           true,          // isForeignKey
           parentPk.dataType,
           { parentEntityId: parent.id, parentAttributeName: parentPk.name },
-          undefined,
+          effectiveRole,
           isIdentifying ? false : rel.isOptional
         );
 
-        if (child.hasAttribute(parentPk.name)) {
+        if (child.hasAttribute(attrName)) {
           child.updateAttribute(fkAttr);
         } else {
           child.addAttribute(fkAttr);
