@@ -77,7 +77,7 @@ src/
 ### Установка
 
 ```bash
-npm install idef-gojs gojs
+bun add idef-gojs gojs
 ```
 
 ### Использование
@@ -135,15 +135,15 @@ const svgString = editor.exportSvg();
 
 ---
 
-## 🧪 Запуск тестов и сборки
+## 🧪 Запуск тестов и сборки (Bun)
 
 ```bash
-# Запуск unit-тестов
-npm test
+# Запуск unit-тестов (нативный test runner Bun)
+bun test
 
 # Сборка библиотеки (ESM, CJS, UMD и типы .d.ts)
-npm run build
+bun run build
 
 # Запуск интерактивного demo-стенда
-npm run dev
+bun run dev
 ```
