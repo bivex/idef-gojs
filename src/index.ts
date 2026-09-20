@@ -185,3 +185,52 @@ export { createUOBNodeTemplate } from './idef3/infrastructure/adapters/outbound/
 export { createJunctionNodeTemplate } from './idef3/infrastructure/adapters/outbound/gojs/templates/JunctionNodeTemplate';
 export { createReferentNodeTemplate } from './idef3/infrastructure/adapters/outbound/gojs/templates/ReferentNodeTemplate';
 export { createProcessLinkTemplate } from './idef3/infrastructure/adapters/outbound/gojs/templates/ProcessLinkTemplate';
+
+// ==========================================
+// IDEF4 Object-Oriented Design Module (KBSI / IICE)
+// ==========================================
+export { IDEF4Class } from './idef4/domain/models/IDEF4Class';
+export type { IDEF4ClassProps } from './idef4/domain/models/IDEF4Class';
+export { IDEF4Attribute } from './idef4/domain/models/IDEF4Attribute';
+export type { IDEF4AttributeProps, Visibility } from './idef4/domain/models/IDEF4Attribute';
+export { IDEF4Method } from './idef4/domain/models/IDEF4Method';
+export type { IDEF4MethodProps, MethodParameter } from './idef4/domain/models/IDEF4Method';
+export { IDEF4Relationship, RelationshipKind as IDEF4RelationshipKind } from './idef4/domain/models/IDEF4Relationship';
+export type { IDEF4RelationshipProps } from './idef4/domain/models/IDEF4Relationship';
+export { IDEF4Diagram } from './idef4/domain/models/IDEF4Diagram';
+export type { IDEF4DiagramProps } from './idef4/domain/models/IDEF4Diagram';
+export { IDEF4Model } from './idef4/domain/models/IDEF4Model';
+export type { IDEF4ModelProps } from './idef4/domain/models/IDEF4Model';
+export { IDEF4Rules } from './idef4/domain/rules/IDEF4Rules';
+export type { IDEF4ValidationIssue } from './idef4/domain/rules/IDEF4Rules';
+export {
+  IDEF4Error,
+  ClassNotFoundError,
+  RelationshipNotFoundError as IDEF4RelationshipNotFoundError,
+  DiagramNotFoundError as IDEF4DiagramNotFoundError,
+} from './idef4/domain/errors/IDEF4Error';
+
+export type {
+  ClassDTO as IDEF4ClassDTO,
+  RelationshipDTO as IDEF4RelationshipDTO,
+  DiagramDTO as IDEF4DiagramDTO,
+  ModelDTO as IDEF4ModelDTO,
+} from './idef4/application/dtos/IDEF4DTO';
+
+export type {
+  IIDEF4EditorUseCase,
+  CreateClassCommand,
+  CreateRelationshipCommand,
+} from './idef4/application/ports/inbound/IIDEF4EditorUseCase';
+
+export type {
+  IIDEF4DiagramRendererPort,
+  IDEF4SelectionCallback,
+} from './idef4/application/ports/outbound/IIDEF4DiagramRendererPort';
+
+export type { IIDEF4ModelRepositoryPort } from './idef4/application/ports/outbound/IIDEF4ModelRepositoryPort';
+export { IDEF4ApplicationService } from './idef4/application/services/IDEF4ApplicationService';
+export { IDEF4Editor } from './idef4/infrastructure/adapters/inbound/IDEF4Editor';
+export { GoJSIDEF4Adapter } from './idef4/infrastructure/adapters/outbound/gojs/GoJSIDEF4Adapter';
+export { createClassNodeTemplate } from './idef4/infrastructure/adapters/outbound/gojs/templates/ClassNodeTemplate';
+export { createClassLinkTemplate } from './idef4/infrastructure/adapters/outbound/gojs/templates/ClassLinkTemplate';

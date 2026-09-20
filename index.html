@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IDEF Suite (IDEF0 / IDEF1X / IDEF3) GoJS Engine (DDD-HEX)</title>
+  <title>IDEF Suite (IDEF0 / IDEF1X / IDEF3 / IDEF4) GoJS Engine (DDD-HEX)</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -58,9 +58,9 @@
       background: transparent;
       border: none;
       color: #94a3b8;
-      padding: 6px 13px;
+      padding: 6px 12px;
       border-radius: 6px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s ease;
@@ -81,8 +81,8 @@
       background: #334155;
       color: #f8fafc;
       border: 1px solid #475569;
-      padding: 5px 12px;
-      font-size: 0.82rem;
+      padding: 5px 11px;
+      font-size: 0.8rem;
       font-weight: 500;
       border-radius: 6px;
       cursor: pointer;
@@ -205,15 +205,26 @@
       <span class="badge">DDD-HEX Architecture</span>
     </div>
 
-    <!-- Mode Toggle: IDEF0 vs IDEF1X vs IDEF3 -->
+    <!-- Mode Toggle: IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
     <div class="mode-toggle">
-      <button class="mode-btn active" id="tabIdef3">🔄 IDEF3 (Процессы KBSI)</button>
+      <button class="mode-btn active" id="tabIdef4">📐 IDEF4 (ОО-дизайн KBSI)</button>
+      <button class="mode-btn" id="tabIdef3">🔄 IDEF3 (Процессы KBSI)</button>
       <button class="mode-btn" id="tabIdef0">⚙️ IDEF0 (Функции FIPS 183)</button>
       <button class="mode-btn" id="tabIdef1">📊 IDEF1X (Данные FIPS 184)</button>
     </div>
 
+    <!-- IDEF4 Toolbar -->
+    <div class="toolbar" id="toolbarIdef4">
+      <button class="primary" id="btnIdef4AutoLayout">✨ Выравнивание классов</button>
+      <button id="btnIdef4ZoomFit">🔍 Центрировать</button>
+      <button class="primary" id="btnAddIdef4Class">+ Добавить класс</button>
+      <button class="success" id="btnValidateIdef4">✓ Проверить IDEF4</button>
+      <button id="btnIdef4ExportJson">Экспорт JSON</button>
+      <button id="btnIdef4ImportJson">Импорт JSON</button>
+    </div>
+
     <!-- IDEF3 Toolbar -->
-    <div class="toolbar" id="toolbarIdef3">
+    <div class="toolbar" id="toolbarIdef3" style="display: none;">
       <label style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
         Сценарий:
         <select id="selectIdef3Diagram" style="background: #1e293b; color: #38bdf8; border: 1px solid #38bdf8; font-weight: 600;">
@@ -260,7 +271,7 @@
       </label>
 
       <label style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
-        Уровень (§3.10):
+        Уровень:
         <select id="selectViewLevel">
           <option value="FA" selected>Полный (FA: Full)</option>
           <option value="KB">Ключевой (KB: Keys)</option>
@@ -278,8 +289,58 @@
   </header>
 
   <div class="main-content">
+    <!-- IDEF4 Sidebar -->
+    <aside class="sidebar" id="sidebarIdef4">
+      <div class="breadcrumb-bar" id="idef4Breadcrumb">
+        Диаграмма: <strong>Классы MES/ERP</strong>
+      </div>
+
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-val" id="classCount">6</div>
+          <div class="stat-lbl">Классов</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="ooRelCount">4</div>
+          <div class="stat-lbl">ОО-Связей</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Нотация IDEF4 (Object-Oriented Design)</h3>
+        <p><strong>Элементы диаграммы классов (Class Submodel):</strong></p>
+        <ul>
+          <li><strong>Класс:</strong> карточка из 3 секций (Заголовок со стереотипом, атрибуты, методы).</li>
+          <li><strong>Наследование (Inheritance):</strong> сплошная линия с полым треугольником к суперклассу.</li>
+          <li><strong>Композиция (Composition):</strong> закрашенный ромб на стороне владельца (Order → OrderItem).</li>
+          <li><strong>Агрегация (Aggregation):</strong> полый ромб на стороне владельца.</li>
+          <li><strong>Клиент-Сервер (Client-Server):</strong> вызов методов и сервисов (Operator → Machine).</li>
+          <li><strong>Видимость:</strong> <code>+</code> public, <code>#</code> protected, <code>-</code> private.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Правила валидации IDEF4</h3>
+        <ul>
+          <li><strong>Ацикличность наследования:</strong> запрет циклических графов в иерархии классов.</li>
+          <li><strong>Абстрактные методы:</strong> запрет нереализованных абстрактных методов в конкретных классах.</li>
+          <li><strong>Уникальность:</strong> контроль коллизий имен классов.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Стандарты в репозитории</h3>
+        <ul>
+          <li><a href="#" style="color: #38bdf8;">IDEF4_Report.pdf (1.6 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">IDEF3_Report.pdf (1.8 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">FIPS PUB 183.pdf (4.67 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">FIPS PUB 184.doc (823 KB)</a></li>
+        </ul>
+      </div>
+    </aside>
+
     <!-- IDEF3 Sidebar -->
-    <aside class="sidebar" id="sidebarIdef3">
+    <aside class="sidebar" id="sidebarIdef3" style="display: none;">
       <div class="breadcrumb-bar" id="idef3Breadcrumb">
         Сценарий: <strong id="currentScenarioNode">1: Техпроцесс редуктора</strong>
       </div>
@@ -296,30 +357,13 @@
       </div>
 
       <div class="card">
-        <h3>Нотация IDEF3 (KBSI Process Capture)</h3>
-        <p><strong>Элементы процессной схемы (Process Flow):</strong></p>
+        <h3>Нотация IDEF3 (Process Capture)</h3>
         <ul>
-          <li><strong>UOB (Unit of Behavior):</strong> прямоугольник действия с наименованием, номером шага и кодом UOB#.</li>
-          <li><strong>Перекресток & (AND):</strong> параллельный запуск/синхронное слияние потоков (J1, J2).</li>
-          <li><strong>Перекресток X (XOR):</strong> исключающее ветвление по результатам контроля (J3).</li>
-          <li><strong>Сплошная стрелка:</strong> связь предшествования (Precedence).</li>
+          <li><strong>UOB:</strong> шаг процесса (наименование, номер, UOB#).</li>
+          <li><strong>Перекресток & (AND):</strong> параллельный запуск/слияние (J1, J2).</li>
+          <li><strong>Перекресток X (XOR):</strong> исключающее ветвление (J3).</li>
           <li><strong>Двойная стрелка:</strong> поток физических объектов (Object Flow).</li>
-          <li><strong>Пунктирная стрелка:</strong> относительная связь (Relational).</li>
-          <li><strong>[Референт]:</strong> ссылки на состояния деталей или безусловный возврат (GOTO).</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>Интерактивная декомпозиция</h3>
-        <p>Шаг <strong>7: «Термическая закалка ТВЧ»</strong> имеет вложенную схему. Сделайте <strong>двойной клик</strong> по блоку, чтобы перейти в декомпозицию!</p>
-      </div>
-
-      <div class="card">
-        <h3>Стандарты в репозитории</h3>
-        <ul>
-          <li><a href="#" style="color: #38bdf8;">IDEF3_Report.pdf (1.8 MB)</a></li>
-          <li><a href="#" style="color: #38bdf8;">FIPS PUB 183.pdf (4.67 MB)</a></li>
-          <li><a href="#" style="color: #38bdf8;">FIPS PUB 184.doc (823 KB)</a></li>
+          <li><strong>[Референт]:</strong> состояния деталей и петли возврата (GOTO).</li>
         </ul>
       </div>
     </aside>
@@ -343,22 +387,11 @@
 
       <div class="card">
         <h3>Нотация IDEF0 (FIPS PUB 183)</h3>
-        <p><strong>Функциональный блок (4 стороны):</strong></p>
         <ul>
-          <li><span style="color: #60a5fa;">■ Вход (Input, Слева):</span> преобразуется функцией.</li>
-          <li><span style="color: #fbbf24;">■ Управление (Control, Сверху):</span> ГОСТ, регламенты, ТЗ.</li>
-          <li><span style="color: #34d399;">■ Выход (Output, Справа):</span> готовая продукция.</li>
-          <li><span style="color: #a78bfa;">■ Механизм (Mechanism, Снизу):</span> станки, персонал, ERP.</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>Правила FIPS 183</h3>
-        <ul>
-          <li><strong>Правило 3-6 блоков (§3.3.2):</strong> на диаграмме декомпозиции от 3 до 6 блоков.</li>
-          <li><strong>Контекст A-0:</strong> строго 1 блок.</li>
-          <li><strong>Диагональное доминирование:</strong> ступенчатое размещение блоков.</li>
-          <li><strong>Двойной клик:</strong> переход в декомпозицию блока A4!</li>
+          <li><span style="color: #60a5fa;">■ Вход (Input, Слева):</span> материалы/сырье.</li>
+          <li><span style="color: #fbbf24;">■ Управление (Control, Сверху):</span> стандарты/планы.</li>
+          <li><span style="color: #34d399;">■ Выход (Output, Справа):</span> продукция/отчеты.</li>
+          <li><span style="color: #a78bfa;">■ Механизм (Mechanism, Снизу):</span> персонал/станки.</li>
         </ul>
       </div>
     </aside>
@@ -377,26 +410,13 @@
       </div>
 
       <div class="card">
-        <h3>Архитектура DDD-HEX</h3>
-        <p><strong>Ports & Adapters (Чистый домен):</strong></p>
+        <h3>Нотация IDEF1X (FIPS 184)</h3>
         <ul>
-          <li><strong>Domain:</strong> Агрегат <code>IDEF1Model</code>, Сущности, Value Objects, Доменные события и правила FIPS 184.</li>
-          <li><strong>Ports:</strong> Входящий <code>IIDEF1EditorUseCase</code>, исходящий <code>IDiagramRendererPort</code>.</li>
-          <li><strong>Adapters:</strong> Адаптер GoJS, JSON-репозиторий, Фасад <code>IDEF1Editor</code>.</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>Нотация стандарта IDEF1X (FIPS 184)</h3>
-        <ul>
-          <li><strong>Прямые углы:</strong> Независимая сущность (ОТДЕЛ, КЛИЕНТ, СКЛАД, ТОВАР)</li>
-          <li><strong>Скругленные углы:</strong> Зависимая сущность (ПОЗИЦИЯ_ЗАКАЗА, ОПЛАТА)</li>
-          <li><strong>Сплошная линия:</strong> Идентифицирующее отношение (миграция ключей в PK)</li>
-          <li><strong>Пунктирная линия:</strong> Неидентифицирующее отношение (миграция в Non-Key)</li>
-          <li><strong>Ромб у родителя:</strong> Опциональная связь</li>
-          <li><strong>Точки на обоих концах:</strong> Связь N:M</li>
-          <li><strong>(AK1), (AK2):</strong> Альтернативные ключи</li>
-          <li><strong>Кружок с двойной линией:</strong> Полная категоризация</li>
+          <li><strong>Прямые углы:</strong> Независимая сущность</li>
+          <li><strong>Скругленные углы:</strong> Зависимая сущность</li>
+          <li><strong>Сплошная линия:</strong> Идентифицирующее отношение</li>
+          <li><strong>Пунктирная линия:</strong> Неидентифицирующее отношение</li>
+          <li><strong>(AK1), (FK):</strong> Ключевые атрибуты</li>
         </ul>
       </div>
     </aside>
