@@ -19,19 +19,27 @@
     header {
       background: #1e293b;
       border-bottom: 1px solid #334155;
-      padding: 10px 20px;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .header-main-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 8px 16px;
       gap: 16px;
+      border-bottom: 1px solid #283548;
     }
     .logo-badge {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      flex-shrink: 0;
     }
     .logo-badge h1 {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       font-weight: 700;
       letter-spacing: -0.02em;
       color: #f8fafc;
@@ -40,12 +48,13 @@
     .badge {
       background: #0369a1;
       color: #ffffff;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 600;
       padding: 2px 8px;
       border-radius: 9999px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      white-space: nowrap;
     }
     .mode-toggle {
       display: flex;
@@ -54,29 +63,53 @@
       border-radius: 8px;
       border: 1px solid #334155;
       gap: 2px;
+      overflow-x: auto;
+      max-width: calc(100vw - 320px);
+      scrollbar-width: thin;
+    }
+    .mode-toggle::-webkit-scrollbar {
+      height: 3px;
+    }
+    .mode-toggle::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 3px;
     }
     .mode-btn {
       background: transparent;
       border: none;
       color: #94a3b8;
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-radius: 6px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s ease;
       white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .mode-btn:hover {
+      color: #f1f5f9;
+      background: #1e293b;
     }
     .mode-btn.active {
       background: #2563eb;
       color: #ffffff;
       box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
+    .header-toolbar-row {
+      background: #0f172a;
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      min-height: 42px;
+      overflow-x: auto;
+    }
     .toolbar {
       display: flex;
       gap: 8px;
       align-items: center;
       flex-wrap: wrap;
+      width: 100%;
     }
     button {
       background: #334155;
@@ -202,172 +235,177 @@
 </head>
 <body>
   <header>
-    <div class="logo-badge">
-      <h1>IDEF Suite (GoJS)</h1>
-      <span class="badge">DDD-HEX Architecture</span>
+    <div class="header-main-row">
+      <div class="logo-badge">
+        <h1>IDEF Suite (GoJS)</h1>
+        <span class="badge">DDD-HEX</span>
+      </div>
+
+      <!-- Mode Toggle: IDEF12 vs IDEF10 vs IDEF9 vs IDEF8 vs IDEF6 vs IDEF5 vs IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
+      <nav class="mode-toggle" aria-label="Стандарты IDEF">
+        <button class="mode-btn active" id="tabIdef12">🏛️ IDEF12 (Оргструктура)</button>
+        <button class="mode-btn" id="tabIdef10">🏗️ IDEF10 (Архитектура)</button>
+        <button class="mode-btn" id="tabIdef9">🔒 IDEF9 (Ограничения)</button>
+        <button class="mode-btn" id="tabIdef8">🖥️ IDEF8 (ЧМИ / UI)</button>
+        <button class="mode-btn" id="tabIdef6">🎯 IDEF6 (Обоснование)</button>
+        <button class="mode-btn" id="tabIdef5">🌐 IDEF5 (Онтологии)</button>
+        <button class="mode-btn" id="tabIdef4">📐 IDEF4 (ОО-дизайн)</button>
+        <button class="mode-btn" id="tabIdef3">🔄 IDEF3 (Процессы)</button>
+        <button class="mode-btn" id="tabIdef0">⚙️ IDEF0 (Функции)</button>
+        <button class="mode-btn" id="tabIdef1">📊 IDEF1X (Данные)</button>
+      </nav>
     </div>
 
-    <!-- Mode Toggle: IDEF12 vs IDEF10 vs IDEF9 vs IDEF8 vs IDEF6 vs IDEF5 vs IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
-    <div class="mode-toggle">
-      <button class="mode-btn active" id="tabIdef12">🏛️ IDEF12 (Оргструктура KBSI)</button>
-      <button class="mode-btn" id="tabIdef10">🏗️ IDEF10 (Архитектура KBSI)</button>
-      <button class="mode-btn" id="tabIdef9">🔒 IDEF9 (Ограничения KBSI)</button>
-      <button class="mode-btn" id="tabIdef8">🖥️ IDEF8 (ЧМИ / UI KBSI)</button>
-      <button class="mode-btn" id="tabIdef6">🎯 IDEF6 (Обоснование KBSI)</button>
-      <button class="mode-btn" id="tabIdef5">🌐 IDEF5 (Онтологии KBSI)</button>
-      <button class="mode-btn" id="tabIdef4">📐 IDEF4 (ОО-дизайн KBSI)</button>
-      <button class="mode-btn" id="tabIdef3">🔄 IDEF3 (Процессы KBSI)</button>
-      <button class="mode-btn" id="tabIdef0">⚙️ IDEF0 (Функции FIPS 183)</button>
-      <button class="mode-btn" id="tabIdef1">📊 IDEF1X (Данные FIPS 184)</button>
-    </div>
+    <!-- Dedicated Full-Width Toolbars Ribbon -->
+    <div class="header-toolbar-row">
+      <!-- IDEF12 Toolbar -->
+      <div class="toolbar" id="toolbarIdef12">
+        <button class="primary" id="btnIdef12AutoLayout">✨ Выравнивание оргструктуры</button>
+        <button id="btnIdef12ZoomFit">🔍 Центрировать</button>
+        <button class="primary" id="btnAddIdef12Unit">+ Подразделение (OrgUnit)</button>
+        <button id="btnAddIdef12Position">+ Должность (Position)</button>
+        <button id="btnAddIdef12Role">+ Роль (OrgRole)</button>
+        <button id="btnAddIdef12Competency">+ Допуск / Компетенция</button>
+        <button class="success" id="btnValidateIdef12">✓ Проверить IDEF12</button>
+        <button id="btnIdef12ExportJson">Экспорт JSON</button>
+        <button id="btnIdef12ImportJson">Импорт JSON</button>
+      </div>
 
-    <!-- IDEF12 Toolbar -->
-    <div class="toolbar" id="toolbarIdef12">
-      <button class="primary" id="btnIdef12AutoLayout">✨ Выравнивание оргструктуры</button>
-      <button id="btnIdef12ZoomFit">🔍 Центрировать</button>
-      <button class="primary" id="btnAddIdef12Unit">+ Подразделение (OrgUnit)</button>
-      <button id="btnAddIdef12Position">+ Должность (Position)</button>
-      <button id="btnAddIdef12Role">+ Роль (OrgRole)</button>
-      <button id="btnAddIdef12Competency">+ Допуск / Компетенция</button>
-      <button class="success" id="btnValidateIdef12">✓ Проверить IDEF12</button>
-      <button id="btnIdef12ExportJson">Экспорт JSON</button>
-      <button id="btnIdef12ImportJson">Импорт JSON</button>
-    </div>
+      <!-- IDEF10 Toolbar -->
+      <div class="toolbar" id="toolbarIdef10" style="display: none;">
+        <button class="primary" id="btnIdef10AutoLayout">✨ Выравнивание архитектуры</button>
+        <button id="btnIdef10ZoomFit">🔍 Центрировать</button>
+        <button class="primary" id="btnAddIdef10Component">+ Компонент (Component)</button>
+        <button id="btnAddIdef10Node">+ Узел (Execution Node)</button>
+        <button id="btnAddIdef10Interface">+ Интерфейс (Port)</button>
+        <button id="btnAddIdef10Artifact">+ Артефакт (Artifact)</button>
+        <button class="success" id="btnValidateIdef10">✓ Проверить IDEF10</button>
+        <button id="btnIdef10ExportJson">Экспорт JSON</button>
+        <button id="btnIdef10ImportJson">Импорт JSON</button>
+      </div>
 
-    <!-- IDEF10 Toolbar -->
-    <div class="toolbar" id="toolbarIdef10" style="display: none;">
-      <button class="primary" id="btnIdef10AutoLayout">✨ Выравнивание архитектуры</button>
-      <button id="btnIdef10ZoomFit">🔍 Центрировать</button>
-      <button class="primary" id="btnAddIdef10Component">+ Компонент (Component)</button>
-      <button id="btnAddIdef10Node">+ Узел (Execution Node)</button>
-      <button id="btnAddIdef10Interface">+ Интерфейс (Port)</button>
-      <button id="btnAddIdef10Artifact">+ Артефакт (Artifact)</button>
-      <button class="success" id="btnValidateIdef10">✓ Проверить IDEF10</button>
-      <button id="btnIdef10ExportJson">Экспорт JSON</button>
-      <button id="btnIdef10ImportJson">Импорт JSON</button>
-    </div>
+      <!-- IDEF9 Toolbar -->
+      <div class="toolbar" id="toolbarIdef9" style="display: none;">
+        <button class="primary" id="btnIdef9AutoLayout">✨ Выравнивание ограничений</button>
+        <button id="btnIdef9ZoomFit">🔍 Центрировать</button>
+        <button class="primary" id="btnAddIdef9Constraint">+ Ограничение (Constraint)</button>
+        <button id="btnAddIdef9Object">+ Объект (Controlled Object)</button>
+        <button id="btnAddIdef9Mechanism">+ Механизм (Enforcement)</button>
+        <button id="btnAddIdef9Document">+ Документ (Source Doc)</button>
+        <button class="success" id="btnValidateIdef9">✓ Проверить IDEF9</button>
+        <button id="btnIdef9ExportJson">Экспорт JSON</button>
+        <button id="btnIdef9ImportJson">Импорт JSON</button>
+      </div>
 
-    <!-- IDEF9 Toolbar -->
-    <div class="toolbar" id="toolbarIdef9" style="display: none;">
-      <button class="primary" id="btnIdef9AutoLayout">✨ Выравнивание ограничений</button>
-      <button id="btnIdef9ZoomFit">🔍 Центрировать</button>
-      <button class="primary" id="btnAddIdef9Constraint">+ Ограничение (Constraint)</button>
-      <button id="btnAddIdef9Object">+ Объект (Controlled Object)</button>
-      <button id="btnAddIdef9Mechanism">+ Механизм (Enforcement)</button>
-      <button id="btnAddIdef9Document">+ Документ (Source Doc)</button>
-      <button class="success" id="btnValidateIdef9">✓ Проверить IDEF9</button>
-      <button id="btnIdef9ExportJson">Экспорт JSON</button>
-      <button id="btnIdef9ImportJson">Импорт JSON</button>
-    </div>
+      <div class="toolbar" id="toolbarIdef8" style="display: none;">
+        <button class="primary" id="btnIdef8AutoLayout">✨ Выравнивание сценария</button>
+        <button id="btnIdef8ZoomFit">🔍 Центрировать</button>
+        <button class="primary" id="btnAddIdef8Screen">+ Экран / Окно</button>
+        <button id="btnAddIdef8UserAction">+ Действие (User Action)</button>
+        <button id="btnAddIdef8SystemResponse">+ Реакция системы</button>
+        <button id="btnAddIdef8UserRole">+ Роль (User Role)</button>
+        <button class="success" id="btnValidateIdef8">✓ Проверить IDEF8</button>
+        <button id="btnIdef8ExportJson">Экспорт JSON</button>
+        <button id="btnIdef8ImportJson">Импорт JSON</button>
+      </div>
 
-    <div class="toolbar" id="toolbarIdef8" style="display: none;">
-      <button class="primary" id="btnIdef8AutoLayout">✨ Выравнивание сценария</button>
-      <button id="btnIdef8ZoomFit">🔍 Центрировать</button>
-      <button class="primary" id="btnAddIdef8Screen">+ Экран / Окно</button>
-      <button id="btnAddIdef8UserAction">+ Действие (User Action)</button>
-      <button id="btnAddIdef8SystemResponse">+ Реакция системы</button>
-      <button id="btnAddIdef8UserRole">+ Роль (User Role)</button>
-      <button class="success" id="btnValidateIdef8">✓ Проверить IDEF8</button>
-      <button id="btnIdef8ExportJson">Экспорт JSON</button>
-      <button id="btnIdef8ImportJson">Импорт JSON</button>
-    </div>
+      <!-- IDEF6 Toolbar -->
+      <div class="toolbar" id="toolbarIdef6" style="display: none;">
+        <button class="primary" id="btnIdef6AutoLayout">✨ Выравнивание графа</button>
+        <button id="btnIdef6ZoomFit">🔍 Центрировать</button>
+        <button class="primary" id="btnAddIdef6Issue">+ Вопрос (Issue)</button>
+        <button id="btnAddIdef6Alternative">+ Альтернатива</button>
+        <button id="btnAddIdef6Criterion">+ Критерий</button>
+        <button id="btnAddIdef6Argument">+ Аргумент</button>
+        <button class="success" id="btnValidateIdef6">✓ Проверить IDEF6</button>
+        <button id="btnIdef6ExportJson">Экспорт JSON</button>
+        <button id="btnIdef6ImportJson">Импорт JSON</button>
+      </div>
 
-    <!-- IDEF6 Toolbar -->
-    <div class="toolbar" id="toolbarIdef6" style="display: none;">
-      <button class="primary" id="btnIdef6AutoLayout">✨ Выравнивание графа</button>
-      <button id="btnIdef6ZoomFit">🔍 Центрировать</button>
-      <button class="primary" id="btnAddIdef6Issue">+ Вопрос (Issue)</button>
-      <button id="btnAddIdef6Alternative">+ Альтернатива</button>
-      <button id="btnAddIdef6Criterion">+ Критерий</button>
-      <button id="btnAddIdef6Argument">+ Аргумент</button>
-      <button class="success" id="btnValidateIdef6">✓ Проверить IDEF6</button>
-      <button id="btnIdef6ExportJson">Экспорт JSON</button>
-      <button id="btnIdef6ImportJson">Импорт JSON</button>
-    </div>
+      <!-- IDEF5 Toolbar -->
+      <div class="toolbar" id="toolbarIdef5" style="display: none;">
+        <button class="primary" id="btnIdef5AutoLayout">✨ Выравнивание онтологии</button>
+        <button id="btnIdef5ZoomFit">🔍 Центрировать</button>
+        <button class="primary" id="btnAddIdef5Kind">+ Понятие (Kind)</button>
+        <button id="btnAddIdef5Individual">+ Индивид</button>
+        <button class="success" id="btnValidateIdef5">✓ Проверить IDEF5</button>
+        <button id="btnIdef5ExportJson">Экспорт JSON</button>
+        <button id="btnIdef5ImportJson">Импорт JSON</button>
+      </div>
 
-    <!-- IDEF5 Toolbar -->
-    <div class="toolbar" id="toolbarIdef5" style="display: none;">
-      <button class="primary" id="btnIdef5AutoLayout">✨ Выравнивание онтологии</button>
-      <button id="btnIdef5ZoomFit">🔍 Центрировать</button>
-      <button class="primary" id="btnAddIdef5Kind">+ Понятие (Kind)</button>
-      <button id="btnAddIdef5Individual">+ Индивид</button>
-      <button class="success" id="btnValidateIdef5">✓ Проверить IDEF5</button>
-      <button id="btnIdef5ExportJson">Экспорт JSON</button>
-      <button id="btnIdef5ImportJson">Импорт JSON</button>
-    </div>
+      <!-- IDEF4 Toolbar -->
+      <div class="toolbar" id="toolbarIdef4" style="display: none;">
+        <button class="primary" id="btnIdef4AutoLayout">✨ Выравнивание классов</button>
+        <button id="btnIdef4ZoomFit">🔍 Центрировать</button>
+        <button class="primary" id="btnAddIdef4Class">+ Добавить класс</button>
+        <button class="success" id="btnValidateIdef4">✓ Проверить IDEF4</button>
+        <button id="btnIdef4ExportJson">Экспорт JSON</button>
+        <button id="btnIdef4ImportJson">Импорт JSON</button>
+      </div>
 
-    <!-- IDEF4 Toolbar -->
-    <div class="toolbar" id="toolbarIdef4" style="display: none;">
-      <button class="primary" id="btnIdef4AutoLayout">✨ Выравнивание классов</button>
-      <button id="btnIdef4ZoomFit">🔍 Центрировать</button>
-      <button class="primary" id="btnAddIdef4Class">+ Добавить класс</button>
-      <button class="success" id="btnValidateIdef4">✓ Проверить IDEF4</button>
-      <button id="btnIdef4ExportJson">Экспорт JSON</button>
-      <button id="btnIdef4ImportJson">Импорт JSON</button>
-    </div>
+      <!-- IDEF3 Toolbar -->
+      <div class="toolbar" id="toolbarIdef3" style="display: none;">
+        <label style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+          Сценарий:
+          <select id="selectIdef3Diagram" style="background: #1e293b; color: #38bdf8; border: 1px solid #38bdf8; font-weight: 600;">
+            <option value="scenario-main" selected>1: Техпроцесс редуктора (Основной)</option>
+            <option value="scenario-uob-7">1.7: Термообработка деталей (Декомпозиция)</option>
+          </select>
+        </label>
 
-    <!-- IDEF3 Toolbar -->
-    <div class="toolbar" id="toolbarIdef3" style="display: none;">
-      <label style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
-        Сценарий:
-        <select id="selectIdef3Diagram" style="background: #1e293b; color: #38bdf8; border: 1px solid #38bdf8; font-weight: 600;">
-          <option value="scenario-main" selected>1: Техпроцесс редуктора (Основной)</option>
-          <option value="scenario-uob-7">1.7: Термообработка деталей (Декомпозиция)</option>
-        </select>
-      </label>
+        <button id="btnIdef3DrillUp">⬆ Вверх (Drill-Up)</button>
+        <button class="primary" id="btnIdef3AutoLayout">✨ Выравнивание процесса</button>
+        <button id="btnIdef3ZoomFit">🔍 Центрировать</button>
+        <button class="success" id="btnValidateIdef3">✓ Проверить IDEF3</button>
+        <button id="btnIdef3ExportJson">Экспорт JSON</button>
+        <button id="btnIdef3ImportJson">Импорт JSON</button>
+      </div>
 
-      <button id="btnIdef3DrillUp">⬆ Вверх (Drill-Up)</button>
-      <button class="primary" id="btnIdef3AutoLayout">✨ Выравнивание процесса</button>
-      <button id="btnIdef3ZoomFit">🔍 Центрировать</button>
-      <button class="success" id="btnValidateIdef3">✓ Проверить IDEF3</button>
-      <button id="btnIdef3ExportJson">Экспорт JSON</button>
-      <button id="btnIdef3ImportJson">Импорт JSON</button>
-    </div>
+      <!-- IDEF0 Toolbar -->
+      <div class="toolbar" id="toolbarIdef0" style="display: none;">
+        <label style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+          Лист:
+          <select id="selectIdef0Diagram" style="background: #1e293b; color: #38bdf8; border: 1px solid #38bdf8; font-weight: 600;">
+            <option value="diag-a0">A0: Основные процессы завода</option>
+            <option value="diag-a-minus-0">A-0: Контекст предприятия</option>
+            <option value="diag-a4">A4: Изготовление и сборка (Декомпозиция)</option>
+          </select>
+        </label>
 
-    <!-- IDEF0 Toolbar -->
-    <div class="toolbar" id="toolbarIdef0" style="display: none;">
-      <label style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
-        Лист:
-        <select id="selectIdef0Diagram" style="background: #1e293b; color: #38bdf8; border: 1px solid #38bdf8; font-weight: 600;">
-          <option value="diag-a0">A0: Основные процессы завода</option>
-          <option value="diag-a-minus-0">A-0: Контекст предприятия</option>
-          <option value="diag-a4">A4: Изготовление и сборка (Декомпозиция)</option>
-        </select>
-      </label>
+        <button id="btnDrillUp">⬆ Вверх (Drill-Up)</button>
+        <button class="primary" id="btnIdef0AutoLayout">✨ Диагональное выравнивание</button>
+        <button id="btnIdef0ZoomFit">🔍 Центрировать</button>
+        <button class="success" id="btnValidateIdef0">✓ Проверить FIPS 183</button>
+        <button id="btnIdef0ExportJson">Экспорт JSON</button>
+        <button id="btnIdef0ImportJson">Импорт JSON</button>
+      </div>
 
-      <button id="btnDrillUp">⬆ Вверх (Drill-Up)</button>
-      <button class="primary" id="btnIdef0AutoLayout">✨ Диагональное выравнивание</button>
-      <button id="btnIdef0ZoomFit">🔍 Центрировать</button>
-      <button class="success" id="btnValidateIdef0">✓ Проверить FIPS 183</button>
-      <button id="btnIdef0ExportJson">Экспорт JSON</button>
-      <button id="btnIdef0ImportJson">Импорт JSON</button>
-    </div>
+      <!-- IDEF1X Toolbar -->
+      <div class="toolbar" id="toolbarIdef1" style="display: none;">
+        <label style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+          Модель:
+          <select id="selectModel" style="background: #1e293b; color: #38bdf8; border: 1px solid #38bdf8; font-weight: 600;">
+            <option value="ru" selected>🇷🇺 ERP-система (Большая)</option>
+            <option value="en">🇺🇸 Simple Demo (EN)</option>
+          </select>
+        </label>
 
-    <!-- IDEF1X Toolbar -->
-    <div class="toolbar" id="toolbarIdef1" style="display: none;">
-      <label style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
-        Модель:
-        <select id="selectModel" style="background: #1e293b; color: #38bdf8; border: 1px solid #38bdf8; font-weight: 600;">
-          <option value="ru" selected>🇷🇺 ERP-система (Большая)</option>
-          <option value="en">🇺🇸 Simple Demo (EN)</option>
-        </select>
-      </label>
+        <label style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+          Уровень:
+          <select id="selectViewLevel">
+            <option value="FA" selected>Полный (FA: Full)</option>
+            <option value="KB">Ключевой (KB: Keys)</option>
+            <option value="ER">Сущность-Связь (ER)</option>
+          </select>
+        </label>
 
-      <label style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
-        Уровень:
-        <select id="selectViewLevel">
-          <option value="FA" selected>Полный (FA: Full)</option>
-          <option value="KB">Ключевой (KB: Keys)</option>
-          <option value="ER">Сущность-Связь (ER)</option>
-        </select>
-      </label>
-
-      <button class="primary" id="btnAutoLayout">✨ Авто-выравнивание</button>
-      <button id="btnZoomFit">🔍 Центрировать</button>
-      <button class="primary" id="btnAddEntity">+ Сущность</button>
-      <button id="btnExportJson">Экспорт JSON</button>
-      <button id="btnImportJson">Импорт JSON</button>
-      <button id="btnExportSvg">Экспорт SVG</button>
+        <button class="primary" id="btnAutoLayout">✨ Авто-выравнивание</button>
+        <button id="btnZoomFit">🔍 Центрировать</button>
+        <button class="primary" id="btnAddEntity">+ Сущность</button>
+        <button id="btnExportJson">Экспорт JSON</button>
+        <button id="btnImportJson">Импорт JSON</button>
+        <button id="btnExportSvg">Экспорт SVG</button>
+      </div>
     </div>
   </header>
 
