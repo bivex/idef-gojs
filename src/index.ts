@@ -537,7 +537,9 @@ export type { IIDEF12DiagramRendererPort } from './idef12/application/ports/outb
 export type { IIDEF12ModelRepositoryPort } from './idef12/application/ports/outbound/IIDEF12ModelRepositoryPort';
 export { IDEF12ApplicationService } from './idef12/application/services/IDEF12ApplicationService';
 export { IDEF12Editor } from './idef12/infrastructure/adapters/inbound/IDEF12Editor';
-export { GoJSIDEF12Adapter } from './idef12/infrastructure/adapters/outbound/gojs/GoJSIDEF12Adapter';
-export { createIDEF12NodeTemplateMap } from './idef12/infrastructure/adapters/outbound/gojs/templates/OrgUnitNodeTemplate';
 export { createIDEF12LinkTemplate } from './idef12/infrastructure/adapters/outbound/gojs/templates/OrgLinkTemplate';
+
+// Shared Universal Auto-Detector
+export { detectAndNormalizeIDEFModel } from './shared/domain/modelDetector';
+export type { DetectedIDEFModel, IDEFStandardMode } from './shared/domain/modelDetector';
 

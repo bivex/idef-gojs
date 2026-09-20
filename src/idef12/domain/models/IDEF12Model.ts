@@ -97,15 +97,21 @@ export class IDEF12Model {
   }
 
   public static fromJSON(json: any): IDEF12Model {
-    if (!json || !json.id || !json.name) {
+    if (!json || typeof json !== 'object') {
       throw new Error('Invalid JSON format for IDEF12Model.');
     }
+    const id = json.id || json.diagram_id || 'model-idef12';
+    const name = json.name || json.title || 'IDEF12 Model';
+    let diagrams = json.diagrams;
+    if (!Array.isArray(diagrams) && (json.orgUnits || json.positions || json.orgRoles || json.competencies)) {
+      diagrams = [json];
+    }
     return new IDEF12Model({
-      id: json.id,
-      name: json.name,
-      version: json.version,
-      activeDiagramId: json.activeDiagramId,
-      diagrams: json.diagrams,
+      id,
+      name,
+      version: json.version || '1.0',
+      activeDiagramId: json.activeDiagramId || (diagrams && diagrams[0] ? diagrams[0].id : undefined),
+      diagrams,
     });
   }
 }

@@ -315,114 +315,174 @@
   },
 
   "idef10_system_architecture": {
-    "diagram_id": "diag-edgeguard-m4k",
-    "title": "Архитектура развертывания EdgeGuard-4K на Sipeed Tang Nano 4K (IDEF10)",
-    "execution_nodes": [
+    "id": "model-edgeguard-m4k",
+    "name": "Архитектура развертывания EdgeGuard-4K на Sipeed Tang Nano 4K (IDEF10)",
+    "version": "1.0.0",
+    "diagrams": [
       {
-        "id": "node-fpga-fabric",
-        "name": "Gowin GW1NSR-LV4C Fabric (4608 LUTs)",
-        "nodeType": "DEVICE",
-        "os": "Hardware RTL (Verilog HDL)",
-        "hardware": "Gowin 55nm FPGA Fabric",
-        "processingCapacity": "74.25 MHz Pixel Clock / 371.25 MHz TMDS Serializer"
-      },
-      {
-        "id": "node-cortex-m3",
-        "name": "Embedded Hard ARM Cortex-M3",
-        "nodeType": "EXECUTION_ENVIRONMENT",
-        "os": "FreeRTOS Embedded Microkernel",
-        "hardware": "32-bit Cortex-M3 Core @ 83.3 MHz",
-        "processingCapacity": "100 DMIPS, 32KB SRAM, 256KB User Flash"
-      },
-      {
-        "id": "node-psram-sip",
-        "name": "In-Package 64Mbit CellularRAM",
-        "nodeType": "DEVICE",
-        "os": "SiP Multi-Chip Package",
-        "hardware": "8 MByte 16-bit DDR PSRAM",
-        "processingCapacity": "266 MB/s Triple-Buffer Arbiter"
-      },
-      {
-        "id": "node-home-server",
-        "name": "Home Assistant OS Home Server",
-        "nodeType": "SERVER",
-        "os": "Linux / Home Assistant Supervised",
-        "hardware": "Home Automation Controller / RPi / x86 NUC",
-        "processingCapacity": "MQTT Broker, Zigbee Coordinator, Automation Engine"
+        "id": "diag-edgeguard-m4k",
+        "name": "Архитектура аппаратного конвейера и интеграции (IDEF10)",
+        "description": "Схема аппаратных узлов, Verilog-модулей, FreeRTOS сервисов и интерфейсов связи с Home Assistant",
+        "executionNodes": [
+          {
+            "id": "node-fpga-fabric",
+            "code": "NODE-GW1NSR-FABRIC",
+            "name": "Gowin GW1NSR-LV4C Fabric (4608 LUTs)",
+            "nodeType": "EDGE_CONTROLLER",
+            "osPlatform": "Hardware RTL (Verilog HDL)",
+            "description": "55nm Gowin ПЛИС (74.25 MHz Pixel Clock / 371.25 MHz TMDS Serializer)",
+            "position": { "x": 80, "y": 80 }
+          },
+          {
+            "id": "node-cortex-m3",
+            "code": "NODE-ARM-M3-HARD",
+            "name": "Embedded Hard ARM Cortex-M3",
+            "nodeType": "EDGE_CONTROLLER",
+            "osPlatform": "FreeRTOS Embedded Microkernel",
+            "description": "32-bit Cortex-M3 Core @ 83.3 MHz, 32KB SRAM, 256KB User Flash",
+            "position": { "x": 480, "y": 80 }
+          },
+          {
+            "id": "node-psram-sip",
+            "code": "NODE-SIP-PSRAM-64M",
+            "name": "In-Package 64Mbit CellularRAM",
+            "nodeType": "EDGE_CONTROLLER",
+            "osPlatform": "SiP Multi-Chip Package",
+            "description": "8 MByte 16-bit DDR PSRAM, 266 MB/s Triple-Buffer Arbiter",
+            "position": { "x": 80, "y": 320 }
+          },
+          {
+            "id": "node-home-server",
+            "code": "NODE-HA-HOST-SERVER",
+            "name": "Home Assistant OS Home Server",
+            "nodeType": "SERVER",
+            "osPlatform": "Linux / Home Assistant Supervised",
+            "ipAddress": "192.168.1.120",
+            "description": "Контроллер умного дома (MQTT Broker, Zigbee Coordinator, Automations)",
+            "position": { "x": 480, "y": 320 }
+          }
+        ],
+        "components": [
+          {
+            "id": "comp-dvp-ingest",
+            "code": "CMP-DVP-INGEST",
+            "name": "DVP Camera Capture & Frame Sync",
+            "componentType": "MODULE",
+            "techStack": "Verilog HDL (Dual-Clock FIFO + Gray Counter)",
+            "version": "1.0.0",
+            "lifecycle": "ACTIVE",
+            "description": "Захват DVP OV2640 на частоте PCLK с буферизацией строк",
+            "position": { "x": 80, "y": 140 }
+          },
+          {
+            "id": "comp-sobel-motion",
+            "code": "CMP-SOBEL-MOTION",
+            "name": "Sobel 3x3 Edge & Multi-Zone Motion Engine",
+            "componentType": "MODULE",
+            "techStack": "Verilog Hardware DSP Pipeline",
+            "version": "1.1.0",
+            "lifecycle": "ACTIVE",
+            "description": "Аппаратный расчет градиента яркости и межкадровой разности в 16 ROI",
+            "position": { "x": 80, "y": 200 }
+          },
+          {
+            "id": "comp-osd-hdmi",
+            "code": "CMP-OSD-HDMI-TX",
+            "name": "OSD Blender & TMDS HDMI 720p60 TX",
+            "componentType": "MODULE",
+            "techStack": "Gowin OSER10 + 8b10b DVI Encoder",
+            "version": "1.0.0",
+            "lifecycle": "ACTIVE",
+            "description": "Формирование HDMI видеосигнала 720p60 с наложением HUD баннеров",
+            "position": { "x": 80, "y": 260 }
+          },
+          {
+            "id": "comp-firmware-controller",
+            "code": "CMP-FW-CONTROLLER",
+            "name": "Access Control & Event Telemetry Engine",
+            "componentType": "SERVICE",
+            "techStack": "C / Embedded FreeRTOS",
+            "version": "1.0.0",
+            "lifecycle": "ACTIVE",
+            "description": "Управление замком, считывание Wiegand, опрос регистров APB3",
+            "position": { "x": 480, "y": 140 }
+          },
+          {
+            "id": "comp-ha-gateway",
+            "code": "CMP-HA-GATEWAY",
+            "name": "Home Assistant MQTT Integration Bridge",
+            "componentType": "SERVICE",
+            "techStack": "Python / MQTT Discovery Protocol",
+            "version": "1.2.0",
+            "lifecycle": "ACTIVE",
+            "description": "Двунаправленный мост JSON-over-UART -> MQTT Home Assistant",
+            "position": { "x": 480, "y": 200 }
+          }
+        ],
+        "interfaces": [
+          {
+            "id": "if-dvp-bus",
+            "name": "DVP Camera Bus (8-bit PCLK/HREF/VSYNC)",
+            "protocol": "OPC_UA",
+            "role": "REQUIRED",
+            "portNumber": 24,
+            "description": "Параллельный видеовход с сенсора OV2640",
+            "position": { "x": 40, "y": 140 }
+          },
+          {
+            "id": "if-apb-bridge",
+            "name": "ARM APB3 Interconnect Bus",
+            "protocol": "REST_API",
+            "role": "PROVIDED",
+            "description": "Регистры APB3 управления детекцией и OSD",
+            "position": { "x": 380, "y": 140 }
+          },
+          {
+            "id": "if-hdmi-out",
+            "name": "HDMI DVI-D RGB888 720p60",
+            "protocol": "REST_API",
+            "role": "PROVIDED",
+            "portNumber": 80,
+            "description": "Прямой видеовыход HDMI на коридорный монитор",
+            "position": { "x": 40, "y": 260 }
+          },
+          {
+            "id": "if-uart-mqtt",
+            "name": "UART Stream / MQTT JSON Payloads",
+            "protocol": "MQTT_KAFKA",
+            "role": "PROVIDED",
+            "portNumber": 1883,
+            "description": "Телеметрия тревоги и команды открытия замка",
+            "position": { "x": 480, "y": 260 }
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "art-bitstream",
+            "code": "ART-BITSTREAM-FS",
+            "name": "tang_nano_4k_top.fs",
+            "artifactType": "FIRMWARE_IMAGE",
+            "fileName": "tang_nano_4k_top.fs",
+            "description": "Скомпилированный бинарный битстрим ПЛИС Gowin GW1NSR-LV4C",
+            "position": { "x": 80, "y": 420 }
+          },
+          {
+            "id": "art-firmware-bin",
+            "code": "ART-FIRMWARE-BIN",
+            "name": "edgeguard_firmware.bin",
+            "artifactType": "FIRMWARE_IMAGE",
+            "fileName": "edgeguard_firmware.bin",
+            "description": "Прошивка Cortex-M3 (FreeRTOS ELF/BIN)",
+            "position": { "x": 480, "y": 420 }
+          }
+        ],
+        "links": [
+          { "id": "lnk-1", "sourceId": "comp-dvp-ingest", "targetId": "comp-sobel-motion", "type": "PRODUCES_CONSUMES", "label": "Luminance & RGB Pixel Stream" },
+          { "id": "lnk-2", "sourceId": "comp-sobel-motion", "targetId": "comp-firmware-controller", "type": "CALLS", "label": "APB Status Regs & BBox Coords" },
+          { "id": "lnk-3", "sourceId": "comp-firmware-controller", "targetId": "comp-osd-hdmi", "type": "CALLS", "label": "OSD Overlay Text & Alarm Reticle" },
+          { "id": "lnk-4", "sourceId": "comp-firmware-controller", "targetId": "comp-ha-gateway", "type": "CALLS", "label": "MQTT Events, RFID, Door Lock Commands" }
+        ]
       }
-    ],
-    "components": [
-      {
-        "id": "comp-dvp-ingest",
-        "name": "DVP Camera Capture & Frame Sync",
-        "componentType": "MODULE",
-        "technology": "Verilog HDL (Dual-Clock FIFO + Gray Counter)",
-        "executionNodeId": "node-fpga-fabric"
-      },
-      {
-        "id": "comp-sobel-motion",
-        "name": "Sobel 3x3 Edge & Multi-Zone Motion Engine",
-        "componentType": "MODULE",
-        "technology": "Verilog Hardware DSP Pipeline",
-        "executionNodeId": "node-fpga-fabric"
-      },
-      {
-        "id": "comp-osd-hdmi",
-        "name": "OSD Blender & TMDS HDMI 720p60 TX",
-        "componentType": "MODULE",
-        "technology": "Gowin OSER10 + 8b10b DVI Encoder",
-        "executionNodeId": "node-fpga-fabric"
-      },
-      {
-        "id": "comp-firmware-controller",
-        "name": "Access Control & Event Telemetry Engine",
-        "componentType": "SERVICE",
-        "technology": "C / Embedded FreeRTOS",
-        "executionNodeId": "node-cortex-m3"
-      },
-      {
-        "id": "comp-ha-gateway",
-        "name": "Home Assistant MQTT Integration Bridge",
-        "componentType": "SERVICE",
-        "technology": "Python / MQTT Discovery Protocol",
-        "executionNodeId": "node-home-server"
-      }
-    ],
-    "interfaces": [
-      {
-        "id": "if-dvp-bus",
-        "name": "8-bit DVP Parallel Bus + PCLK/HREF/VSYNC",
-        "protocol": "DVP",
-        "direction": "INBOUND",
-        "isSynchronous": true
-      },
-      {
-        "id": "if-apb-bridge",
-        "name": "ARM APB3 Interconnect Bus",
-        "protocol": "AMBA APB3 32-bit",
-        "direction": "BIDIRECTIONAL",
-        "isSynchronous": true
-      },
-      {
-        "id": "if-hdmi-out",
-        "name": "HDMI DVI-D RGB888 720p60",
-        "protocol": "TMDS / DVI 1.0",
-        "direction": "OUTBOUND",
-        "isSynchronous": true
-      },
-      {
-        "id": "if-uart-mqtt",
-        "name": "UART Stream / MQTT JSON Payloads",
-        "protocol": "UART 115200bps -> MQTT over Wi-Fi",
-        "direction": "BIDIRECTIONAL",
-        "isSynchronous": false
-      }
-    ],
-    "links": [
-      { "id": "lnk-1", "sourceId": "comp-dvp-ingest", "targetId": "comp-sobel-motion", "linkType": "DATA_FLOW", "label": "Luminance & RGB Pixel Stream" },
-      { "id": "lnk-2", "sourceId": "comp-sobel-motion", "targetId": "comp-firmware-controller", "linkType": "DEPENDS_ON", "label": "APB Status Regs & BBox Coords" },
-      { "id": "lnk-3", "sourceId": "comp-firmware-controller", "targetId": "comp-osd-hdmi", "linkType": "CALL", "label": "OSD Overlay Text & Alarm Reticle" },
-      { "id": "lnk-4", "sourceId": "comp-firmware-controller", "targetId": "comp-ha-gateway", "linkType": "COMMUNICATION", "label": "MQTT Events, RFID, Door Lock Commands" }
     ]
   },
 

@@ -97,15 +97,21 @@ export class IDEF10Model {
   }
 
   public static fromJSON(json: any): IDEF10Model {
-    if (!json || !json.id || !json.name) {
+    if (!json || typeof json !== 'object') {
       throw new Error('Invalid JSON format for IDEF10Model.');
     }
+    const id = json.id || json.diagram_id || 'model-idef10';
+    const name = json.name || json.title || 'IDEF10 Model';
+    let diagrams = json.diagrams;
+    if (!Array.isArray(diagrams) && (json.components || json.executionNodes || json.execution_nodes || json.interfaces)) {
+      diagrams = [json];
+    }
     return new IDEF10Model({
-      id: json.id,
-      name: json.name,
-      version: json.version,
-      activeDiagramId: json.activeDiagramId,
-      diagrams: json.diagrams,
+      id,
+      name,
+      version: json.version || '1.0',
+      activeDiagramId: json.activeDiagramId || (diagrams && diagrams[0] ? diagrams[0].id : undefined),
+      diagrams,
     });
   }
 }

@@ -1,5 +1,6 @@
 import { IDEF12Editor } from '../src/idef12/infrastructure/adapters/inbound/IDEF12Editor';
 import { setupIDEF12 as loadIDEF12 } from './russian_enterprise_idef12';
+import { detectAndNormalizeIDEFModel } from '../src/shared/domain/modelDetector';
 
 let idef1Editor: any = null;
 let idef0Editor: any = null;
@@ -813,6 +814,132 @@ async function switchMode(mode: 'idef12' | 'idef10' | 'idef9' | 'idef8' | 'idef6
 }
 
 // ==========================================
+// Universal Auto-Detect JSON Import
+// ==========================================
+function showImportToast(message: string, isError = false) {
+  let toast = document.getElementById('idefImportToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'idefImportToast';
+    toast.style.position = 'fixed';
+    toast.style.bottom = '24px';
+    toast.style.right = '24px';
+    toast.style.padding = '12px 20px';
+    toast.style.borderRadius = '8px';
+    toast.style.boxShadow = '0 4px 16px rgba(0,0,0,0.5)';
+    toast.style.fontWeight = '600';
+    toast.style.fontSize = '0.85rem';
+    toast.style.zIndex = '99999';
+    toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    document.body.appendChild(toast);
+  }
+  toast.style.background = isError ? '#b91c1c' : '#047857';
+  toast.style.color = '#ffffff';
+  toast.textContent = message;
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateY(0)';
+  setTimeout(() => {
+    if (toast) {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(12px)';
+    }
+  }, 4500);
+}
+
+async function handleUniversalJSONImport(text: string) {
+  try {
+    const detected = detectAndNormalizeIDEFModel(text);
+    console.log(`[AutoDetect] Распознан стандарт: ${detected.standardTitle}`);
+
+    if (activeMode !== detected.standard) {
+      await switchMode(detected.standard);
+    }
+
+    switch (detected.standard) {
+      case 'idef12':
+        if (idef12Editor) {
+          idef12Editor.importJSON(detected.normalizedJSON);
+          setTimeout(() => { idef12Editor?.autoLayout(); idef12Editor?.zoomToFit(); }, 60);
+        }
+        break;
+      case 'idef10':
+        if (idef10Editor) {
+          idef10Editor.importJSON(detected.normalizedJSON);
+          setTimeout(() => { idef10Editor?.autoLayout(); idef10Editor?.zoomToFit(); }, 60);
+        }
+        break;
+      case 'idef9':
+        if (idef9Editor) {
+          idef9Editor.importJSON(detected.normalizedJSON);
+          setTimeout(() => { idef9Editor?.autoLayout(); idef9Editor?.zoomToFit(); }, 60);
+        }
+        break;
+      case 'idef8':
+        if (idef8Editor) {
+          idef8Editor.importJSON(detected.normalizedJSON);
+          setTimeout(() => { idef8Editor?.autoLayout(); idef8Editor?.zoomToFit(); }, 60);
+        }
+        break;
+      case 'idef6':
+        if (idef6Editor) {
+          idef6Editor.importJSON(detected.normalizedJSON);
+          setTimeout(() => { idef6Editor?.autoLayout(); idef6Editor?.zoomToFit(); }, 60);
+        }
+        break;
+      case 'idef5':
+        if (idef5Editor) {
+          idef5Editor.importJSON(detected.normalizedJSON);
+          setTimeout(() => { idef5Editor?.autoLayout(); idef5Editor?.zoomToFit(); }, 60);
+        }
+        break;
+      case 'idef4':
+        if (idef4Editor) {
+          idef4Editor.importJSON(detected.normalizedJSON);
+          setTimeout(() => { idef4Editor?.autoLayout(); idef4Editor?.zoomToFit(); }, 60);
+        }
+        break;
+      case 'idef3':
+        if (idef3Editor) {
+          idef3Editor.importJSON(detected.normalizedJSON);
+          setTimeout(() => { idef3Editor?.autoLayout(); idef3Editor?.zoomToFit(); }, 60);
+        }
+        break;
+      case 'idef0':
+        if (idef0Editor) {
+          idef0Editor.importJSON(detected.normalizedJSON);
+          setTimeout(() => { idef0Editor?.autoLayout(); idef0Editor?.zoomToFit(); }, 60);
+        }
+        break;
+      case 'idef1':
+        if (idef1Editor) {
+          await idef1Editor.importJson(detected.normalizedJSON);
+          setTimeout(() => { idef1Editor?.autoLayout(); idef1Editor?.zoomToFit(); }, 60);
+        }
+        break;
+    }
+
+    showImportToast(`✓ Автоопределение: распознан ${detected.standardTitle}! Модель успешно импортирована.`);
+  } catch (err: any) {
+    console.error('Import error:', err);
+    showImportToast(`❌ Ошибка импорта: ${err.message}`, true);
+  }
+}
+
+function triggerJSONFileInput() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = async (e: any) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const text = await file.text();
+      await handleUniversalJSONImport(text);
+    }
+  };
+  input.click();
+}
+
+// ==========================================
 // DOM Event Listeners
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -930,19 +1057,8 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('btnIdef12ImportJson')?.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (file && idef12Editor) {
-        const text = await file.text();
-        idef12Editor.importJSON(text);
-      }
-    };
-    input.click();
-  });
+  document.getElementById('btnIdef12ImportJson')?.addEventListener('click', triggerJSONFileInput);
+
 
   // ----------------------------------------
   // IDEF8 Toolbar Handlers
@@ -1030,19 +1146,8 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('btnIdef8ImportJson')?.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (file && idef8Editor) {
-        const text = await file.text();
-        idef8Editor.importJSON(text);
-      }
-    };
-    input.click();
-  });
+  document.getElementById('btnIdef8ImportJson')?.addEventListener('click', triggerJSONFileInput);
+
 
   // ----------------------------------------
   // IDEF6 Toolbar Handlers
@@ -1131,19 +1236,8 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('btnIdef6ImportJson')?.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (file && idef6Editor) {
-        const text = await file.text();
-        idef6Editor.importJSON(text);
-      }
-    };
-    input.click();
-  });
+  document.getElementById('btnIdef6ImportJson')?.addEventListener('click', triggerJSONFileInput);
+
 
   // ----------------------------------------
   // IDEF5 Toolbar Handlers
@@ -1207,19 +1301,8 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('btnIdef5ImportJson')?.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (file && idef5Editor) {
-        const text = await file.text();
-        idef5Editor.importJSON(text);
-      }
-    };
-    input.click();
-  });
+  document.getElementById('btnIdef5ImportJson')?.addEventListener('click', triggerJSONFileInput);
+
 
   // ----------------------------------------
   // IDEF4 Toolbar Handlers
@@ -1268,19 +1351,8 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('btnIdef4ImportJson')?.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (file && idef4Editor) {
-        const text = await file.text();
-        idef4Editor.importJSON(text);
-      }
-    };
-    input.click();
-  });
+  document.getElementById('btnIdef4ImportJson')?.addEventListener('click', triggerJSONFileInput);
+
 
   // ----------------------------------------
   // IDEF3 Toolbar Handlers
@@ -1329,19 +1401,8 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('btnIdef3ImportJson')?.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (file && idef3Editor) {
-        const text = await file.text();
-        idef3Editor.importJSON(text);
-      }
-    };
-    input.click();
-  });
+  document.getElementById('btnIdef3ImportJson')?.addEventListener('click', triggerJSONFileInput);
+
 
   // ----------------------------------------
   // IDEF0 Toolbar Handlers
@@ -1390,19 +1451,8 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('btnIdef0ImportJson')?.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (file && idef0Editor) {
-        const text = await file.text();
-        idef0Editor.importJSON(text);
-      }
-    };
-    input.click();
-  });
+  document.getElementById('btnIdef0ImportJson')?.addEventListener('click', triggerJSONFileInput);
+
 
   // ----------------------------------------
   // IDEF1X Toolbar Handlers
@@ -1458,19 +1508,8 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('btnImportJson')?.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (file && idef1Editor) {
-        const text = await file.text();
-        await idef1Editor.importJson(text);
-      }
-    };
-    input.click();
-  });
+  document.getElementById('btnImportJson')?.addEventListener('click', triggerJSONFileInput);
+
 
   // ----------------------------------------
   // IDEF9 Toolbar Handlers
@@ -1562,19 +1601,8 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('btnIdef9ImportJson')?.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (file && idef9Editor) {
-        const text = await file.text();
-        idef9Editor.importJSON(text);
-      }
-    };
-    input.click();
-  });
+  document.getElementById('btnIdef9ImportJson')?.addEventListener('click', triggerJSONFileInput);
+
 
   // ----------------------------------------
   // IDEF10 Toolbar Handlers
@@ -1670,18 +1698,23 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('btnIdef10ImportJson')?.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (file && idef10Editor) {
-        const text = await file.text();
-        idef10Editor.importJSON(text);
-      }
-    };
-    input.click();
+  document.getElementById('btnIdef10ImportJson')?.addEventListener('click', triggerJSONFileInput);
+
+  // Drag and Drop support for arbitrary JSON files anywhere on page
+  window.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'copy';
+    }
+  });
+
+  window.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer?.files?.[0];
+    if (file && (file.name.endsWith('.json') || file.type === 'application/json')) {
+      const text = await file.text();
+      await handleUniversalJSONImport(text);
+    }
   });
 
   // Initial startup — IDEF12 is the newest and active tab
