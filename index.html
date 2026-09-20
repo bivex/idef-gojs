@@ -205,17 +205,31 @@
       <span class="badge">DDD-HEX Architecture</span>
     </div>
 
-    <!-- Mode Toggle: IDEF5 vs IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
+    <!-- Mode Toggle: IDEF6 vs IDEF5 vs IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
     <div class="mode-toggle">
-      <button class="mode-btn active" id="tabIdef5">🌐 IDEF5 (Онтологии KBSI)</button>
+      <button class="mode-btn active" id="tabIdef6">🎯 IDEF6 (Обоснование KBSI)</button>
+      <button class="mode-btn" id="tabIdef5">🌐 IDEF5 (Онтологии KBSI)</button>
       <button class="mode-btn" id="tabIdef4">📐 IDEF4 (ОО-дизайн KBSI)</button>
       <button class="mode-btn" id="tabIdef3">🔄 IDEF3 (Процессы KBSI)</button>
       <button class="mode-btn" id="tabIdef0">⚙️ IDEF0 (Функции FIPS 183)</button>
       <button class="mode-btn" id="tabIdef1">📊 IDEF1X (Данные FIPS 184)</button>
     </div>
 
+    <!-- IDEF6 Toolbar -->
+    <div class="toolbar" id="toolbarIdef6">
+      <button class="primary" id="btnIdef6AutoLayout">✨ Выравнивание графа</button>
+      <button id="btnIdef6ZoomFit">🔍 Центрировать</button>
+      <button class="primary" id="btnAddIdef6Issue">+ Вопрос (Issue)</button>
+      <button id="btnAddIdef6Alternative">+ Альтернатива</button>
+      <button id="btnAddIdef6Criterion">+ Критерий</button>
+      <button id="btnAddIdef6Argument">+ Аргумент</button>
+      <button class="success" id="btnValidateIdef6">✓ Проверить IDEF6</button>
+      <button id="btnIdef6ExportJson">Экспорт JSON</button>
+      <button id="btnIdef6ImportJson">Импорт JSON</button>
+    </div>
+
     <!-- IDEF5 Toolbar -->
-    <div class="toolbar" id="toolbarIdef5">
+    <div class="toolbar" id="toolbarIdef5" style="display: none;">
       <button class="primary" id="btnIdef5AutoLayout">✨ Выравнивание онтологии</button>
       <button id="btnIdef5ZoomFit">🔍 Центрировать</button>
       <button class="primary" id="btnAddIdef5Kind">+ Понятие (Kind)</button>
@@ -301,8 +315,65 @@
   </header>
 
   <div class="main-content">
+    <!-- IDEF6 Sidebar -->
+    <aside class="sidebar" id="sidebarIdef6">
+      <div class="breadcrumb-bar" id="idef6Breadcrumb">
+        Обоснование: <strong>АСУ ТП и MES (KBSI IDEF6)</strong>
+      </div>
+
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-val" id="issueCount">2</div>
+          <div class="stat-lbl">Вопросов</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="altCount">6</div>
+          <div class="stat-lbl">Альтернатив</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Нотация IDEF6 (Design Rationale)</h3>
+        <p><strong>Элементы фиксации проектных решений:</strong></p>
+        <ul>
+          <li><strong>Вопрос (Issue):</strong> <code>? ВОПРОС</code> архитектурная проблема или дилемма (Статус: OPEN/RESOLVED/REJECTED).</li>
+          <li><strong>Альтернатива (Alternative):</strong> <code>■ ВАРИАНТ</code> вариант реализации (PROPOSED/ACCEPTED/REJECTED).</li>
+          <li><strong>Критерий (Criterion):</strong> <code>⬡ КРИТЕРИЙ</code> цель, ограничение или стандарт (CRITICAL/IMPORTANT).</li>
+          <li><strong>Аргумент (Argument):</strong> <code>▲ ЗА / ▼ ПРОТИВ</code> обоснование экспертов с оценкой силы.</li>
+        </ul>
+        <p style="margin-top: 8px;"><strong>Типы связей обоснования:</strong></p>
+        <ul>
+          <li><span style="color: #60a5fa;">■ responds-to:</span> альтернатива отвечает на вопрос.</li>
+          <li><span style="color: #34d399;">■ supports:</span> аргумент ЗА выбранный вариант.</li>
+          <li><span style="color: #f87171;">■ objects-to:</span> аргумент ПРОТИВ варианта.</li>
+          <li><span style="color: #c084fc;">■ evaluates:</span> критерий оценивает альтернативу.</li>
+          <li><span style="color: #10b981; font-weight: bold;">■ resolves:</span> принятое финальное решение.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Правила валидации IDEF6</h3>
+        <ul>
+          <li><strong>Закрытие вопроса:</strong> решенный вопрос обязан иметь ровно одну принятую (ACCEPTED) альтернативу.</li>
+          <li><strong>Целостность графа:</strong> выявление разорванных или висячих связей.</li>
+          <li><strong>Контроль дубликатов:</strong> уникальность формулировок вопросов и альтернатив.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Стандарты в репозитории</h3>
+        <ul>
+          <li><a href="#" style="color: #38bdf8;">IDEF5_Report.pdf (1.4 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">IDEF4_Report.pdf (1.6 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">IDEF3_Report.pdf (1.8 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">FIPS PUB 183.pdf (4.67 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">FIPS PUB 184.doc (823 KB)</a></li>
+        </ul>
+      </div>
+    </aside>
+
     <!-- IDEF5 Sidebar -->
-    <aside class="sidebar" id="sidebarIdef5">
+    <aside class="sidebar" id="sidebarIdef5" style="display: none;">
       <div class="breadcrumb-bar" id="idef5Breadcrumb">
         Онтология: <strong>Машиностроение (KBSI IDEF5)</strong>
       </div>

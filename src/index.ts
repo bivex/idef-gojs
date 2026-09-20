@@ -283,3 +283,63 @@ export { GoJSIDEF5Adapter } from './idef5/infrastructure/adapters/outbound/gojs/
 export { createKindNodeTemplate } from './idef5/infrastructure/adapters/outbound/gojs/templates/KindNodeTemplate';
 export { createOntologyLinkTemplate } from './idef5/infrastructure/adapters/outbound/gojs/templates/OntologyLinkTemplate';
 
+// ==========================================
+// IDEF6 Design Rationale Capture Module (KBSI / Air Force / IICE)
+// ==========================================
+export { IssueStatus, IssuePriority, IDEF6Issue } from './idef6/domain/models/IDEF6Issue';
+export type { IDEF6IssueProps } from './idef6/domain/models/IDEF6Issue';
+export { AlternativeStatus, IDEF6Alternative } from './idef6/domain/models/IDEF6Alternative';
+export type { IDEF6AlternativeProps } from './idef6/domain/models/IDEF6Alternative';
+export { CriterionType, CriterionWeight, IDEF6Criterion } from './idef6/domain/models/IDEF6Criterion';
+export type { IDEF6CriterionProps } from './idef6/domain/models/IDEF6Criterion';
+export { ArgumentType, ArgumentStrength, IDEF6Argument } from './idef6/domain/models/IDEF6Argument';
+export type { IDEF6ArgumentProps } from './idef6/domain/models/IDEF6Argument';
+export { RationaleLinkType, IDEF6Link } from './idef6/domain/models/IDEF6Link';
+export type { IDEF6LinkProps } from './idef6/domain/models/IDEF6Link';
+export { IDEF6Diagram } from './idef6/domain/models/IDEF6Diagram';
+export type { IDEF6DiagramProps } from './idef6/domain/models/IDEF6Diagram';
+export { IDEF6Model } from './idef6/domain/models/IDEF6Model';
+export type { IDEF6ModelProps } from './idef6/domain/models/IDEF6Model';
+export { IDEF6Rules } from './idef6/domain/rules/IDEF6Rules';
+export type { IDEF6ValidationIssue } from './idef6/domain/rules/IDEF6Rules';
+export {
+  IDEF6Error,
+  IssueNotFoundError as IDEF6IssueNotFoundError,
+  AlternativeNotFoundError as IDEF6AlternativeNotFoundError,
+  CriterionNotFoundError as IDEF6CriterionNotFoundError,
+  ArgumentNotFoundError as IDEF6ArgumentNotFoundError,
+  LinkNotFoundError as IDEF6LinkNotFoundError,
+  DiagramNotFoundError as IDEF6DiagramNotFoundError,
+} from './idef6/domain/errors/IDEF6Error';
+
+export type {
+  IssueDTO as IDEF6IssueDTO,
+  AlternativeDTO as IDEF6AlternativeDTO,
+  CriterionDTO as IDEF6CriterionDTO,
+  ArgumentDTO as IDEF6ArgumentDTO,
+  LinkDTO as IDEF6LinkDTO,
+  DiagramDTO as IDEF6DiagramDTO,
+  ModelDTO as IDEF6ModelDTO,
+} from './idef6/application/dtos/IDEF6DTO';
+
+export type {
+  IIDEF6EditorUseCase,
+  CreateIssueCommand,
+  CreateAlternativeCommand,
+  CreateCriterionCommand,
+  CreateArgumentCommand,
+  CreateLinkCommand as CreateIDEF6LinkCommand,
+} from './idef6/application/ports/inbound/IIDEF6EditorUseCase';
+
+export type {
+  IIDEF6DiagramRendererPort,
+  IDEF6SelectionCallback,
+} from './idef6/application/ports/outbound/IIDEF6DiagramRendererPort';
+
+export type { IIDEF6ModelRepositoryPort } from './idef6/application/ports/outbound/IIDEF6ModelRepositoryPort';
+export { IDEF6ApplicationService } from './idef6/application/services/IDEF6ApplicationService';
+export { IDEF6Editor } from './idef6/infrastructure/adapters/inbound/IDEF6Editor';
+export { GoJSIDEF6Adapter } from './idef6/infrastructure/adapters/outbound/gojs/GoJSIDEF6Adapter';
+export { createRationaleNodeTemplateMap } from './idef6/infrastructure/adapters/outbound/gojs/templates/RationaleNodeTemplate';
+export { createRationaleLinkTemplate } from './idef6/infrastructure/adapters/outbound/gojs/templates/RationaleLinkTemplate';
+

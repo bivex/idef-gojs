@@ -6,21 +6,32 @@ import {
   IDEF3Editor,
   IDEF4Editor,
   IDEF5Editor,
+  IDEF6Editor,
+  IssueStatus,
+  AlternativeStatus,
+  CriterionType,
+  CriterionWeight,
+  ArgumentType,
+  ArgumentStrength,
+  RationaleLinkType,
 } from '../src/index';
 import { loadRussianEnterpriseModel } from './russian_enterprise_model';
 import { createRussianEnterpriseIDEF0Model } from './russian_enterprise_idef0';
 import { createRussianEnterpriseIDEF3Model } from './russian_enterprise_idef3';
 import { createRussianEnterpriseIDEF4Model } from './russian_enterprise_idef4';
 import { loadRussianEnterpriseIDEF5Demo } from './russian_enterprise_idef5';
+import { loadRussianEnterpriseIDEF6Demo } from './russian_enterprise_idef6';
 
 let idef1Editor: IDEF1Editor | null = null;
 let idef0Editor: IDEF0Editor | null = null;
 let idef3Editor: IDEF3Editor | null = null;
 let idef4Editor: IDEF4Editor | null = null;
 let idef5Editor: IDEF5Editor | null = null;
-let activeMode: 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef5';
+let idef6Editor: IDEF6Editor | null = null;
+let activeMode: 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef6';
 
 function destroyAllEditors() {
+  if (idef6Editor) { idef6Editor.destroy(); idef6Editor = null; }
   if (idef5Editor) { idef5Editor.destroy(); idef5Editor = null; }
   if (idef4Editor) { idef4Editor.destroy(); idef4Editor = null; }
   if (idef3Editor) { idef3Editor.destroy(); idef3Editor = null; }
@@ -31,6 +42,47 @@ function destroyAllEditors() {
   if (container) {
     container.innerHTML = '';
   }
+}
+
+// ==========================================
+// IDEF6 Setup (KBSI Design Rationale)
+// ==========================================
+function setupIDEF6() {
+  destroyAllEditors();
+  const container = document.getElementById('diagramDiv');
+  if (!container) return;
+
+  idef6Editor = new IDEF6Editor();
+  idef6Editor.initialize(container);
+
+  loadRussianEnterpriseIDEF6Demo(idef6Editor);
+
+  const updateIdef6UI = () => {
+    if (!idef6Editor) return;
+    const diag = idef6Editor.getActiveDiagram();
+
+    const issueCountEl = document.getElementById('issueCount');
+    if (issueCountEl) {
+      issueCountEl.textContent = `${diag.issues.length}`;
+    }
+
+    const altCountEl = document.getElementById('altCount');
+    if (altCountEl) {
+      altCountEl.textContent = `${diag.alternatives.length}`;
+    }
+  };
+
+  idef6Editor.setOnDiagramChanged(() => {
+    updateIdef6UI();
+    setTimeout(() => {
+      idef6Editor?.autoLayout();
+    }, 50);
+  });
+
+  updateIdef6UI();
+  setTimeout(() => {
+    idef6Editor?.autoLayout();
+  }, 80);
 }
 
 // ==========================================
@@ -363,20 +415,23 @@ async function setupIDEF1(modelType: 'ru' | 'en' = 'ru') {
 // ==========================================
 // Mode Switcher
 // ==========================================
-function switchMode(mode: 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
+function switchMode(mode: 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
   activeMode = mode;
+  const tabIdef6 = document.getElementById('tabIdef6');
   const tabIdef5 = document.getElementById('tabIdef5');
   const tabIdef4 = document.getElementById('tabIdef4');
   const tabIdef3 = document.getElementById('tabIdef3');
   const tabIdef0 = document.getElementById('tabIdef0');
   const tabIdef1 = document.getElementById('tabIdef1');
 
+  const tbIdef6 = document.getElementById('toolbarIdef6');
   const tbIdef5 = document.getElementById('toolbarIdef5');
   const tbIdef4 = document.getElementById('toolbarIdef4');
   const tbIdef3 = document.getElementById('toolbarIdef3');
   const tbIdef0 = document.getElementById('toolbarIdef0');
   const tbIdef1 = document.getElementById('toolbarIdef1');
 
+  const sbIdef6 = document.getElementById('sidebarIdef6');
   const sbIdef5 = document.getElementById('sidebarIdef5');
   const sbIdef4 = document.getElementById('sidebarIdef4');
   const sbIdef3 = document.getElementById('sidebarIdef3');
@@ -384,6 +439,7 @@ function switchMode(mode: 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
   const sbIdef1 = document.getElementById('sidebarIdef1');
 
   // Reset tabs
+  tabIdef6?.classList.remove('active');
   tabIdef5?.classList.remove('active');
   tabIdef4?.classList.remove('active');
   tabIdef3?.classList.remove('active');
@@ -391,6 +447,7 @@ function switchMode(mode: 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
   tabIdef1?.classList.remove('active');
 
   // Hide toolbars
+  if (tbIdef6) tbIdef6.style.display = 'none';
   if (tbIdef5) tbIdef5.style.display = 'none';
   if (tbIdef4) tbIdef4.style.display = 'none';
   if (tbIdef3) tbIdef3.style.display = 'none';
@@ -398,13 +455,19 @@ function switchMode(mode: 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
   if (tbIdef1) tbIdef1.style.display = 'none';
 
   // Hide sidebars
+  if (sbIdef6) sbIdef6.style.display = 'none';
   if (sbIdef5) sbIdef5.style.display = 'none';
   if (sbIdef4) sbIdef4.style.display = 'none';
   if (sbIdef3) sbIdef3.style.display = 'none';
   if (sbIdef0) sbIdef0.style.display = 'none';
   if (sbIdef1) sbIdef1.style.display = 'none';
 
-  if (mode === 'idef5') {
+  if (mode === 'idef6') {
+    tabIdef6?.classList.add('active');
+    if (tbIdef6) tbIdef6.style.display = 'flex';
+    if (sbIdef6) sbIdef6.style.display = 'flex';
+    setupIDEF6();
+  } else if (mode === 'idef5') {
     tabIdef5?.classList.add('active');
     if (tbIdef5) tbIdef5.style.display = 'flex';
     if (sbIdef5) sbIdef5.style.display = 'flex';
@@ -437,11 +500,113 @@ function switchMode(mode: 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   // Tabs
+  document.getElementById('tabIdef6')?.addEventListener('click', () => switchMode('idef6'));
   document.getElementById('tabIdef5')?.addEventListener('click', () => switchMode('idef5'));
   document.getElementById('tabIdef4')?.addEventListener('click', () => switchMode('idef4'));
   document.getElementById('tabIdef3')?.addEventListener('click', () => switchMode('idef3'));
   document.getElementById('tabIdef0')?.addEventListener('click', () => switchMode('idef0'));
   document.getElementById('tabIdef1')?.addEventListener('click', () => switchMode('idef1'));
+
+  // ----------------------------------------
+  // IDEF6 Toolbar Handlers
+  // ----------------------------------------
+  document.getElementById('btnIdef6AutoLayout')?.addEventListener('click', () => {
+    idef6Editor?.autoLayout();
+  });
+
+  document.getElementById('btnIdef6ZoomFit')?.addEventListener('click', () => {
+    idef6Editor?.zoomToFit();
+  });
+
+  document.getElementById('btnAddIdef6Issue')?.addEventListener('click', () => {
+    if (!idef6Editor) return;
+    const name = prompt('Введите наименование инженерного вопроса / дилеммы (Issue):', 'Выбор протокола шины АСУ ТП');
+    if (!name) return;
+    idef6Editor.addIssue({
+      name,
+      description: 'Инженерная проблема выбора стека протоколов',
+      status: IssueStatus.OPEN,
+      x: 100 + Math.random() * 150,
+      y: 100 + Math.random() * 150,
+    });
+  });
+
+  document.getElementById('btnAddIdef6Alternative')?.addEventListener('click', () => {
+    if (!idef6Editor) return;
+    const name = prompt('Введите наименование альтернативы / варианта (Alternative):', 'OPC UA Pub/Sub');
+    if (!name) return;
+    idef6Editor.addAlternative({
+      name,
+      description: 'Вариант архитектурного решения',
+      status: AlternativeStatus.PROPOSED,
+      x: 350 + Math.random() * 150,
+      y: 100 + Math.random() * 150,
+    });
+  });
+
+  document.getElementById('btnAddIdef6Criterion')?.addEventListener('click', () => {
+    if (!idef6Editor) return;
+    const name = prompt('Введите критерий оценки (Criterion):', 'Гарантия доставки Hard Real-Time');
+    if (!name) return;
+    idef6Editor.addCriterion({
+      name,
+      description: 'Критерий соответствия требованиям ТЗ',
+      type: CriterionType.CONSTRAINT,
+      x: 600 + Math.random() * 150,
+      y: 100 + Math.random() * 150,
+    });
+  });
+
+  document.getElementById('btnAddIdef6Argument')?.addEventListener('click', () => {
+    if (!idef6Editor) return;
+    const name = prompt('Введите аргумент (Argument):', 'Обеспечивает детерминированную передачу сигналов TSN');
+    if (!name) return;
+    const isCon = confirm('Этот аргумент ПРОТИВ (CON)?\n\nНажмите "OK" для аргумента ПРОТИВ (CON),\nили "Отмена" для аргумента ЗА (PRO).');
+    idef6Editor.addArgument({
+      name,
+      type: isCon ? ArgumentType.CON : ArgumentType.PRO,
+      description: 'Экспертная оценка решения',
+      x: 850 + Math.random() * 150,
+      y: 100 + Math.random() * 150,
+    });
+  });
+
+  document.getElementById('btnValidateIdef6')?.addEventListener('click', () => {
+    if (!idef6Editor) return;
+    const issues = idef6Editor.validate();
+    if (issues.length === 0) {
+      alert('✓ Модель обоснования полностью соответствует стандарту IDEF6!\n\n- Все решенные вопросы (RESOLVED) имеют ровно одну принятую альтернативу (ACCEPTED)\n- Граф аргументации и критериев валиден\n- Отсутствуют дубликаты и разорванные связи');
+    } else {
+      const msg = issues.map((i) => `[${i.severity}] ${i.code}: ${i.message}`).join('\n\n');
+      alert(`Результаты проверки IDEF6:\n\n${msg}`);
+    }
+  });
+
+  document.getElementById('btnIdef6ExportJson')?.addEventListener('click', () => {
+    if (!idef6Editor) return;
+    const json = idef6Editor.exportJSON();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'idef6_rationale_model.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('btnIdef6ImportJson')?.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = async (e: any) => {
+      const file = e.target.files[0];
+      if (file && idef6Editor) {
+        const text = await file.text();
+        idef6Editor.importJSON(text);
+      }
+    };
+    input.click();
+  });
 
   // ----------------------------------------
   // IDEF5 Toolbar Handlers
@@ -770,7 +935,7 @@ document.addEventListener('DOMContentLoaded', () => {
     input.click();
   });
 
-  // Initial startup with IDEF5 mode
-  setupIDEF5();
+  // Initial startup with IDEF6 mode
+  setupIDEF6();
 });
 

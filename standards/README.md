@@ -8,6 +8,7 @@
 - **[IDEF3_Report.pdf](./IDEF3_Report.pdf)** — **IDEF3**: Process Description Capture Method Report (KBSI / IICE, 1.8 МБ).
 - **[IDEF4_Report.pdf](./IDEF4_Report.pdf)** — **IDEF4**: Object-Oriented Design Method Report (KBSI / IICE, 1.6 МБ).
 - **[IDEF5_Report.pdf](./IDEF5_Report.pdf)** — **IDEF5**: Ontology Description Capture Method Report (KBSI / IICE, 1.4 МБ).
+- **IDEF6**: Design Rationale Capture Method (KBSI / US Air Force / IICE) — фиксация обоснований архитектурных и инженерных решений ("ПОЧЕМУ" система спроектирована именно так).
 
 ---
 
@@ -69,10 +70,32 @@
 
 ---
 
+## 🎯 6. Стандарт IDEF6 (KBSI / US Air Force) — Фиксация обоснований проектных решений (Design Rationale)
+- **Концептуальные элементы обоснования (Rationale Graph)**:
+  - **Вопросы (Issues)**: инженерные проблемы, архитектурные дилеммы или требования выбора (`? ВОПРОС`, статусы `OPEN`, `RESOLVED`, `REJECTED`).
+  - **Альтернативы (Alternatives)**: предлагаемые варианты решений (`■ ВАРИАНТ`, статусы `PROPOSED`, `ACCEPTED`, `REJECTED`, `SUPERSEDED`).
+  - **Критерии (Criteria)**: цели, ограничения и стандарты (`⬡ КРИТЕРИЙ`, типы `CONSTRAINT`, `GOAL`, `STANDARD`, вес `CRITICAL`, `IMPORTANT`).
+  - **Аргументы (Arguments)**: экспертные доводы с силой аргументации (`▲ ЗА (PRO)` / `▼ ПРОТИВ (CON)`).
+- **Обосновывающие связи (Rationale Links)**:
+  - `responds-to`: альтернатива отвечает на инженерный вопрос.
+  - `supports`: аргумент ЗА выбранную альтернативу (зеленый).
+  - `objects-to`: аргумент ПРОТИВ альтернативы (красный пунктир).
+  - `evaluates`: критерий оценивает применимость альтернативы (фиолетовый).
+  - `resolves`: принятое и утвержденное решение вопроса (изумрудный жирный).
+- **Правила валидации**:
+  - Все решенные вопросы (`RESOLVED`) обязаны иметь ровно одну принятую альтернативу (`ACCEPTED`).
+  - Защита от коллизий наименований вопросов и альтернатив.
+  - Целостность графа (отсутствие висячих связей).
+
+---
+
 ## 🔗 Соответствие кодовой базе репозитория
 
 | Нотация | Раздел стандарта | Реализующий модуль в `src/` |
 |---|---|---|
+| **IDEF6** | Issues, Alternatives, Criteria, Arguments | `src/idef6/domain/models/`, `src/idef6/infrastructure/adapters/outbound/gojs/templates/RationaleNodeTemplate.ts` |
+| **IDEF6** | Rationale Links (responds-to, supports, objects-to, evaluates, resolves) | `src/idef6/domain/models/IDEF6Link.ts`, `src/idef6/infrastructure/adapters/outbound/gojs/templates/RationaleLinkTemplate.ts` |
+| **IDEF6** | Rationale Rules (Resolution Integrity, Unique Names) | `src/idef6/domain/rules/IDEF6Rules.ts` |
 | **IDEF5** | Kinds, Individuals, Properties | `src/idef5/domain/models/IDEF5Kind.ts`, `src/idef5/infrastructure/adapters/outbound/gojs/templates/KindNodeTemplate.ts` |
 | **IDEF5** | Ontology Relations (subkind-of, part-of, instantiates, first-order) | `src/idef5/domain/models/IDEF5Relation.ts`, `src/idef5/infrastructure/adapters/outbound/gojs/templates/OntologyLinkTemplate.ts` |
 | **IDEF5** | Ontology Rules (Taxonomy Cycle Detection, Unique Names) | `src/idef5/domain/rules/IDEF5Rules.ts` |
