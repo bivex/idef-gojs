@@ -113,6 +113,9 @@
 
 | Нотация | Раздел стандарта | Реализующий модуль в `src/` |
 |---|---|---|
+| **IDEF10** | Components, Execution Nodes, Interfaces, Artifacts | `src/idef10/domain/models/`, `src/idef10/infrastructure/adapters/outbound/gojs/templates/ComponentNodeTemplate.ts` |
+| **IDEF10** | Architecture Links (calls, deploys-on, produces-consumes, reads-writes, packaged-as, exposes) | `src/idef10/domain/models/IDEF10Link.ts`, `src/idef10/infrastructure/adapters/outbound/gojs/templates/ArchitectureLinkTemplate.ts` |
+| **IDEF10** | Architecture Rules (Undeployed Active Service, Isolated Components, Orphan Interfaces) | `src/idef10/domain/rules/IDEF10Rules.ts` |
 | **IDEF8** | Screens, User Actions, System Responses, User Roles | `src/idef8/domain/models/`, `src/idef8/infrastructure/adapters/outbound/gojs/templates/ScreenNodeTemplate.ts` |
 | **IDEF8** | Interaction Links (navigates-to, triggers, opens-modal, returns-to, performed-by) | `src/idef8/domain/models/IDEF8Link.ts`, `src/idef8/infrastructure/adapters/outbound/gojs/templates/InteractionLinkTemplate.ts` |
 | **IDEF8** | Interaction Rules (Modal Trap Detection, Unhandled Actions) | `src/idef8/domain/rules/IDEF8Rules.ts` |
@@ -166,4 +169,37 @@
 3. **Дублирование кодов**: два ограничения с одинаковым кодом CR-xx → ошибка `IDEF9_DUPLICATE_CONSTRAINT_CODE`.
 4. **Конфликт**: любая CONFLICTS_WITH-связь → предупреждение `IDEF9_ACTIVE_CONFLICT` (требует гармонизации).
 5. **Разорванные связи**: link с несуществующим source/target → ошибка `IDEF9_DANGLING_LINK_SOURCE/TARGET`.
+
+---
+
+## 🏗️ 9. Стандарт IDEF10 — Implementation Architecture Modeling (KBSI / US Air Force / IICE)
+
+**IDEF10** — метод моделирования **архитектуры реализации системы** (Implementation Architecture Modeling), формализующий отображение логических компонентов, сервисов, библиотек и баз данных на физические узлы исполнения, сетевые порты и контейнерные артефакты.
+
+### Основные концепции IDEF10:
+
+| Концепция | Описание | Пример (ОАО «Металл-Авиа») |
+|-----------|----------|---------------------------|
+| **Компонент реализации (Component)** | Исполняемый сервис, СУБД, веб-клиент ЧМИ, прошивка ПЛК или библиотека | CMP-MES-01 (Go / gRPC), CMP-TSDB-01 (PostgreSQL / TimescaleDB) |
+| **Узел исполнения (Execution Node)** | Серверный хост, кластер Kubernetes, периферийный ПК (IPC) или панель оператора | NODE-K8S-01 (Kubernetes), NODE-DB-HOST (Bare Metal RHEL), NODE-IPC-01 (Advantech UNO) |
+| **Интерфейс / Порт (Interface)** | Экспортируемый или потребляемый сетевой эндпоинт (REST, gRPC, OPC-UA, SQL) | :8080 REST API, :50051 gRPC stream, :4840 OPC-UA |
+| **Артефакт сборки (Artifact)** | Исполняемый OCI контейнер, бинарный образ, пакет или YAML-манифест | mes-core:2.4.1 OCI образ, прошивка ПЛК OB35 |
+
+### Типы связей IDEF10:
+
+| Тип связи | Семантика | Визуализация |
+|-----------|-----------|--------------|
+| **CALLS** | Сетевой вызов (HTTP, RPC, OPC-UA) | 🔵 Синяя сплошная |
+| **DEPLOYS_ON** | Развертывание компонента/артефакта на узле | 🟢 Зелёная пунктирная |
+| **EXPOSES_INTERFACE** | Экспорт сетевого порта/интерфейса | 🌐 Бирюзовая сплошная |
+| **READS_WRITES** | Чтение/запись данных в СУБД | 🟣 Фиолетовая сплошная |
+| **PRODUCES_CONSUMES** | Публикация/подписка на шину сообщений | 🟡 Янтарная пунктирная |
+| **PACKAGED_AS** | Сборка компонента в артефакт (Docker) | 🔵 Индиго пунктирная |
+
+### Правила валидации IDEF10:
+1. **Неразвернутый активный сервис**: действующий компонент SERVICE/DATABASE без связи DEPLOYS_ON → предупреждение `IDEF10_UNDEPLOYED_ACTIVE_COMPONENT`.
+2. **Изолированный компонент**: компонент без связей взаимодействия → предупреждение `IDEF10_ISOLATED_COMPONENT`.
+3. **Дублирование кодов**: одинаковые коды CMP-xx → ошибка `IDEF10_DUPLICATE_COMPONENT_CODE`.
+4. **Интерфейс без поставщика**: порт/эндпоинт без привязки к компоненту → предупреждение `IDEF10_ORPHAN_INTERFACE`.
+5. **Разорванные связи**: связь с несуществующим элементом → ошибка `IDEF10_DANGLING_LINK_SOURCE/TARGET`.
 

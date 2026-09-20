@@ -451,3 +451,51 @@ export { IDEF9Editor } from './idef9/infrastructure/adapters/inbound/IDEF9Editor
 export { GoJSIDEF9Adapter } from './idef9/infrastructure/adapters/outbound/gojs/GoJSIDEF9Adapter';
 export { createIDEF9NodeTemplateMap } from './idef9/infrastructure/adapters/outbound/gojs/templates/ConstraintNodeTemplate';
 export { createConstraintLinkTemplate } from './idef9/infrastructure/adapters/outbound/gojs/templates/ConstraintLinkTemplate';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// IDEF10 — Implementation Architecture Modeling (KBSI / US Air Force / IICE)
+// ─────────────────────────────────────────────────────────────────────────────
+export {
+  ComponentType,
+  ComponentLifecycle,
+  IDEF10Component,
+} from './idef10/domain/models/IDEF10Component';
+export { NodeType, IDEF10ExecutionNode } from './idef10/domain/models/IDEF10ExecutionNode';
+export { InterfaceProtocol, InterfaceRole, IDEF10Interface } from './idef10/domain/models/IDEF10Interface';
+export { ArtifactType, IDEF10Artifact } from './idef10/domain/models/IDEF10Artifact';
+export { ArchitectureLinkType, IDEF10Link as IDEF10ArchitectureLink } from './idef10/domain/models/IDEF10Link';
+export { IDEF10Diagram } from './idef10/domain/models/IDEF10Diagram';
+export { IDEF10Model } from './idef10/domain/models/IDEF10Model';
+export { IDEF10Rules } from './idef10/domain/rules/IDEF10Rules';
+export type { IDEF10ValidationIssue } from './idef10/domain/rules/IDEF10Rules';
+
+export type {
+  ComponentDTO as IDEF10ComponentDTO,
+  ExecutionNodeDTO as IDEF10ExecutionNodeDTO,
+  InterfaceDTO as IDEF10InterfaceDTO,
+  ArtifactDTO as IDEF10ArtifactDTO,
+  LinkDTO as IDEF10LinkDTO,
+  DiagramDTO as IDEF10DiagramDTO,
+  ModelDTO as IDEF10ModelDTO,
+} from './idef10/application/dtos/IDEF10DTO';
+
+export type {
+  IIDEF10EditorUseCase,
+  CreateComponentCommand,
+  CreateExecutionNodeCommand,
+  CreateInterfaceCommand,
+  CreateArtifactCommand,
+  CreateIDEF10LinkCommand,
+} from './idef10/application/ports/inbound/IIDEF10EditorUseCase';
+
+export type {
+  IIDEF10DiagramRendererPort,
+  IDEF10SelectionCallback,
+} from './idef10/application/ports/outbound/IIDEF10DiagramRendererPort';
+
+export type { IIDEF10ModelRepositoryPort } from './idef10/application/ports/outbound/IIDEF10ModelRepositoryPort';
+export { IDEF10ApplicationService } from './idef10/application/services/IDEF10ApplicationService';
+export { IDEF10Editor } from './idef10/infrastructure/adapters/inbound/IDEF10Editor';
+export { GoJSIDEF10Adapter } from './idef10/infrastructure/adapters/outbound/gojs/GoJSIDEF10Adapter';
+export { createIDEF10NodeTemplateMap } from './idef10/infrastructure/adapters/outbound/gojs/templates/ComponentNodeTemplate';
+export { createArchitectureLinkTemplate } from './idef10/infrastructure/adapters/outbound/gojs/templates/ArchitectureLinkTemplate';

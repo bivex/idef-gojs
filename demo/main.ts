@@ -9,6 +9,7 @@ import {
   IDEF6Editor,
   IDEF8Editor,
   IDEF9Editor,
+  IDEF10Editor,
   ScreenType,
   ScreenState,
   ActionModality,
@@ -29,6 +30,13 @@ import {
   MechanismType,
   DocumentType,
   ConstraintLinkType,
+  ComponentType,
+  ComponentLifecycle,
+  NodeType,
+  InterfaceProtocol,
+  InterfaceRole,
+  ArtifactType,
+  ArchitectureLinkType,
 } from '../src/index';
 import { loadRussianEnterpriseModel } from './russian_enterprise_model';
 import { createRussianEnterpriseIDEF0Model } from './russian_enterprise_idef0';
@@ -38,6 +46,7 @@ import { loadRussianEnterpriseIDEF5Demo } from './russian_enterprise_idef5';
 import { loadRussianEnterpriseIDEF6Demo } from './russian_enterprise_idef6';
 import { loadRussianEnterpriseIDEF8Demo } from './russian_enterprise_idef8';
 import { setupIDEF9 as loadIDEF9Demo } from './russian_enterprise_idef9';
+import { setupIDEF10 as loadIDEF10Demo } from './russian_enterprise_idef10';
 
 let idef1Editor: IDEF1Editor | null = null;
 let idef0Editor: IDEF0Editor | null = null;
@@ -47,9 +56,11 @@ let idef5Editor: IDEF5Editor | null = null;
 let idef6Editor: IDEF6Editor | null = null;
 let idef8Editor: IDEF8Editor | null = null;
 let idef9Editor: IDEF9Editor | null = null;
-let activeMode: 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef9';
+let idef10Editor: IDEF10Editor | null = null;
+let activeMode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef10';
 
 function destroyAllEditors() {
+  if (idef10Editor) { idef10Editor.destroy(); idef10Editor = null; }
   if (idef9Editor) { idef9Editor.destroy(); idef9Editor = null; }
   if (idef8Editor) { idef8Editor.destroy(); idef8Editor = null; }
   if (idef6Editor) { idef6Editor.destroy(); idef6Editor = null; }
@@ -63,6 +74,160 @@ function destroyAllEditors() {
   if (container) {
     container.innerHTML = '';
   }
+}
+
+// ==========================================
+// IDEF10 Setup (KBSI Implementation Architecture)
+// ==========================================
+function setupIDEF10() {
+  destroyAllEditors();
+  const container = document.getElementById('diagramDiv');
+  if (!container) return;
+
+  idef10Editor = new IDEF10Editor();
+  idef10Editor.initialize(container);
+  idef10Editor.createModel(
+    'metal-avia-arch-v1',
+    'IDEF10: Архитектура реализации АСУ ТП и MES — ОАО «Металл-Авиа»'
+  );
+
+  // Load demo data
+  const cmpHmi = idef10Editor.addComponent({
+    code: 'CMP-HMI-01',
+    name: 'Веб-дашборд диспетчера цеха',
+    techStack: 'Vue 3 / TypeScript',
+    version: 'v3.2.0',
+    componentType: ComponentType.UI_CLIENT,
+    lifecycle: ComponentLifecycle.ACTIVE,
+    x: 50, y: 80,
+  });
+
+  const cmpMes = idef10Editor.addComponent({
+    code: 'CMP-MES-01',
+    name: 'MES Core — Диспетчеризация партий',
+    techStack: 'Golang / gRPC',
+    version: 'v2.4.1',
+    componentType: ComponentType.SERVICE,
+    lifecycle: ComponentLifecycle.ACTIVE,
+    x: 380, y: 80,
+  });
+
+  const cmpDb = idef10Editor.addComponent({
+    code: 'CMP-TSDB-01',
+    name: 'Хранилище телеметрии и партий (TSDB)',
+    techStack: 'TimescaleDB / PostgreSQL',
+    version: 'v16.2',
+    componentType: ComponentType.DATABASE,
+    lifecycle: ComponentLifecycle.ACTIVE,
+    x: 720, y: 80,
+  });
+
+  const cmpScada = idef10Editor.addComponent({
+    code: 'CMP-SCADA-01',
+    name: 'Шлюз сбора телеметрии цеха (SCADA)',
+    techStack: 'C# / .NET 8 / OPC SDK',
+    version: 'v1.8.0',
+    componentType: ComponentType.SERVICE,
+    lifecycle: ComponentLifecycle.ACTIVE,
+    x: 380, y: 350,
+  });
+
+  const cmpPlc = idef10Editor.addComponent({
+    code: 'CMP-PLC-01',
+    name: 'Управляющая программа печи ПАП-6',
+    techStack: 'Siemens Step 7 / SCL',
+    version: 'v4.1.2',
+    componentType: ComponentType.HARDWARE_DEVICE,
+    lifecycle: ComponentLifecycle.ACTIVE,
+    x: 380, y: 600,
+  });
+
+  const intfRest = idef10Editor.addInterface({
+    name: 'REST API шлюза заказов',
+    protocol: InterfaceProtocol.REST_API,
+    portNumber: 8080,
+    x: 50, y: 280,
+  });
+
+  const intfGrpc = idef10Editor.addInterface({
+    name: 'gRPC шина телеметрии печей',
+    protocol: InterfaceProtocol.GRPC,
+    portNumber: 50051,
+    x: 380, y: 220,
+  });
+
+  const intfOpc = idef10Editor.addInterface({
+    name: 'OPC-UA Endpoint ПЛК печи',
+    protocol: InterfaceProtocol.OPC_UA,
+    portNumber: 4840,
+    x: 380, y: 480,
+  });
+
+  const nodeK8s = idef10Editor.addExecutionNode({
+    code: 'NODE-K8S-01',
+    name: 'Кластер серверов MES (Worker-1)',
+    nodeType: NodeType.CONTAINER_CLUSTER,
+    ipAddress: '192.168.10.15',
+    osPlatform: 'Debian 12 / K8s v1.30',
+    x: 720, y: 320,
+  });
+
+  const nodeDb = idef10Editor.addExecutionNode({
+    code: 'NODE-DB-HOST',
+    name: 'Выделенный сервер БД (Bare Metal)',
+    nodeType: NodeType.SERVER,
+    ipAddress: '192.168.10.20',
+    osPlatform: 'RHEL 9.3',
+    x: 1040, y: 80,
+  });
+
+  const nodeIpc = idef10Editor.addExecutionNode({
+    code: 'NODE-IPC-01',
+    name: 'Промышленный ПК Advantech UNO',
+    nodeType: NodeType.EDGE_CONTROLLER,
+    ipAddress: '192.168.20.5',
+    osPlatform: 'Ubuntu RT',
+    x: 720, y: 560,
+  });
+
+  const artMes = idef10Editor.addArtifact({
+    name: 'mes-core-service:2.4.1',
+    artifactType: ArtifactType.DOCKER_IMAGE,
+    repositoryUrl: 'registry.avia/mes/core:2.4.1',
+    x: 1040, y: 320,
+  });
+
+  idef10Editor.addLink({ sourceId: cmpHmi.id, targetId: intfRest.id, type: ArchitectureLinkType.CALLS, label: 'HTTP/JSON' });
+  idef10Editor.addLink({ sourceId: cmpMes.id, targetId: intfRest.id, type: ArchitectureLinkType.EXPOSES_INTERFACE });
+  idef10Editor.addLink({ sourceId: cmpMes.id, targetId: intfGrpc.id, type: ArchitectureLinkType.EXPOSES_INTERFACE });
+  idef10Editor.addLink({ sourceId: cmpScada.id, targetId: intfGrpc.id, type: ArchitectureLinkType.CALLS, label: 'gRPC stream' });
+  idef10Editor.addLink({ sourceId: cmpScada.id, targetId: intfOpc.id, type: ArchitectureLinkType.CALLS, label: 'OPC.TCP' });
+  idef10Editor.addLink({ sourceId: cmpPlc.id, targetId: intfOpc.id, type: ArchitectureLinkType.EXPOSES_INTERFACE });
+  idef10Editor.addLink({ sourceId: cmpMes.id, targetId: cmpDb.id, type: ArchitectureLinkType.READS_WRITES, label: 'SQL TCP' });
+  idef10Editor.addLink({ sourceId: cmpMes.id, targetId: nodeK8s.id, type: ArchitectureLinkType.DEPLOYS_ON, label: 'K8s Pod' });
+  idef10Editor.addLink({ sourceId: cmpDb.id, targetId: nodeDb.id, type: ArchitectureLinkType.DEPLOYS_ON, label: 'Systemd' });
+  idef10Editor.addLink({ sourceId: cmpScada.id, targetId: nodeIpc.id, type: ArchitectureLinkType.DEPLOYS_ON, label: 'Docker' });
+  idef10Editor.addLink({ sourceId: cmpMes.id, targetId: artMes.id, type: ArchitectureLinkType.PACKAGED_AS, label: 'CI/CD' });
+
+  const updateIdef10UI = () => {
+    if (!idef10Editor) return;
+    const diag = idef10Editor.getActiveDiagram();
+    const el1 = document.getElementById('cmpCount');
+    if (el1) el1.textContent = `${diag.components.length}`;
+    const el2 = document.getElementById('nodeCount');
+    if (el2) el2.textContent = `${diag.executionNodes.length}`;
+    const el3 = document.getElementById('intfCount');
+    if (el3) el3.textContent = `${diag.interfaces.length}`;
+    const el4 = document.getElementById('artCount');
+    if (el4) el4.textContent = `${diag.artifacts.length}`;
+  };
+
+  idef10Editor.setOnDiagramChanged(() => {
+    updateIdef10UI();
+    setTimeout(() => { idef10Editor?.autoLayout(); }, 50);
+  });
+  updateIdef10UI();
+  setTimeout(() => { idef10Editor?.autoLayout(); }, 80);
 }
 
 // ==========================================
@@ -611,8 +776,9 @@ async function setupIDEF1(modelType: 'ru' | 'en' = 'ru') {
 // ==========================================
 // Mode Switcher
 // ==========================================
-function switchMode(mode: 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
+function switchMode(mode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
   activeMode = mode;
+  const tabIdef10 = document.getElementById('tabIdef10');
   const tabIdef9 = document.getElementById('tabIdef9');
   const tabIdef8 = document.getElementById('tabIdef8');
   const tabIdef6 = document.getElementById('tabIdef6');
@@ -622,6 +788,7 @@ function switchMode(mode: 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'ide
   const tabIdef0 = document.getElementById('tabIdef0');
   const tabIdef1 = document.getElementById('tabIdef1');
 
+  const tbIdef10 = document.getElementById('toolbarIdef10');
   const tbIdef9 = document.getElementById('toolbarIdef9');
   const tbIdef8 = document.getElementById('toolbarIdef8');
   const tbIdef6 = document.getElementById('toolbarIdef6');
@@ -631,6 +798,7 @@ function switchMode(mode: 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'ide
   const tbIdef0 = document.getElementById('toolbarIdef0');
   const tbIdef1 = document.getElementById('toolbarIdef1');
 
+  const sbIdef10 = document.getElementById('sidebarIdef10');
   const sbIdef9 = document.getElementById('sidebarIdef9');
   const sbIdef8 = document.getElementById('sidebarIdef8');
   const sbIdef6 = document.getElementById('sidebarIdef6');
@@ -641,6 +809,7 @@ function switchMode(mode: 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'ide
   const sbIdef1 = document.getElementById('sidebarIdef1');
 
   // Reset tabs
+  tabIdef10?.classList.remove('active');
   tabIdef9?.classList.remove('active');
   tabIdef8?.classList.remove('active');
   tabIdef6?.classList.remove('active');
@@ -651,6 +820,7 @@ function switchMode(mode: 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'ide
   tabIdef1?.classList.remove('active');
 
   // Hide toolbars
+  if (tbIdef10) tbIdef10.style.display = 'none';
   if (tbIdef9) tbIdef9.style.display = 'none';
   if (tbIdef8) tbIdef8.style.display = 'none';
   if (tbIdef6) tbIdef6.style.display = 'none';
@@ -661,6 +831,7 @@ function switchMode(mode: 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'ide
   if (tbIdef1) tbIdef1.style.display = 'none';
 
   // Hide sidebars
+  if (sbIdef10) sbIdef10.style.display = 'none';
   if (sbIdef9) sbIdef9.style.display = 'none';
   if (sbIdef8) sbIdef8.style.display = 'none';
   if (sbIdef6) sbIdef6.style.display = 'none';
@@ -670,7 +841,12 @@ function switchMode(mode: 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'ide
   if (sbIdef0) sbIdef0.style.display = 'none';
   if (sbIdef1) sbIdef1.style.display = 'none';
 
-  if (mode === 'idef9') {
+  if (mode === 'idef10') {
+    tabIdef10?.classList.add('active');
+    if (tbIdef10) tbIdef10.style.display = 'flex';
+    if (sbIdef10) sbIdef10.style.display = 'flex';
+    setupIDEF10();
+  } else if (mode === 'idef9') {
     tabIdef9?.classList.add('active');
     if (tbIdef9) tbIdef9.style.display = 'flex';
     if (sbIdef9) sbIdef9.style.display = 'flex';
@@ -718,6 +894,7 @@ function switchMode(mode: 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'ide
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   // Tabs
+  document.getElementById('tabIdef10')?.addEventListener('click', () => switchMode('idef10'));
   document.getElementById('tabIdef9')?.addEventListener('click', () => switchMode('idef9'));
   document.getElementById('tabIdef8')?.addEventListener('click', () => switchMode('idef8'));
   document.getElementById('tabIdef6')?.addEventListener('click', () => switchMode('idef6'));
@@ -1359,6 +1536,114 @@ document.addEventListener('DOMContentLoaded', () => {
     input.click();
   });
 
-  // Initial startup — IDEF9 is the newest and active tab
-  setupIDEF9();
+  // ----------------------------------------
+  // IDEF10 Toolbar Handlers
+  // ----------------------------------------
+  document.getElementById('btnIdef10AutoLayout')?.addEventListener('click', () => {
+    idef10Editor?.autoLayout();
+  });
+
+  document.getElementById('btnIdef10ZoomFit')?.addEventListener('click', () => {
+    idef10Editor?.zoomToFit();
+  });
+
+  document.getElementById('btnAddIdef10Component')?.addEventListener('click', () => {
+    if (!idef10Editor) return;
+    const code = prompt('Введите код компонента (например, CMP-API-01):', 'CMP-API-01');
+    if (!code) return;
+    const name = prompt('Введите наименование компонента:', 'Шлюз внешней интеграции ERP');
+    if (!name) return;
+    idef10Editor.addComponent({
+      code,
+      name,
+      techStack: 'Node.js / Express / TypeScript',
+      componentType: ComponentType.SERVICE,
+      lifecycle: ComponentLifecycle.ACTIVE,
+      x: 350 + Math.random() * 200,
+      y: 100 + Math.random() * 300,
+    });
+  });
+
+  document.getElementById('btnAddIdef10Node')?.addEventListener('click', () => {
+    if (!idef10Editor) return;
+    const code = prompt('Введите код узла (например, NODE-EDGE-02):', 'NODE-EDGE-02');
+    if (!code) return;
+    const name = prompt('Введите наименование сервера/узла:', 'Цеховой сервер сбора данных');
+    if (!name) return;
+    idef10Editor.addExecutionNode({
+      code,
+      name,
+      nodeType: NodeType.EDGE_CONTROLLER,
+      ipAddress: '192.168.20.10',
+      osPlatform: 'Ubuntu Core RT',
+      x: 700 + Math.random() * 200,
+      y: 100 + Math.random() * 300,
+    });
+  });
+
+  document.getElementById('btnAddIdef10Interface')?.addEventListener('click', () => {
+    if (!idef10Editor) return;
+    const name = prompt('Введите наименование интерфейса / порта:', 'Kafka Topic: plant.events');
+    if (!name) return;
+    idef10Editor.addInterface({
+      name,
+      protocol: InterfaceProtocol.MQTT_KAFKA,
+      portNumber: 9092,
+      x: 350 + Math.random() * 200,
+      y: 350 + Math.random() * 200,
+    });
+  });
+
+  document.getElementById('btnAddIdef10Artifact')?.addEventListener('click', () => {
+    if (!idef10Editor) return;
+    const name = prompt('Введите наименование артефакта сборки:', 'gateway-service.tar.gz');
+    if (!name) return;
+    idef10Editor.addArtifact({
+      name,
+      artifactType: ArtifactType.DOCKER_IMAGE,
+      repositoryUrl: 'registry.avia/gateway:v1.0.0',
+      x: 1000 + Math.random() * 150,
+      y: 300 + Math.random() * 200,
+    });
+  });
+
+  document.getElementById('btnValidateIdef10')?.addEventListener('click', () => {
+    if (!idef10Editor) return;
+    const issues = idef10Editor.validate();
+    if (issues.length === 0) {
+      alert('✓ Архитектура реализации полностью соответствует стандарту IDEF10!\n\n- Все действующие сервисы и БД привязаны к узлам исполнения (DEPLOYS_ON)\n- Отсутствуют изолированные компоненты\n- Коды компонентов уникальны\n- Интерфейсы экспортируются поставщиками');
+    } else {
+      const msg = issues.map((i) => `[${i.severity}] ${i.code}: ${i.message}`).join('\n\n');
+      alert(`Результаты проверки IDEF10:\n\n${msg}`);
+    }
+  });
+
+  document.getElementById('btnIdef10ExportJson')?.addEventListener('click', () => {
+    if (!idef10Editor) return;
+    const json = idef10Editor.exportJSON();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'idef10_implementation_architecture.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('btnIdef10ImportJson')?.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = async (e: any) => {
+      const file = e.target.files[0];
+      if (file && idef10Editor) {
+        const text = await file.text();
+        idef10Editor.importJSON(text);
+      }
+    };
+    input.click();
+  });
+
+  // Initial startup — IDEF10 is the newest and active tab
+  setupIDEF10();
 });

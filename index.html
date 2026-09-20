@@ -205,9 +205,10 @@
       <span class="badge">DDD-HEX Architecture</span>
     </div>
 
-    <!-- Mode Toggle: IDEF9 vs IDEF8 vs IDEF6 vs IDEF5 vs IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
+    <!-- Mode Toggle: IDEF10 vs IDEF9 vs IDEF8 vs IDEF6 vs IDEF5 vs IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
     <div class="mode-toggle">
-      <button class="mode-btn active" id="tabIdef9">🔒 IDEF9 (Ограничения KBSI)</button>
+      <button class="mode-btn active" id="tabIdef10">🏗️ IDEF10 (Архитектура KBSI)</button>
+      <button class="mode-btn" id="tabIdef9">🔒 IDEF9 (Ограничения KBSI)</button>
       <button class="mode-btn" id="tabIdef8">🖥️ IDEF8 (ЧМИ / UI KBSI)</button>
       <button class="mode-btn" id="tabIdef6">🎯 IDEF6 (Обоснование KBSI)</button>
       <button class="mode-btn" id="tabIdef5">🌐 IDEF5 (Онтологии KBSI)</button>
@@ -217,8 +218,21 @@
       <button class="mode-btn" id="tabIdef1">📊 IDEF1X (Данные FIPS 184)</button>
     </div>
 
+    <!-- IDEF10 Toolbar -->
+    <div class="toolbar" id="toolbarIdef10">
+      <button class="primary" id="btnIdef10AutoLayout">✨ Выравнивание архитектуры</button>
+      <button id="btnIdef10ZoomFit">🔍 Центрировать</button>
+      <button class="primary" id="btnAddIdef10Component">+ Компонент (Component)</button>
+      <button id="btnAddIdef10Node">+ Узел (Execution Node)</button>
+      <button id="btnAddIdef10Interface">+ Интерфейс (Port)</button>
+      <button id="btnAddIdef10Artifact">+ Артефакт (Artifact)</button>
+      <button class="success" id="btnValidateIdef10">✓ Проверить IDEF10</button>
+      <button id="btnIdef10ExportJson">Экспорт JSON</button>
+      <button id="btnIdef10ImportJson">Импорт JSON</button>
+    </div>
+
     <!-- IDEF9 Toolbar -->
-    <div class="toolbar" id="toolbarIdef9">
+    <div class="toolbar" id="toolbarIdef9" style="display: none;">
       <button class="primary" id="btnIdef9AutoLayout">✨ Выравнивание ограничений</button>
       <button id="btnIdef9ZoomFit">🔍 Центрировать</button>
       <button class="primary" id="btnAddIdef9Constraint">+ Ограничение (Constraint)</button>
@@ -342,8 +356,72 @@
   </header>
 
   <div class="main-content">
+    <!-- IDEF10 Sidebar -->
+    <aside class="sidebar" id="sidebarIdef10">
+      <div class="breadcrumb-bar" id="idef10Breadcrumb">
+        Архитектура: <strong>АСУ ТП и MES ОАО «Металл-Авиа» (KBSI IDEF10)</strong>
+      </div>
+
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-val" id="cmpCount">5</div>
+          <div class="stat-lbl">Компонентов</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="nodeCount">3</div>
+          <div class="stat-lbl">Узлов/Хостов</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="intfCount">3</div>
+          <div class="stat-lbl">Интерфейсов</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="artCount">1</div>
+          <div class="stat-lbl">Артефактов</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Нотация IDEF10 (Implementation Architecture)</h3>
+        <p><strong>Элементы архитектуры:</strong></p>
+        <ul>
+          <li><strong>Компонент (Component):</strong> модуль реализации (SERVICE, DATABASE, UI_CLIENT, HARDWARE_DEVICE, MODULE).</li>
+          <li><strong>Узел исполнения (Execution Node):</strong> физический хост, сервер, K8s-кластер или промышленный ПК (IPC).</li>
+          <li><strong>Интерфейс (Interface):</strong> сетевой эндпоинт/порт (REST API, gRPC, OPC-UA, MQTT/Kafka, SQL TCP).</li>
+          <li><strong>Артефакт сборки (Artifact):</strong> OCI Docker образ, бинарный файл ELF/EXE, прошивка ПЛК или Helm-манифест.</li>
+        </ul>
+        <p style="margin-top: 8px;"><strong>Типы архитектурных связей:</strong></p>
+        <ul>
+          <li><span style="color: #2563eb;">■ calls:</span> сетевой RPC / HTTP / OPC вызов.</li>
+          <li><span style="color: #059669;">■ deploys-on:</span> развертывание компонента на узле/сервере.</li>
+          <li><span style="color: #0d9488;">■ exposes:</span> предоставление сетевого порта/интерфейса.</li>
+          <li><span style="color: #9333ea;">■ reads/writes:</span> чтение/запись в базу данных.</li>
+          <li><span style="color: #4f46e5;">■ packaged-as:</span> сборка компонента в образ/артефакт.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Правила валидации IDEF10</h3>
+        <ul>
+          <li><strong>Развертывание сервисов:</strong> действующие сервисы и БД обязаны быть привязаны к узлу исполнения (DEPLOYS_ON).</li>
+          <li><strong>Изоляция компонентов:</strong> компоненты не должны висеть без взаимодействия и интерфейсов.</li>
+          <li><strong>Уникальность кодов:</strong> уникальность префиксов CMP-xxx.</li>
+          <li><strong>Интерфейсы:</strong> порты должны быть привязаны к компонентам-поставщикам.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Стандарты в репозитории</h3>
+        <ul>
+          <li><a href="#" style="color: #38bdf8;">IDEF10_Report.pdf (KBSI Architecture)</a></li>
+          <li><a href="#" style="color: #38bdf8;">Kubernetes Deployment Architecture</a></li>
+          <li><a href="#" style="color: #38bdf8;">OPC Unified Architecture Spec</a></li>
+        </ul>
+      </div>
+    </aside>
+
     <!-- IDEF9 Sidebar -->
-    <aside class="sidebar" id="sidebarIdef9">
+    <aside class="sidebar" id="sidebarIdef9" style="display: none;">
       <div class="breadcrumb-bar" id="idef9Breadcrumb">
         Ограничения: <strong>Производство лопаток ГТД — ОАО «Металл-Авиа» (KBSI IDEF9)</strong>
       </div>
