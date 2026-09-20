@@ -7,6 +7,7 @@
 - **[FIPS_PUB_184.txt](./FIPS_PUB_184.txt)** — Текстовая версия стандарта FIPS 184 (304 КБ) для быстрой индексации и верификации правил.
 - **[IDEF3_Report.pdf](./IDEF3_Report.pdf)** — **IDEF3**: Process Description Capture Method Report (KBSI / IICE, 1.8 МБ).
 - **[IDEF4_Report.pdf](./IDEF4_Report.pdf)** — **IDEF4**: Object-Oriented Design Method Report (KBSI / IICE, 1.6 МБ).
+- **[IDEF5_Report.pdf](./IDEF5_Report.pdf)** — **IDEF5**: Ontology Description Capture Method Report (KBSI / IICE, 1.4 МБ).
 
 ---
 
@@ -51,10 +52,30 @@
 
 ---
 
+## 🌐 5. Стандарт IDEF5 (KBSI Report) — Онтологическое моделирование предметной области
+- **Элементы онтологии (Ontology Schematic)**:
+  - **Виды (Kinds)**: общие категории, типы или понятия реального мира (`⭘ ВИД`) со списком атрибутов/свойств.
+  - **Индивиды (Individuals)**: конкретные физические сущности и экземпляры (`● ИНДИВИД`, пунктирная рамка).
+  - **Свойства (Properties)**: типизированные атрибуты с ограничениями обязательности.
+- **Онтологические отношения (Relations)**:
+  - **Таксономия (subkind-of)**: отношение специализации/обобщения (подвид → надвид).
+  - **Мереология (part-of)**: отношение включения составных частей (часть → целое, ромбовидный маркер).
+  - **Экземпляр вида (instantiates)**: отношение от индивида к его понятию/виду (пунктирная стрелка).
+  - **Отношения первого порядка (First-Order Relations)**: прикладные семантические связи (`изготавливается-из`, `обрабатывается-на`, `управляет-и-обслуживает`) с направленной стрелкой и бейджем имени.
+- **Правила валидации**:
+  - Запрет циклических иерархий в таксономических связях (`subkind-of`).
+  - Контроль уникальности наименований видов.
+  - Защита от висячих отношений.
+
+---
+
 ## 🔗 Соответствие кодовой базе репозитория
 
 | Нотация | Раздел стандарта | Реализующий модуль в `src/` |
 |---|---|---|
+| **IDEF5** | Kinds, Individuals, Properties | `src/idef5/domain/models/IDEF5Kind.ts`, `src/idef5/infrastructure/adapters/outbound/gojs/templates/KindNodeTemplate.ts` |
+| **IDEF5** | Ontology Relations (subkind-of, part-of, instantiates, first-order) | `src/idef5/domain/models/IDEF5Relation.ts`, `src/idef5/infrastructure/adapters/outbound/gojs/templates/OntologyLinkTemplate.ts` |
+| **IDEF5** | Ontology Rules (Taxonomy Cycle Detection, Unique Names) | `src/idef5/domain/rules/IDEF5Rules.ts` |
 | **IDEF4** | Class & Members | `src/idef4/domain/models/IDEF4Class.ts`, `src/idef4/infrastructure/adapters/outbound/gojs/templates/ClassNodeTemplate.ts` |
 | **IDEF4** | Relationships (Inheritance, Composition, Client-Server) | `src/idef4/domain/models/IDEF4Relationship.ts`, `src/idef4/infrastructure/adapters/outbound/gojs/templates/ClassLinkTemplate.ts` |
 | **IDEF4** | Rules (Cycle Detection, Abstract Integrity) | `src/idef4/domain/rules/IDEF4Rules.ts` |
@@ -62,3 +83,4 @@
 | **IDEF3** | Links (Precedence, Relational, Object Flow) | `src/idef3/domain/models/Link.ts` |
 | **IDEF0** | Function Boxes & ICOM Ports | `src/idef0/domain/models/Activity.ts`, `src/idef0/domain/models/Arrow.ts` |
 | **IDEF1X** | Entities, Attributes, Relationships | `src/domain/models/Entity.ts`, `src/domain/models/Relationship.ts` |
+

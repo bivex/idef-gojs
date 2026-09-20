@@ -205,16 +205,28 @@
       <span class="badge">DDD-HEX Architecture</span>
     </div>
 
-    <!-- Mode Toggle: IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
+    <!-- Mode Toggle: IDEF5 vs IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
     <div class="mode-toggle">
-      <button class="mode-btn active" id="tabIdef4">📐 IDEF4 (ОО-дизайн KBSI)</button>
+      <button class="mode-btn active" id="tabIdef5">🌐 IDEF5 (Онтологии KBSI)</button>
+      <button class="mode-btn" id="tabIdef4">📐 IDEF4 (ОО-дизайн KBSI)</button>
       <button class="mode-btn" id="tabIdef3">🔄 IDEF3 (Процессы KBSI)</button>
       <button class="mode-btn" id="tabIdef0">⚙️ IDEF0 (Функции FIPS 183)</button>
       <button class="mode-btn" id="tabIdef1">📊 IDEF1X (Данные FIPS 184)</button>
     </div>
 
+    <!-- IDEF5 Toolbar -->
+    <div class="toolbar" id="toolbarIdef5">
+      <button class="primary" id="btnIdef5AutoLayout">✨ Выравнивание онтологии</button>
+      <button id="btnIdef5ZoomFit">🔍 Центрировать</button>
+      <button class="primary" id="btnAddIdef5Kind">+ Понятие (Kind)</button>
+      <button id="btnAddIdef5Individual">+ Индивид</button>
+      <button class="success" id="btnValidateIdef5">✓ Проверить IDEF5</button>
+      <button id="btnIdef5ExportJson">Экспорт JSON</button>
+      <button id="btnIdef5ImportJson">Импорт JSON</button>
+    </div>
+
     <!-- IDEF4 Toolbar -->
-    <div class="toolbar" id="toolbarIdef4">
+    <div class="toolbar" id="toolbarIdef4" style="display: none;">
       <button class="primary" id="btnIdef4AutoLayout">✨ Выравнивание классов</button>
       <button id="btnIdef4ZoomFit">🔍 Центрировать</button>
       <button class="primary" id="btnAddIdef4Class">+ Добавить класс</button>
@@ -289,8 +301,59 @@
   </header>
 
   <div class="main-content">
+    <!-- IDEF5 Sidebar -->
+    <aside class="sidebar" id="sidebarIdef5">
+      <div class="breadcrumb-bar" id="idef5Breadcrumb">
+        Онтология: <strong>Машиностроение (KBSI IDEF5)</strong>
+      </div>
+
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-val" id="kindCount">10</div>
+          <div class="stat-lbl">Видов (Kinds)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="indCount">2</div>
+          <div class="stat-lbl">Индивидов</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Нотация IDEF5 (Ontology Description)</h3>
+        <p><strong>Элементы онтологической схемы:</strong></p>
+        <ul>
+          <li><strong>Вид (Kind):</strong> <code>⭘ ВИД</code> понятие или класс сущностей реального мира.</li>
+          <li><strong>Индивид (Individual):</strong> <code>● ИНДИВИД</code> пунктирная карточка конкретного объекта.</li>
+          <li><strong>Таксономия (subkind-of):</strong> стрелка с полым треугольником от подвида к надвиду.</li>
+          <li><strong>Мереология (part-of):</strong> ромбовидный маркер компонентной связи составных частей.</li>
+          <li><strong>Экземпляр (instantiates):</strong> пунктирная связь от индивида к его виду.</li>
+          <li><strong>Отношения 1-го порядка:</strong> смысловые связи предметной области с ярлыком отношения.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Правила валидации IDEF5</h3>
+        <ul>
+          <li><strong>Ацикличность таксономии:</strong> проверка запрета циклических связей (subkind-of).</li>
+          <li><strong>Уникальность понятий:</strong> запрет дублирования наименований видов.</li>
+          <li><strong>Целостность графа:</strong> выявление висячих или разорванных отношений.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Стандарты в репозитории</h3>
+        <ul>
+          <li><a href="#" style="color: #38bdf8;">IDEF5_Report.pdf (1.4 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">IDEF4_Report.pdf (1.6 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">IDEF3_Report.pdf (1.8 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">FIPS PUB 183.pdf (4.67 MB)</a></li>
+          <li><a href="#" style="color: #38bdf8;">FIPS PUB 184.doc (823 KB)</a></li>
+        </ul>
+      </div>
+    </aside>
+
     <!-- IDEF4 Sidebar -->
-    <aside class="sidebar" id="sidebarIdef4">
+    <aside class="sidebar" id="sidebarIdef4" style="display: none;">
       <div class="breadcrumb-bar" id="idef4Breadcrumb">
         Диаграмма: <strong>Классы MES/ERP</strong>
       </div>

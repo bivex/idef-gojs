@@ -5,17 +5,70 @@ import {
   IDEF0Editor,
   IDEF3Editor,
   IDEF4Editor,
+  IDEF5Editor,
 } from '../src/index';
 import { loadRussianEnterpriseModel } from './russian_enterprise_model';
 import { createRussianEnterpriseIDEF0Model } from './russian_enterprise_idef0';
 import { createRussianEnterpriseIDEF3Model } from './russian_enterprise_idef3';
 import { createRussianEnterpriseIDEF4Model } from './russian_enterprise_idef4';
+import { loadRussianEnterpriseIDEF5Demo } from './russian_enterprise_idef5';
 
 let idef1Editor: IDEF1Editor | null = null;
 let idef0Editor: IDEF0Editor | null = null;
 let idef3Editor: IDEF3Editor | null = null;
 let idef4Editor: IDEF4Editor | null = null;
-let activeMode: 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef4';
+let idef5Editor: IDEF5Editor | null = null;
+let activeMode: 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef5';
+
+// ==========================================
+// IDEF5 Setup
+// ==========================================
+function setupIDEF5() {
+  const container = document.getElementById('diagramDiv');
+  if (!container) return;
+
+  if (idef1Editor) { idef1Editor.destroy(); idef1Editor = null; }
+  if (idef0Editor) { idef0Editor.destroy(); idef0Editor = null; }
+  if (idef3Editor) { idef3Editor.destroy(); idef3Editor = null; }
+  if (idef4Editor) { idef4Editor.destroy(); idef4Editor = null; }
+  if (idef5Editor) { idef5Editor.destroy(); idef5Editor = null; }
+
+  container.innerHTML = '';
+  idef5Editor = new IDEF5Editor();
+  idef5Editor.initialize(container);
+
+  loadRussianEnterpriseIDEF5Demo(idef5Editor);
+
+  const updateIdef5UI = () => {
+    if (!idef5Editor) return;
+    const diag = idef5Editor.getActiveDiagram();
+
+    const kindCountEl = document.getElementById('kindCount');
+    if (kindCountEl) {
+      const kindsOnly = diag.kinds.filter((k) => !k.isIndividual);
+      kindCountEl.textContent = `${kindsOnly.length}`;
+    }
+
+    const indCountEl = document.getElementById('indCount');
+    if (indCountEl) {
+      const indsOnly = diag.kinds.filter((k) => k.isIndividual);
+      indCountEl.textContent = `${indsOnly.length}`;
+    }
+  };
+
+  idef5Editor.setOnDiagramChanged(() => {
+    updateIdef5UI();
+    setTimeout(() => {
+      idef5Editor?.autoLayout();
+    }, 50);
+  });
+
+  updateIdef5UI();
+  setTimeout(() => {
+    idef5Editor?.autoLayout();
+  }, 80);
+}
+
 
 // ==========================================
 // IDEF4 Setup
@@ -324,42 +377,53 @@ async function setupIDEF1(modelType: 'ru' | 'en' = 'ru') {
 // ==========================================
 // Mode Switcher
 // ==========================================
-function switchMode(mode: 'idef4' | 'idef3' | 'idef0' | 'idef1') {
+function switchMode(mode: 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
   activeMode = mode;
+  const tabIdef5 = document.getElementById('tabIdef5');
   const tabIdef4 = document.getElementById('tabIdef4');
   const tabIdef3 = document.getElementById('tabIdef3');
   const tabIdef0 = document.getElementById('tabIdef0');
   const tabIdef1 = document.getElementById('tabIdef1');
 
+  const tbIdef5 = document.getElementById('toolbarIdef5');
   const tbIdef4 = document.getElementById('toolbarIdef4');
   const tbIdef3 = document.getElementById('toolbarIdef3');
   const tbIdef0 = document.getElementById('toolbarIdef0');
   const tbIdef1 = document.getElementById('toolbarIdef1');
 
+  const sbIdef5 = document.getElementById('sidebarIdef5');
   const sbIdef4 = document.getElementById('sidebarIdef4');
   const sbIdef3 = document.getElementById('sidebarIdef3');
   const sbIdef0 = document.getElementById('sidebarIdef0');
   const sbIdef1 = document.getElementById('sidebarIdef1');
 
   // Reset tabs
+  tabIdef5?.classList.remove('active');
   tabIdef4?.classList.remove('active');
   tabIdef3?.classList.remove('active');
   tabIdef0?.classList.remove('active');
   tabIdef1?.classList.remove('active');
 
   // Hide toolbars
+  if (tbIdef5) tbIdef5.style.display = 'none';
   if (tbIdef4) tbIdef4.style.display = 'none';
   if (tbIdef3) tbIdef3.style.display = 'none';
   if (tbIdef0) tbIdef0.style.display = 'none';
   if (tbIdef1) tbIdef1.style.display = 'none';
 
   // Hide sidebars
+  if (sbIdef5) sbIdef5.style.display = 'none';
   if (sbIdef4) sbIdef4.style.display = 'none';
   if (sbIdef3) sbIdef3.style.display = 'none';
   if (sbIdef0) sbIdef0.style.display = 'none';
   if (sbIdef1) sbIdef1.style.display = 'none';
 
-  if (mode === 'idef4') {
+  if (mode === 'idef5') {
+    tabIdef5?.classList.add('active');
+    if (tbIdef5) tbIdef5.style.display = 'flex';
+    if (sbIdef5) sbIdef5.style.display = 'flex';
+    setupIDEF5();
+  } else if (mode === 'idef4') {
     tabIdef4?.classList.add('active');
     if (tbIdef4) tbIdef4.style.display = 'flex';
     if (sbIdef4) sbIdef4.style.display = 'flex';
@@ -387,10 +451,87 @@ function switchMode(mode: 'idef4' | 'idef3' | 'idef0' | 'idef1') {
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   // Tabs
+  document.getElementById('tabIdef5')?.addEventListener('click', () => switchMode('idef5'));
   document.getElementById('tabIdef4')?.addEventListener('click', () => switchMode('idef4'));
   document.getElementById('tabIdef3')?.addEventListener('click', () => switchMode('idef3'));
   document.getElementById('tabIdef0')?.addEventListener('click', () => switchMode('idef0'));
   document.getElementById('tabIdef1')?.addEventListener('click', () => switchMode('idef1'));
+
+  // ----------------------------------------
+  // IDEF5 Toolbar Handlers
+  // ----------------------------------------
+  document.getElementById('btnIdef5AutoLayout')?.addEventListener('click', () => {
+    idef5Editor?.autoLayout();
+  });
+
+  document.getElementById('btnIdef5ZoomFit')?.addEventListener('click', () => {
+    idef5Editor?.zoomToFit();
+  });
+
+  document.getElementById('btnAddIdef5Kind')?.addEventListener('click', () => {
+    if (!idef5Editor) return;
+    const name = prompt('Введите имя понятия (Kind Name):', 'Сверлильный_Станок');
+    if (!name) return;
+    idef5Editor.addKind({
+      name,
+      description: 'Технологическое оборудование сверлильной группы',
+      isIndividual: false,
+      properties: [{ name: 'макс_диаметр_сверления_мм', valueType: 'float' }],
+      x: 200 + Math.random() * 150,
+      y: 200 + Math.random() * 150,
+    });
+  });
+
+  document.getElementById('btnAddIdef5Individual')?.addEventListener('click', () => {
+    if (!idef5Editor) return;
+    const name = prompt('Введите имя индивида (Individual):', 'Индивид_Станок_2А135');
+    if (!name) return;
+    idef5Editor.addKind({
+      name,
+      description: 'Конкретный физический экземпляр станка',
+      isIndividual: true,
+      properties: [{ name: 'инвентарный_номер', valueType: 'string', defaultValue: 'INV-2A135-01' }],
+      x: 200 + Math.random() * 150,
+      y: 350 + Math.random() * 150,
+    });
+  });
+
+  document.getElementById('btnValidateIdef5')?.addEventListener('click', () => {
+    if (!idef5Editor) return;
+    const issues = idef5Editor.validate();
+    if (issues.length === 0) {
+      alert('✓ Онтологическая схема полностью соответствует стандарту KBSI IDEF5!\n\n- Таксономия (subkind-of) не содержит циклов\n- Имена понятий уникальны\n- Отсутствуют висячие или некорректные связи');
+    } else {
+      const msg = issues.map((i) => `[${i.severity}] ${i.code}: ${i.message}`).join('\n\n');
+      alert(`Результаты проверки IDEF5:\n\n${msg}`);
+    }
+  });
+
+  document.getElementById('btnIdef5ExportJson')?.addEventListener('click', () => {
+    if (!idef5Editor) return;
+    const json = idef5Editor.exportJSON();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'idef5_ontology_model.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('btnIdef5ImportJson')?.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = async (e: any) => {
+      const file = e.target.files[0];
+      if (file && idef5Editor) {
+        const text = await file.text();
+        idef5Editor.importJSON(text);
+      }
+    };
+    input.click();
+  });
 
   // ----------------------------------------
   // IDEF4 Toolbar Handlers
@@ -643,6 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
     input.click();
   });
 
-  // Initial startup with IDEF4 mode
-  setupIDEF4();
+  // Initial startup with IDEF5 mode
+  setupIDEF5();
 });
+

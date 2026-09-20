@@ -234,3 +234,52 @@ export { IDEF4Editor } from './idef4/infrastructure/adapters/inbound/IDEF4Editor
 export { GoJSIDEF4Adapter } from './idef4/infrastructure/adapters/outbound/gojs/GoJSIDEF4Adapter';
 export { createClassNodeTemplate } from './idef4/infrastructure/adapters/outbound/gojs/templates/ClassNodeTemplate';
 export { createClassLinkTemplate } from './idef4/infrastructure/adapters/outbound/gojs/templates/ClassLinkTemplate';
+
+// ==========================================
+// IDEF5 Ontology Description Capture Module (KBSI / IEEE)
+// ==========================================
+export { OntologyRelationType, IDEF5Relation } from './idef5/domain/models/IDEF5Relation';
+export type { IDEF5RelationProps } from './idef5/domain/models/IDEF5Relation';
+export { IDEF5Property } from './idef5/domain/models/IDEF5Property';
+export type { IDEF5PropertyProps } from './idef5/domain/models/IDEF5Property';
+export { IDEF5Kind } from './idef5/domain/models/IDEF5Kind';
+export type { IDEF5KindProps } from './idef5/domain/models/IDEF5Kind';
+export { IDEF5Diagram } from './idef5/domain/models/IDEF5Diagram';
+export type { IDEF5DiagramProps, SchematicType as IDEF5SchematicType } from './idef5/domain/models/IDEF5Diagram';
+export { IDEF5Model } from './idef5/domain/models/IDEF5Model';
+export type { IDEF5ModelProps } from './idef5/domain/models/IDEF5Model';
+export { IDEF5Rules } from './idef5/domain/rules/IDEF5Rules';
+export type { IDEF5ValidationIssue as IDEF5ValidationIssue } from './idef5/domain/rules/IDEF5Rules';
+export {
+  IDEF5Error,
+  KindNotFoundError,
+  RelationNotFoundError as IDEF5RelationNotFoundError,
+  DiagramNotFoundError as IDEF5DiagramNotFoundError,
+} from './idef5/domain/errors/IDEF5Error';
+
+export type {
+  PropertyDTO as IDEF5PropertyDTO,
+  KindDTO as IDEF5KindDTO,
+  RelationDTO as IDEF5RelationDTO,
+  DiagramDTO as IDEF5DiagramDTO,
+  ModelDTO as IDEF5ModelDTO,
+} from './idef5/application/dtos/IDEF5DTO';
+
+export type {
+  IIDEF5EditorUseCase,
+  CreateKindCommand,
+  CreateRelationCommand,
+} from './idef5/application/ports/inbound/IIDEF5EditorUseCase';
+
+export type {
+  IIDEF5DiagramRendererPort,
+  IDEF5SelectionCallback,
+} from './idef5/application/ports/outbound/IIDEF5DiagramRendererPort';
+
+export type { IIDEF5ModelRepositoryPort as IIDEF5ModelRepositoryPort } from './idef5/application/ports/outbound/IIDEF5ModelRepositoryPort';
+export { IDEF5ApplicationService } from './idef5/application/services/IDEF5ApplicationService';
+export { IDEF5Editor } from './idef5/infrastructure/adapters/inbound/IDEF5Editor';
+export { GoJSIDEF5Adapter } from './idef5/infrastructure/adapters/outbound/gojs/GoJSIDEF5Adapter';
+export { createKindNodeTemplate } from './idef5/infrastructure/adapters/outbound/gojs/templates/KindNodeTemplate';
+export { createOntologyLinkTemplate } from './idef5/infrastructure/adapters/outbound/gojs/templates/OntologyLinkTemplate';
+
