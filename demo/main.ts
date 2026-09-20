@@ -1,5 +1,4 @@
-import { IDEF1Editor } from './src/index';
-import { RelationshipType, Cardinality } from './src/domain/models/Relationship';
+import { IDEF1Editor, RelationshipType, Cardinality } from '../src/index';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const container = document.getElementById('diagramDiv');
