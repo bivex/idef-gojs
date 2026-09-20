@@ -1,9 +1,5 @@
-import { IDEF10Editor } from '../src/idef10/infrastructure/adapters/inbound/IDEF10Editor';
-import { ComponentType, ComponentLifecycle } from '../src/idef10/domain/models/IDEF10Component';
-import { NodeType } from '../src/idef10/domain/models/IDEF10ExecutionNode';
-import { InterfaceProtocol } from '../src/idef10/domain/models/IDEF10Interface';
-import { ArtifactType } from '../src/idef10/domain/models/IDEF10Artifact';
-import { ArchitectureLinkType } from '../src/idef10/domain/models/IDEF10Link';
+import { IDEF12Editor } from '../src/idef12/infrastructure/adapters/inbound/IDEF12Editor';
+import { setupIDEF12 as loadIDEF12 } from './russian_enterprise_idef12';
 
 let idef1Editor: any = null;
 let idef0Editor: any = null;
@@ -13,10 +9,12 @@ let idef5Editor: any = null;
 let idef6Editor: any = null;
 let idef8Editor: any = null;
 let idef9Editor: any = null;
-let idef10Editor: IDEF10Editor | null = null;
-let activeMode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef10';
+let idef10Editor: any = null;
+let idef12Editor: IDEF12Editor | null = null;
+let activeMode: 'idef12' | 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef12';
 
 function destroyAllEditors() {
+  if (idef12Editor) { idef12Editor.destroy(); idef12Editor = null; }
   if (idef10Editor) { idef10Editor.destroy(); idef10Editor = null; }
   if (idef9Editor) { idef9Editor.destroy(); idef9Editor = null; }
   if (idef8Editor) { idef8Editor.destroy(); idef8Editor = null; }
@@ -34,12 +32,50 @@ function destroyAllEditors() {
 }
 
 // ==========================================
-// IDEF10 Setup (KBSI Implementation Architecture)
+// IDEF12 Setup (KBSI Organization Modeling)
 // ==========================================
-function setupIDEF10() {
+function setupIDEF12() {
   destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
+
+  idef12Editor = loadIDEF12(container);
+
+  const updateIdef12UI = () => {
+    if (!idef12Editor) return;
+    const diag = idef12Editor.getActiveDiagram();
+    const el1 = document.getElementById('unitCount');
+    if (el1) el1.textContent = `${diag.orgUnits.length}`;
+    const el2 = document.getElementById('posCount');
+    if (el2) el2.textContent = `${diag.positions.length}`;
+    const el3 = document.getElementById('roleCount');
+    if (el3) el3.textContent = `${diag.roles.length}`;
+    const el4 = document.getElementById('compCount');
+    if (el4) el4.textContent = `${diag.competencies.length}`;
+  };
+
+  idef12Editor.setOnDiagramChanged(() => {
+    updateIdef12UI();
+    setTimeout(() => { idef12Editor?.autoLayout(); }, 50);
+  });
+  updateIdef12UI();
+  setTimeout(() => { idef12Editor?.autoLayout(); }, 80);
+}
+
+// ==========================================
+// IDEF10 Setup (KBSI Implementation Architecture)
+// ==========================================
+async function setupIDEF10() {
+  destroyAllEditors();
+  const container = document.getElementById('diagramDiv');
+  if (!container) return;
+
+  const { IDEF10Editor } = await import('../src/idef10/infrastructure/adapters/inbound/IDEF10Editor');
+  const { ComponentType, ComponentLifecycle } = await import('../src/idef10/domain/models/IDEF10Component');
+  const { NodeType } = await import('../src/idef10/domain/models/IDEF10ExecutionNode');
+  const { InterfaceProtocol } = await import('../src/idef10/domain/models/IDEF10Interface');
+  const { ArtifactType } = await import('../src/idef10/domain/models/IDEF10Artifact');
+  const { ArchitectureLinkType } = await import('../src/idef10/domain/models/IDEF10Link');
 
   idef10Editor = new IDEF10Editor();
   idef10Editor.initialize(container);
@@ -652,8 +688,9 @@ async function setupIDEF1(modelType: 'ru' | 'en' = 'ru') {
 // ==========================================
 // Mode Switcher
 // ==========================================
-async function switchMode(mode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
+async function switchMode(mode: 'idef12' | 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
   activeMode = mode;
+  const tabIdef12 = document.getElementById('tabIdef12');
   const tabIdef10 = document.getElementById('tabIdef10');
   const tabIdef9 = document.getElementById('tabIdef9');
   const tabIdef8 = document.getElementById('tabIdef8');
@@ -664,6 +701,7 @@ async function switchMode(mode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5'
   const tabIdef0 = document.getElementById('tabIdef0');
   const tabIdef1 = document.getElementById('tabIdef1');
 
+  const tbIdef12 = document.getElementById('toolbarIdef12');
   const tbIdef10 = document.getElementById('toolbarIdef10');
   const tbIdef9 = document.getElementById('toolbarIdef9');
   const tbIdef8 = document.getElementById('toolbarIdef8');
@@ -674,6 +712,7 @@ async function switchMode(mode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5'
   const tbIdef0 = document.getElementById('toolbarIdef0');
   const tbIdef1 = document.getElementById('toolbarIdef1');
 
+  const sbIdef12 = document.getElementById('sidebarIdef12');
   const sbIdef10 = document.getElementById('sidebarIdef10');
   const sbIdef9 = document.getElementById('sidebarIdef9');
   const sbIdef8 = document.getElementById('sidebarIdef8');
@@ -685,6 +724,7 @@ async function switchMode(mode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5'
   const sbIdef1 = document.getElementById('sidebarIdef1');
 
   // Reset tabs
+  tabIdef12?.classList.remove('active');
   tabIdef10?.classList.remove('active');
   tabIdef9?.classList.remove('active');
   tabIdef8?.classList.remove('active');
@@ -696,6 +736,7 @@ async function switchMode(mode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5'
   tabIdef1?.classList.remove('active');
 
   // Hide toolbars
+  if (tbIdef12) tbIdef12.style.display = 'none';
   if (tbIdef10) tbIdef10.style.display = 'none';
   if (tbIdef9) tbIdef9.style.display = 'none';
   if (tbIdef8) tbIdef8.style.display = 'none';
@@ -707,6 +748,7 @@ async function switchMode(mode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5'
   if (tbIdef1) tbIdef1.style.display = 'none';
 
   // Hide sidebars
+  if (sbIdef12) sbIdef12.style.display = 'none';
   if (sbIdef10) sbIdef10.style.display = 'none';
   if (sbIdef9) sbIdef9.style.display = 'none';
   if (sbIdef8) sbIdef8.style.display = 'none';
@@ -717,11 +759,16 @@ async function switchMode(mode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5'
   if (sbIdef0) sbIdef0.style.display = 'none';
   if (sbIdef1) sbIdef1.style.display = 'none';
 
-  if (mode === 'idef10') {
+  if (mode === 'idef12') {
+    tabIdef12?.classList.add('active');
+    if (tbIdef12) tbIdef12.style.display = 'flex';
+    if (sbIdef12) sbIdef12.style.display = 'flex';
+    setupIDEF12();
+  } else if (mode === 'idef10') {
     tabIdef10?.classList.add('active');
     if (tbIdef10) tbIdef10.style.display = 'flex';
     if (sbIdef10) sbIdef10.style.display = 'flex';
-    setupIDEF10();
+    await setupIDEF10();
   } else if (mode === 'idef9') {
     tabIdef9?.classList.add('active');
     if (tbIdef9) tbIdef9.style.display = 'flex';
@@ -770,6 +817,7 @@ async function switchMode(mode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5'
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   // Tabs
+  document.getElementById('tabIdef12')?.addEventListener('click', () => switchMode('idef12'));
   document.getElementById('tabIdef10')?.addEventListener('click', () => switchMode('idef10'));
   document.getElementById('tabIdef9')?.addEventListener('click', () => switchMode('idef9'));
   document.getElementById('tabIdef8')?.addEventListener('click', () => switchMode('idef8'));
@@ -779,6 +827,122 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('tabIdef3')?.addEventListener('click', () => switchMode('idef3'));
   document.getElementById('tabIdef0')?.addEventListener('click', () => switchMode('idef0'));
   document.getElementById('tabIdef1')?.addEventListener('click', () => switchMode('idef1'));
+
+  // ----------------------------------------
+  // IDEF12 Toolbar Handlers
+  // ----------------------------------------
+  document.getElementById('btnIdef12AutoLayout')?.addEventListener('click', () => {
+    idef12Editor?.autoLayout();
+  });
+
+  document.getElementById('btnIdef12ZoomFit')?.addEventListener('click', () => {
+    idef12Editor?.zoomToFit();
+  });
+
+  document.getElementById('btnAddIdef12Unit')?.addEventListener('click', () => {
+    if (!idef12Editor) return;
+    const code = prompt('Введите код подразделения (например, OU-WORKSHOP-04):', 'OU-WORKSHOP-04');
+    if (!code) return;
+    const name = prompt('Введите наименование подразделения:', 'Механообрабатывающий цех №4');
+    if (!name) return;
+    idef12Editor.addOrgUnit({
+      code,
+      name,
+      unitType: 'WORKSHOP' as any,
+      headPositionName: 'Начальник цеха',
+      headCount: 120,
+      location: 'Корпус 2',
+      x: 600 + Math.random() * 200,
+      y: 300 + Math.random() * 200,
+    });
+  });
+
+  document.getElementById('btnAddIdef12Position')?.addEventListener('click', () => {
+    if (!idef12Editor) return;
+    const code = prompt('Введите код должности (например, POS-CHIEF-TECH):', 'POS-CHIEF-TECH');
+    if (!code) return;
+    const name = prompt('Введите наименование должности:', 'Главный технолог механической обработки');
+    if (!name) return;
+    idef12Editor.addPosition({
+      code,
+      name,
+      positionLevel: 'ENGINEER' as any,
+      grade: 'Грейд 13',
+      responsibilities: ['Разработка техпроцессов фрезерования'],
+      x: 350 + Math.random() * 200,
+      y: 500 + Math.random() * 200,
+    });
+  });
+
+  document.getElementById('btnAddIdef12Role')?.addEventListener('click', () => {
+    if (!idef12Editor) return;
+    const code = prompt('Введите код организационной роли (например, ROLE-5S-LEAD):', 'ROLE-5S-LEAD');
+    if (!code) return;
+    const name = prompt('Введите наименование роли RACI:', 'Лидер внедрения бережливого производства (5S)');
+    if (!name) return;
+    idef12Editor.addRole({
+      code,
+      name,
+      roleType: 'ACCOUNTABLE' as any,
+      scope: 'Цех №4 и склад заготовок',
+      x: 850 + Math.random() * 200,
+      y: 500 + Math.random() * 200,
+    });
+  });
+
+  document.getElementById('btnAddIdef12Competency')?.addEventListener('click', () => {
+    if (!idef12Editor) return;
+    const code = prompt('Введите код компетенции/допуска (например, COMP-CNC-5AXIS):', 'COMP-CNC-5AXIS');
+    if (!code) return;
+    const name = prompt('Введите наименование допуска/сертификата:', 'Допуск к наладке 5-осевых обрабатывающих центров');
+    if (!name) return;
+    idef12Editor.addCompetency({
+      code,
+      name,
+      criticality: 'SAFETY_CRITICAL' as any,
+      certificationBody: 'Учебный центр ЧПУ завода',
+      validityMonths: 24,
+      x: 500 + Math.random() * 200,
+      y: 700 + Math.random() * 200,
+    });
+  });
+
+  document.getElementById('btnValidateIdef12')?.addEventListener('click', () => {
+    if (!idef12Editor) return;
+    const issues = idef12Editor.validate();
+    if (issues.length === 0) {
+      alert('✓ Организационная структура полностью соответствует стандарту IDEF12!\n\n- Иерархия административного подчинения не содержит циклов\n- Все штатные должности распределены по подразделениям (ASSIGNED_TO)\n- Критические роли RACI имеют ответственных исполнителей\n- Коды оргъединиц и должностей уникальны');
+    } else {
+      const msg = issues.map((i) => `[${i.severity}] ${i.code}: ${i.message}`).join('\n\n');
+      alert(`Результаты проверки IDEF12:\n\n${msg}`);
+    }
+  });
+
+  document.getElementById('btnIdef12ExportJson')?.addEventListener('click', () => {
+    if (!idef12Editor) return;
+    const json = idef12Editor.exportJSON();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'idef12_organization_model.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('btnIdef12ImportJson')?.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = async (e: any) => {
+      const file = e.target.files[0];
+      if (file && idef12Editor) {
+        const text = await file.text();
+        idef12Editor.importJSON(text);
+      }
+    };
+    input.click();
+  });
 
   // ----------------------------------------
   // IDEF8 Toolbar Handlers
@@ -1520,6 +1684,6 @@ document.addEventListener('DOMContentLoaded', () => {
     input.click();
   });
 
-  // Initial startup — IDEF10 is the newest and active tab
-  setupIDEF10();
+  // Initial startup — IDEF12 is the newest and active tab
+  setupIDEF12();
 });

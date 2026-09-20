@@ -499,3 +499,45 @@ export { IDEF10Editor } from './idef10/infrastructure/adapters/inbound/IDEF10Edi
 export { GoJSIDEF10Adapter } from './idef10/infrastructure/adapters/outbound/gojs/GoJSIDEF10Adapter';
 export { createIDEF10NodeTemplateMap } from './idef10/infrastructure/adapters/outbound/gojs/templates/ComponentNodeTemplate';
 export { createArchitectureLinkTemplate } from './idef10/infrastructure/adapters/outbound/gojs/templates/ArchitectureLinkTemplate';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// IDEF12 — Organization Modeling (KBSI / US Air Force / IICE)
+// ─────────────────────────────────────────────────────────────────────────────
+export { OrgUnitType, IDEF12OrgUnit } from './idef12/domain/models/IDEF12OrgUnit';
+export type { IDEF12OrgUnitProps } from './idef12/domain/models/IDEF12OrgUnit';
+export { PositionLevel, IDEF12Position } from './idef12/domain/models/IDEF12Position';
+export type { IDEF12PositionProps } from './idef12/domain/models/IDEF12Position';
+export { OrgRoleType, IDEF12OrgRole } from './idef12/domain/models/IDEF12OrgRole';
+export type { IDEF12OrgRoleProps } from './idef12/domain/models/IDEF12OrgRole';
+export { CompetencyCriticality, IDEF12Competency } from './idef12/domain/models/IDEF12Competency';
+export type { IDEF12CompetencyProps } from './idef12/domain/models/IDEF12Competency';
+export { OrgLinkType, IDEF12Link as IDEF12OrgLink } from './idef12/domain/models/IDEF12Link';
+export type { IDEF12LinkProps as IDEF12OrgLinkProps } from './idef12/domain/models/IDEF12Link';
+export { IDEF12Diagram } from './idef12/domain/models/IDEF12Diagram';
+export type { IDEF12DiagramProps } from './idef12/domain/models/IDEF12Diagram';
+export { IDEF12Model } from './idef12/domain/models/IDEF12Model';
+export type { IDEF12ModelProps } from './idef12/domain/models/IDEF12Model';
+export { IDEF12Rules } from './idef12/domain/rules/IDEF12Rules';
+export type { IDEF12ValidationIssue } from './idef12/domain/rules/IDEF12Rules';
+export { IDEF12Error, IDEF12ValidationError } from './idef12/domain/errors/IDEF12Error';
+export { IDEF12DiagramChangedEvent } from './idef12/domain/events/IDEF12Events';
+
+export type {
+  OrgUnitDTO as IDEF12OrgUnitDTO,
+  PositionDTO as IDEF12PositionDTO,
+  OrgRoleDTO as IDEF12OrgRoleDTO,
+  CompetencyDTO as IDEF12CompetencyDTO,
+  OrgLinkDTO as IDEF12OrgLinkDTO,
+  IDEF12DiagramDTO,
+  IDEF12ModelDTO,
+} from './idef12/application/dtos/IDEF12DTO';
+
+export type { IIDEF12EditorUseCase } from './idef12/application/ports/inbound/IIDEF12EditorUseCase';
+export type { IIDEF12DiagramRendererPort } from './idef12/application/ports/outbound/IIDEF12DiagramRendererPort';
+export type { IIDEF12ModelRepositoryPort } from './idef12/application/ports/outbound/IIDEF12ModelRepositoryPort';
+export { IDEF12ApplicationService } from './idef12/application/services/IDEF12ApplicationService';
+export { IDEF12Editor } from './idef12/infrastructure/adapters/inbound/IDEF12Editor';
+export { GoJSIDEF12Adapter } from './idef12/infrastructure/adapters/outbound/gojs/GoJSIDEF12Adapter';
+export { createIDEF12NodeTemplateMap } from './idef12/infrastructure/adapters/outbound/gojs/templates/OrgUnitNodeTemplate';
+export { createIDEF12LinkTemplate } from './idef12/infrastructure/adapters/outbound/gojs/templates/OrgLinkTemplate';
+

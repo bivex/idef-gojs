@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="IDEF Suite (IDEF0, IDEF1X, IDEF3, IDEF4, IDEF5, IDEF6, IDEF8, IDEF9, IDEF10) — интерактивная веб-среда моделирования архитектуры, процессов и данных на GoJS с чистой архитектурой DDD-HEX.">
-  <title>IDEF Suite (IDEF0 / IDEF1X / IDEF3 / IDEF4 / IDEF5 / IDEF6 / IDEF8 / IDEF9 / IDEF10) GoJS Engine (DDD-HEX)</title>
+  <meta name="description" content="IDEF Suite (IDEF0, IDEF1X, IDEF3, IDEF4, IDEF5, IDEF6, IDEF8, IDEF9, IDEF10, IDEF12) — интерактивная веб-среда моделирования архитектуры, оргструктуры, процессов и данных на GoJS с чистой архитектурой DDD-HEX.">
+  <title>IDEF Suite (IDEF0 / IDEF1X / IDEF3 / IDEF4 / IDEF5 / IDEF6 / IDEF8 / IDEF9 / IDEF10 / IDEF12) GoJS Engine (DDD-HEX)</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -207,9 +207,10 @@
       <span class="badge">DDD-HEX Architecture</span>
     </div>
 
-    <!-- Mode Toggle: IDEF10 vs IDEF9 vs IDEF8 vs IDEF6 vs IDEF5 vs IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
+    <!-- Mode Toggle: IDEF12 vs IDEF10 vs IDEF9 vs IDEF8 vs IDEF6 vs IDEF5 vs IDEF4 vs IDEF3 vs IDEF0 vs IDEF1X -->
     <div class="mode-toggle">
-      <button class="mode-btn active" id="tabIdef10">🏗️ IDEF10 (Архитектура KBSI)</button>
+      <button class="mode-btn active" id="tabIdef12">🏛️ IDEF12 (Оргструктура KBSI)</button>
+      <button class="mode-btn" id="tabIdef10">🏗️ IDEF10 (Архитектура KBSI)</button>
       <button class="mode-btn" id="tabIdef9">🔒 IDEF9 (Ограничения KBSI)</button>
       <button class="mode-btn" id="tabIdef8">🖥️ IDEF8 (ЧМИ / UI KBSI)</button>
       <button class="mode-btn" id="tabIdef6">🎯 IDEF6 (Обоснование KBSI)</button>
@@ -220,8 +221,21 @@
       <button class="mode-btn" id="tabIdef1">📊 IDEF1X (Данные FIPS 184)</button>
     </div>
 
+    <!-- IDEF12 Toolbar -->
+    <div class="toolbar" id="toolbarIdef12">
+      <button class="primary" id="btnIdef12AutoLayout">✨ Выравнивание оргструктуры</button>
+      <button id="btnIdef12ZoomFit">🔍 Центрировать</button>
+      <button class="primary" id="btnAddIdef12Unit">+ Подразделение (OrgUnit)</button>
+      <button id="btnAddIdef12Position">+ Должность (Position)</button>
+      <button id="btnAddIdef12Role">+ Роль (OrgRole)</button>
+      <button id="btnAddIdef12Competency">+ Допуск / Компетенция</button>
+      <button class="success" id="btnValidateIdef12">✓ Проверить IDEF12</button>
+      <button id="btnIdef12ExportJson">Экспорт JSON</button>
+      <button id="btnIdef12ImportJson">Импорт JSON</button>
+    </div>
+
     <!-- IDEF10 Toolbar -->
-    <div class="toolbar" id="toolbarIdef10">
+    <div class="toolbar" id="toolbarIdef10" style="display: none;">
       <button class="primary" id="btnIdef10AutoLayout">✨ Выравнивание архитектуры</button>
       <button id="btnIdef10ZoomFit">🔍 Центрировать</button>
       <button class="primary" id="btnAddIdef10Component">+ Компонент (Component)</button>
@@ -358,8 +372,73 @@
   </header>
 
   <main class="main-content">
+    <!-- IDEF12 Sidebar -->
+    <aside class="sidebar" id="sidebarIdef12">
+      <div class="breadcrumb-bar" id="idef12Breadcrumb">
+        Оргструктура: <strong>ОАО «Металл-Авиа» (KBSI IDEF12)</strong>
+      </div>
+
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-val" id="unitCount">7</div>
+          <div class="stat-lbl">Подразделений</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="posCount">7</div>
+          <div class="stat-lbl">Должностей</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="roleCount">3</div>
+          <div class="stat-lbl">Ролей RACI</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="compCount">3</div>
+          <div class="stat-lbl">Допусков</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Нотация IDEF12 (Organization Modeling)</h2>
+        <p><strong>Элементы оргструктуры:</strong></p>
+        <ul>
+          <li><strong>Подразделение (OrgUnit):</strong> дирекция, цех, управление, лаборатория, участок.</li>
+          <li><strong>Должность (Position):</strong> штатная позиция (C-Level, начальник, инженер, оператор).</li>
+          <li><strong>Оргроль (OrgRole):</strong> матрица RACI (Accountable, Responsible, Auditor, Consulted).</li>
+          <li><strong>Компетенция / Допуск (Competency):</strong> аттестация Ростехнадзора, группа ЭБ, сертификаты.</li>
+        </ul>
+        <p style="margin-top: 8px;"><strong>Типы организационных связей:</strong></p>
+        <ul>
+          <li><span style="color: #93c5fd;">■ SUBORDINATE_TO:</span> административное подчинение (снизу вверх).</li>
+          <li><span style="color: #86efac;">■ ASSIGNED_TO:</span> штатное назначение должности в подразделение.</li>
+          <li><span style="color: #d8b4fe;">■ FUNCTIONAL_REPORTS:</span> функциональное и технологическое руководство.</li>
+          <li><span style="color: #fca5a5;">■ PLAYS_ROLE:</span> закрепление организационной роли за должностью.</li>
+          <li><span style="color: #fde047;">■ REQUIRES_COMPETENCY:</span> обязательные допуски и квалификация.</li>
+          <li><span style="color: #cbd5e1;">■ COLLABORATES_WITH:</span> межфункциональное сотрудничество.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Правила валидации IDEF12</h2>
+        <ul>
+          <li><strong>Дерево подчинения:</strong> запрет циклов в административном подчинении (SUBORDINATE_TO).</li>
+          <li><strong>Штатная расстановка:</strong> выявление должностей без подразделения (Orphan Position).</li>
+          <li><strong>Матрица ответственности:</strong> критические роли (Accountable/Auditor) должны иметь исполнителей.</li>
+          <li><strong>Уникальность кодов:</strong> запрет дублирования кодов OU-xxx и POS-xxx.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Стандарты в репозитории</h2>
+        <ul>
+          <li><a href="#" style="color: #38bdf8;">IDEF12_Report.pdf (KBSI Organization Modeling)</a></li>
+          <li><a href="#" style="color: #38bdf8;">ГОСТ Р ИСО 9001-2015 (Оргструктура и ответственность)</a></li>
+          <li><a href="#" style="color: #38bdf8;">Ростехнадзор — Требования к аттестации персонала</a></li>
+        </ul>
+      </div>
+    </aside>
+
     <!-- IDEF10 Sidebar -->
-    <aside class="sidebar" id="sidebarIdef10">
+    <aside class="sidebar" id="sidebarIdef10" style="display: none;">
       <div class="breadcrumb-bar" id="idef10Breadcrumb">
         Архитектура: <strong>АСУ ТП и MES ОАО «Металл-Авиа» (KBSI IDEF10)</strong>
       </div>
