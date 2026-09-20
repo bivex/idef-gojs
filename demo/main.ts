@@ -20,20 +20,27 @@ let idef4Editor: IDEF4Editor | null = null;
 let idef5Editor: IDEF5Editor | null = null;
 let activeMode: 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef5';
 
+function destroyAllEditors() {
+  if (idef5Editor) { idef5Editor.destroy(); idef5Editor = null; }
+  if (idef4Editor) { idef4Editor.destroy(); idef4Editor = null; }
+  if (idef3Editor) { idef3Editor.destroy(); idef3Editor = null; }
+  if (idef0Editor) { idef0Editor.destroy(); idef0Editor = null; }
+  if (idef1Editor) { idef1Editor.destroy(); idef1Editor = null; }
+
+  const container = document.getElementById('diagramDiv');
+  if (container) {
+    container.innerHTML = '';
+  }
+}
+
 // ==========================================
 // IDEF5 Setup
 // ==========================================
 function setupIDEF5() {
+  destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
 
-  if (idef1Editor) { idef1Editor.destroy(); idef1Editor = null; }
-  if (idef0Editor) { idef0Editor.destroy(); idef0Editor = null; }
-  if (idef3Editor) { idef3Editor.destroy(); idef3Editor = null; }
-  if (idef4Editor) { idef4Editor.destroy(); idef4Editor = null; }
-  if (idef5Editor) { idef5Editor.destroy(); idef5Editor = null; }
-
-  container.innerHTML = '';
   idef5Editor = new IDEF5Editor();
   idef5Editor.initialize(container);
 
@@ -74,15 +81,10 @@ function setupIDEF5() {
 // IDEF4 Setup
 // ==========================================
 function setupIDEF4() {
+  destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
 
-  if (idef1Editor) { idef1Editor.destroy(); idef1Editor = null; }
-  if (idef0Editor) { idef0Editor.destroy(); idef0Editor = null; }
-  if (idef3Editor) { idef3Editor.destroy(); idef3Editor = null; }
-  if (idef4Editor) { idef4Editor.destroy(); idef4Editor = null; }
-
-  container.innerHTML = '';
   idef4Editor = new IDEF4Editor();
   idef4Editor.initialize(container);
 
@@ -117,15 +119,10 @@ function setupIDEF4() {
 // IDEF3 Setup
 // ==========================================
 function setupIDEF3() {
+  destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
 
-  if (idef1Editor) { idef1Editor.destroy(); idef1Editor = null; }
-  if (idef0Editor) { idef0Editor.destroy(); idef0Editor = null; }
-  if (idef3Editor) { idef3Editor.destroy(); idef3Editor = null; }
-  if (idef4Editor) { idef4Editor.destroy(); idef4Editor = null; }
-
-  container.innerHTML = '';
   idef3Editor = new IDEF3Editor();
   idef3Editor.initialize(container);
 
@@ -174,15 +171,10 @@ function setupIDEF3() {
 // IDEF0 Setup
 // ==========================================
 function setupIDEF0() {
+  destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
 
-  if (idef1Editor) { idef1Editor.destroy(); idef1Editor = null; }
-  if (idef0Editor) { idef0Editor.destroy(); idef0Editor = null; }
-  if (idef3Editor) { idef3Editor.destroy(); idef3Editor = null; }
-  if (idef4Editor) { idef4Editor.destroy(); idef4Editor = null; }
-
-  container.innerHTML = '';
   idef0Editor = new IDEF0Editor();
   idef0Editor.initialize(container);
 
@@ -321,15 +313,9 @@ async function loadDefaultEnglishModel(editor: IDEF1Editor): Promise<void> {
 }
 
 async function setupIDEF1(modelType: 'ru' | 'en' = 'ru') {
+  destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
-
-  if (idef0Editor) { idef0Editor.destroy(); idef0Editor = null; }
-  if (idef1Editor) { idef1Editor.destroy(); idef1Editor = null; }
-  if (idef3Editor) { idef3Editor.destroy(); idef3Editor = null; }
-  if (idef4Editor) { idef4Editor.destroy(); idef4Editor = null; }
-
-  container.innerHTML = '';
   const modelName =
     modelType === 'ru'
       ? 'Информационная модель ERP-системы предприятия (IDEF1X)'

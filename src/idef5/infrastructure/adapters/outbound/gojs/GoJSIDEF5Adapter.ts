@@ -21,6 +21,7 @@ export class GoJSIDEF5Adapter implements IIDEF5DiagramRendererPort {
       allowDelete: true,
       'toolManager.mouseWheelBehavior': go.WheelMode.Zoom,
       initialContentAlignment: go.Spot.Center,
+      contentAlignment: go.Spot.Center,
       padding: new go.Margin(40, 40, 40, 40),
       layout: $(go.LayeredDigraphLayout, {
         direction: 270, // Bottom-to-top taxonomy (leaves at bottom, superkinds at top)
@@ -138,7 +139,6 @@ export class GoJSIDEF5Adapter implements IIDEF5DiagramRendererPort {
     if (this._diagram.scale > 1) {
       this._diagram.scale = 1;
     }
-    this._diagram.contentAlignment = go.Spot.Center;
   }
 
   public destroy(): void {

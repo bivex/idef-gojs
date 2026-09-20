@@ -22,6 +22,7 @@ export class GoJSIDEF3Adapter implements IIDEF3DiagramRendererPort {
       allowDelete: true,
       'toolManager.mouseWheelBehavior': go.WheelMode.Zoom,
       initialContentAlignment: go.Spot.Center,
+      contentAlignment: go.Spot.Center,
       layout: $(go.LayeredDigraphLayout, {
         direction: 0,
         layerSpacing: 60,
@@ -188,7 +189,6 @@ export class GoJSIDEF3Adapter implements IIDEF3DiagramRendererPort {
     if (this._diagram.scale > 1) {
       this._diagram.scale = 1;
     }
-    this._diagram.contentAlignment = go.Spot.Center;
   }
 
   public destroy(): void {
