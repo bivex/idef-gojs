@@ -64,8 +64,8 @@ export class IDEF1Editor {
       id?: string;
       isDependent?: boolean;
       position?: { x: number; y: number };
-      primaryKeys?: Array<{ name: string; dataType?: string }>;
-      nonKeys?: Array<{ name: string; dataType?: string; isOptional?: boolean }>;
+      primaryKeys?: Array<{ name: string; dataType?: string; alternateKeyIndex?: number | number[] }>;
+      nonKeys?: Array<{ name: string; dataType?: string; isOptional?: boolean; alternateKeyIndex?: number | number[] }>;
     } = {}
   ): Promise<string> {
     const entityId = await this.appService.createEntity({
@@ -82,6 +82,7 @@ export class IDEF1Editor {
           name: pk.name,
           isPrimaryKey: true,
           dataType: pk.dataType,
+          alternateKeyIndex: pk.alternateKeyIndex,
         });
       }
     }
@@ -94,6 +95,7 @@ export class IDEF1Editor {
           isPrimaryKey: false,
           dataType: nk.dataType,
           isOptional: nk.isOptional,
+          alternateKeyIndex: nk.alternateKeyIndex,
         });
       }
     }
@@ -211,6 +213,20 @@ export class IDEF1Editor {
 
   public exportImageDataUrl(): string {
     return this.diagramAdapter.makeImageDataUrl();
+  }
+
+  /**
+   * Sets the IDEF1X View Level per FIPS 184 §3.10
+   * - 'ER': Entity-Relationship level (only entity boxes, no attributes)
+   * - 'KB': Key-Based level (entity boxes with Primary Keys only)
+   * - 'FA': Fully-Attributed level (entity boxes with PKs and Non-Key attributes)
+   */
+  public setViewLevel(level: 'ER' | 'KB' | 'FA'): void {
+    this.diagramAdapter.setViewLevel(level);
+  }
+
+  public getViewLevel(): 'ER' | 'KB' | 'FA' {
+    return this.diagramAdapter.getViewLevel();
   }
 
   public getGoJSDiagram() {

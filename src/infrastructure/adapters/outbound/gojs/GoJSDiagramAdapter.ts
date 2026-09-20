@@ -9,10 +9,13 @@ import { createRelationshipLinkTemplate } from './templates/RelationshipLinkTemp
 import { createSubtypeNodeTemplate } from './templates/SubtypeNodeTemplate';
 import { createNoteNodeTemplate } from './templates/NoteNodeTemplate';
 
+export type IDEF1XViewLevel = 'ER' | 'KB' | 'FA'; // FIPS 184 §3.10 View Levels
+
 export interface GoJSDiagramOptions {
   readOnly?: boolean;
   allowClipboard?: boolean;
   gridVisible?: boolean;
+  viewLevel?: IDEF1XViewLevel;
 }
 
 /**
@@ -29,7 +32,33 @@ export class GoJSDiagramAdapter implements IDiagramRendererPort {
   private onRelationshipCreatedCallbacks: Array<(parentEntityId: string, childEntityId: string) => void> = [];
   private onEntityDeletedCallbacks: Array<(entityId: string) => void> = [];
 
-  constructor(private readonly options: GoJSDiagramOptions = {}) {}
+  private currentViewLevel: IDEF1XViewLevel = 'FA';
+
+  constructor(private readonly options: GoJSDiagramOptions = {}) {
+    this.currentViewLevel = options.viewLevel ?? 'FA';
+  }
+
+  public getViewLevel(): IDEF1XViewLevel {
+    return this.currentViewLevel;
+  }
+
+  public setViewLevel(level: IDEF1XViewLevel): void {
+    this.currentViewLevel = level;
+    if (this.diagram) {
+      this.diagram.startTransaction('changeViewLevel');
+      this.diagram.nodes.each((node) => {
+        if (node.category !== 'subtype' && node.category !== 'note') {
+          const showPk = level !== 'ER';
+          const showDivider = level === 'FA';
+          const showNonKey = level === 'FA';
+          this.diagram?.model.set(node.data, 'showPk', showPk);
+          this.diagram?.model.set(node.data, 'showDivider', showDivider);
+          this.diagram?.model.set(node.data, 'showNonKey', showNonKey);
+        }
+      });
+      this.diagram.commitTransaction('changeViewLevel');
+    }
+  }
 
   public getGoJSDiagram(): go.Diagram {
     if (!this.diagram) {
@@ -340,6 +369,10 @@ export class GoJSDiagramAdapter implements IDiagramRendererPort {
   }
 
   private transformEntityToNodeData(entity: Entity): any {
+    const showPk = this.currentViewLevel !== 'ER';
+    const showDivider = this.currentViewLevel === 'FA';
+    const showNonKey = this.currentViewLevel === 'FA';
+
     return {
       key: entity.id,
       category: 'entity',
@@ -347,6 +380,9 @@ export class GoJSDiagramAdapter implements IDiagramRendererPort {
       number: entity.number,
       isDependent: entity.isDependent,
       loc: go.Point.stringify(new go.Point(entity.position.x, entity.position.y)),
+      showPk,
+      showDivider,
+      showNonKey,
       primaryKeys: entity.primaryKeyAttributes.map((a) => ({
         name: a.name,
         formattedName: a.formattedName,

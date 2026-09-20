@@ -100,7 +100,7 @@ export function createEntityNodeTemplate(): go.Node {
         height: 1,
       }),
 
-      // Primary Key (PK) Attributes list
+      // Primary Key (PK) Attributes list (visible in KB and FA levels)
       $(
         go.Panel,
         'Vertical',
@@ -110,6 +110,7 @@ export function createEntityNodeTemplate(): go.Node {
           margin: new go.Margin(4, 8, 4, 8),
           defaultAlignment: go.Spot.Left,
         },
+        new go.Binding('visible', 'showPk'),
         new go.Binding('itemArray', 'primaryKeys'),
         {
           itemTemplate: $(
@@ -128,16 +129,18 @@ export function createEntityNodeTemplate(): go.Node {
         }
       ),
 
-      // Dividing Line between PK and Non-Key attributes (IDEF1X standard divider)
+      // Dividing Line between PK and Non-Key attributes (visible only in FA level)
       $(go.Shape, 'LineH', {
         stroke: '#1E293B',
         strokeWidth: 1.5,
         stretch: go.Stretch.Fill,
         height: 2,
         margin: new go.Margin(2, 0, 2, 0),
-      }),
+      },
+      new go.Binding('visible', 'showDivider')
+      ),
 
-      // Non-Key Attributes list
+      // Non-Key Attributes list (visible only in FA level)
       $(
         go.Panel,
         'Vertical',
@@ -147,6 +150,7 @@ export function createEntityNodeTemplate(): go.Node {
           margin: new go.Margin(4, 8, 6, 8),
           defaultAlignment: go.Spot.Left,
         },
+        new go.Binding('visible', 'showNonKey'),
         new go.Binding('itemArray', 'nonKeys'),
         {
           itemTemplate: $(

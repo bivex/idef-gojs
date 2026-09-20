@@ -7,6 +7,7 @@ export interface AttributeDTO {
   dataType: string;
   roleName?: string;
   isOptional?: boolean;
+  alternateKeyIndex?: number | number[];
 }
 
 export interface EntityDTO {

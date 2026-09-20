@@ -11,7 +11,8 @@ export class Attribute {
     public readonly dataType: string = 'VARCHAR(50)',
     public readonly foreignKeyRef?: ForeignKeyReference,
     public readonly roleName?: string,
-    public readonly isOptional: boolean = false
+    public readonly isOptional: boolean = false,
+    public readonly alternateKeyIndex?: number | number[] // IDEF1X FIPS 184 §3.8.2 (AK1, AK2, ...)
   ) {
     if (!name || name.trim().length === 0) {
       throw new Error('Attribute name cannot be empty.');
@@ -22,22 +23,29 @@ export class Attribute {
   }
 
   /**
-   * Formatted IDEF1X display label
-   * Example: "customer_id [PK] (INTEGER)" or "dept_no (FK)"
+   * Formatted IDEF1X display label per FIPS 184 §3.8.2 & §3.9.2
+   * Example: "customer_id : INTEGER" or "dept_no (FK)" or "ssn (AK1)" or "manager.emp_no (AK1, FK)"
    */
   public get formattedName(): string {
-    const parts: string[] = [];
-    if (this.roleName) {
-      parts.push(`${this.roleName}.${this.name}`);
-    } else {
-      parts.push(this.name);
+    const baseName = this.roleName ? `${this.roleName}.${this.name}` : this.name;
+    const tags: string[] = [];
+
+    // Alternate Key tags (AK1, AK2) per FIPS 184 §3.8.2
+    if (this.alternateKeyIndex !== undefined) {
+      const akIndices = Array.isArray(this.alternateKeyIndex)
+        ? this.alternateKeyIndex
+        : [this.alternateKeyIndex];
+      for (const idx of akIndices) {
+        tags.push(`AK${idx}`);
+      }
     }
 
-    const tags: string[] = [];
-    if (this.isPrimaryKey) tags.push('PK');
-    if (this.isForeignKey) tags.push('FK');
+    // Foreign Key tag per FIPS 184 §3.9.2
+    if (this.isForeignKey) {
+      tags.push('FK');
+    }
 
-    let result = parts[0];
+    let result = baseName;
     if (tags.length > 0) {
       result += ` (${tags.join(', ')})`;
     }
@@ -55,7 +63,8 @@ export class Attribute {
       this.dataType,
       this.foreignKeyRef,
       this.roleName,
-      isPk ? false : this.isOptional
+      isPk ? false : this.isOptional,
+      this.alternateKeyIndex
     );
   }
 
@@ -67,7 +76,8 @@ export class Attribute {
       this.dataType,
       ref ?? this.foreignKeyRef,
       this.roleName,
-      this.isOptional
+      this.isOptional,
+      this.alternateKeyIndex
     );
   }
 
@@ -80,6 +90,7 @@ export class Attribute {
       foreignKeyRef: this.foreignKeyRef,
       roleName: this.roleName,
       isOptional: this.isOptional,
+      alternateKeyIndex: this.alternateKeyIndex,
     };
   }
 }

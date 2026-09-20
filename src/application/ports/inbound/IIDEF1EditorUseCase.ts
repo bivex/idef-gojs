@@ -16,6 +16,7 @@ export interface AddAttributeParams {
   dataType?: string;
   roleName?: string;
   isOptional?: boolean;
+  alternateKeyIndex?: number | number[];
 }
 
 export interface AddRelationshipParams {

@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     position: { x: 380, y: 80 },
     primaryKeys: [{ name: 'emp_no', dataType: 'INTEGER' }],
     nonKeys: [
+      { name: 'ssn', dataType: 'CHAR(9)', alternateKeyIndex: 1 }, // Alternate Key (AK1) per FIPS 184 §3.8.2
       { name: 'first_name', dataType: 'VARCHAR(30)' },
       { name: 'last_name', dataType: 'VARCHAR(30)' },
       { name: 'hire_date', dataType: 'DATE' },
@@ -175,5 +176,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     };
     input.click();
+  });
+
+  // Switch View Level (ER, KB, FA) per FIPS 184 §3.10
+  document.getElementById('selectViewLevel')?.addEventListener('change', (e: any) => {
+    const level = e.target.value as 'ER' | 'KB' | 'FA';
+    editor.setViewLevel(level);
   });
 });

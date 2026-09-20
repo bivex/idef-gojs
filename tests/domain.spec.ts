@@ -241,4 +241,17 @@ describe('IDEF1X Domain Model', () => {
     expect(course.attributes.find((a) => a.name === 'student_id')).toBeUndefined();
     expect(student.attributes.find((a) => a.name === 'course_id')).toBeUndefined();
   });
+
+  it('should support Alternate Keys (AK1, AK2) per FIPS 184 §3.8.2', () => {
+    const attr1 = new Attribute('ssn', false, false, 'CHAR(9)', undefined, undefined, false, 1);
+    expect(attr1.formattedName).toBe('ssn (AK1): CHAR(9)');
+
+    // Multiple alternate keys on single attribute (FIPS 184 §3.8.2)
+    const attr2 = new Attribute('passport_no', false, false, 'VARCHAR(20)', undefined, undefined, false, [1, 2]);
+    expect(attr2.formattedName).toBe('passport_no (AK1, AK2): VARCHAR(20)');
+
+    // Combined Alternate Key and Foreign Key
+    const attr3 = new Attribute('ref_code', false, true, 'VARCHAR(10)', undefined, undefined, false, 2);
+    expect(attr3.formattedName).toBe('ref_code (AK2, FK): VARCHAR(10)');
+  });
 });

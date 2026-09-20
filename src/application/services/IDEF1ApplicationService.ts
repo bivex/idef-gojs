@@ -129,7 +129,8 @@ export class IDEF1ApplicationService implements IIDEF1EditorUseCase {
       params.dataType || 'VARCHAR(50)',
       undefined,
       params.roleName,
-      params.isOptional ?? false
+      params.isOptional ?? false,
+      params.alternateKeyIndex
     );
 
     this.model.addAttributeToEntity(params.entityId, attr);
@@ -256,7 +257,8 @@ export class IDEF1ApplicationService implements IIDEF1EditorUseCase {
             a.dataType,
             a.foreignKeyRef,
             a.roleName,
-            a.isOptional
+            a.isOptional,
+            a.alternateKeyIndex
           )
       );
       const entity = new Entity({
