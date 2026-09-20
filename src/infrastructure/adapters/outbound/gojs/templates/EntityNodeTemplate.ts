@@ -40,6 +40,8 @@ export function createEntityNodeTemplate(): go.Node {
         cursor: 'pointer',
         fromLinkable: true,
         toLinkable: true,
+        fromSpot: go.Spot.AllSides,
+        toSpot: go.Spot.AllSides,
       },
       new go.Binding('figure', 'isDependent', (dep: boolean) =>
         dep ? 'RoundedRectangle' : 'Rectangle'

@@ -10,11 +10,13 @@ export function createRelationshipLinkTemplate(): go.Link {
   return $(
     go.Link,
     {
-      routing: go.Routing.Orthogonal,
-      corner: 5,
-      curve: go.Curve.None,
+      routing: go.Routing.AvoidsNodes,
+      curve: go.Curve.JumpOver,
+      corner: 8,
       selectionAdorned: true,
       cursor: 'pointer',
+      relinkableFrom: true,
+      relinkableTo: true,
     },
     // The main link line: Solid for Identifying, Dashed for Non-Identifying
     $(

@@ -64,7 +64,11 @@ export { IDEF1Editor } from './infrastructure/adapters/inbound/IDEF1Editor';
 export type { IDEF1EditorConfig } from './infrastructure/adapters/inbound/IDEF1Editor';
 
 export { GoJSDiagramAdapter } from './infrastructure/adapters/outbound/gojs/GoJSDiagramAdapter';
-export type { GoJSDiagramOptions, IDEF1XViewLevel } from './infrastructure/adapters/outbound/gojs/GoJSDiagramAdapter';
+export type {
+  GoJSDiagramOptions,
+  IDEF1XViewLevel,
+  AutoLayoutOptions,
+} from './infrastructure/adapters/outbound/gojs/GoJSDiagramAdapter';
 
 export { InMemoryOrJsonRepository } from './infrastructure/adapters/outbound/persistence/InMemoryOrJsonRepository';
 export { SimpleEventPublisher } from './infrastructure/events/SimpleEventPublisher';

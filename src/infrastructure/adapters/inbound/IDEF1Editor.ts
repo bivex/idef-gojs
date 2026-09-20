@@ -229,6 +229,21 @@ export class IDEF1Editor {
     return this.diagramAdapter.getViewLevel();
   }
 
+  /**
+   * Automatically aligns and layouts all entities and routes all relationships
+   * according to the hierarchical structure of the IDEF1X model.
+   */
+  public autoLayout(options?: { direction?: 0 | 90; layerSpacing?: number; columnSpacing?: number }): void {
+    this.diagramAdapter.autoLayout(options);
+  }
+
+  /**
+   * Resets diagram zoom and centers the view on the entire model
+   */
+  public zoomToFit(): void {
+    this.diagramAdapter.zoomToFit();
+  }
+
   public getGoJSDiagram() {
     return this.diagramAdapter.getGoJSDiagram();
   }

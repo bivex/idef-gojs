@@ -11,6 +11,12 @@ import { createNoteNodeTemplate } from './templates/NoteNodeTemplate';
 
 export type IDEF1XViewLevel = 'ER' | 'KB' | 'FA'; // FIPS 184 §3.10 View Levels
 
+export interface AutoLayoutOptions {
+  direction?: 0 | 90; // 0 = Left-to-Right, 90 = Top-to-Bottom (IDEF1 standard)
+  layerSpacing?: number; // Space between entity hierarchies (default 70)
+  columnSpacing?: number; // Space between parallel entities (default 50)
+}
+
 export interface GoJSDiagramOptions {
   readOnly?: boolean;
   allowClipboard?: boolean;
@@ -57,6 +63,49 @@ export class GoJSDiagramAdapter implements IDiagramRendererPort {
         }
       });
       this.diagram.commitTransaction('changeViewLevel');
+    }
+  }
+
+  /**
+   * Automatic hierarchical layout for IDEF1/IDEF1X models
+   * Arranges independent entities at the top/left and dependent/child entities below,
+   * aligning routing channels and minimizing link crossovers.
+   */
+  public autoLayout(options: AutoLayoutOptions = {}): void {
+    if (!this.diagram) return;
+
+    const dir = options.direction ?? 0;
+    const layout = new go.LayeredDigraphLayout({
+      direction: dir,
+      layerSpacing: options.layerSpacing ?? 70,
+      columnSpacing: options.columnSpacing ?? 50,
+      setsPortSpots: false,
+      isRouting: true,
+      aggressiveOption: go.LayeredDigraphAggressive.More,
+    });
+
+    this.isInternalUpdate = true;
+    this.diagram.startTransaction('autoLayout');
+    layout.doLayout(this.diagram);
+
+    // Sync new computed coordinates back to domain/application layer
+    this.diagram.nodes.each((node) => {
+      if (node.category !== 'subtype' && node.category !== 'note') {
+        const loc = node.location;
+        this.onEntityMovedCallbacks.forEach((cb) =>
+          cb(node.data.key, new Position(loc.x, loc.y))
+        );
+      }
+    });
+
+    this.diagram.commitTransaction('autoLayout');
+    this.isInternalUpdate = false;
+    this.diagram.zoomToFit();
+  }
+
+  public zoomToFit(): void {
+    if (this.diagram) {
+      this.diagram.zoomToFit();
     }
   }
 

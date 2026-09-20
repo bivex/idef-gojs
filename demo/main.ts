@@ -183,4 +183,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const level = e.target.value as 'ER' | 'KB' | 'FA';
     editor.setViewLevel(level);
   });
+
+  // Auto Layout action
+  document.getElementById('btnAutoLayout')?.addEventListener('click', () => {
+    editor.autoLayout({ direction: 0 });
+  });
+
+  // Zoom to Fit action
+  document.getElementById('btnZoomFit')?.addEventListener('click', () => {
+    editor.zoomToFit();
+  });
+
+  // Initial Auto Layout on startup
+  setTimeout(() => {
+    editor.autoLayout({ direction: 0 });
+  }, 100);
 });
