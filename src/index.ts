@@ -126,3 +126,62 @@ export { GoJSIDEF0Adapter } from './idef0/infrastructure/adapters/outbound/gojs/
 export { createActivityNodeTemplate } from './idef0/infrastructure/adapters/outbound/gojs/templates/ActivityNodeTemplate';
 export { createArrowLinkTemplate } from './idef0/infrastructure/adapters/outbound/gojs/templates/ArrowLinkTemplate';
 export { createBoundaryNodeTemplate } from './idef0/infrastructure/adapters/outbound/gojs/templates/BoundaryNodeTemplate';
+
+// ==========================================
+// IDEF3 Process Description Capture Module (KBSI / IEEE)
+// ==========================================
+export { JunctionKind, SyncType, JunctionDirection } from './idef3/domain/models/JunctionType';
+export { Link, LinkType } from './idef3/domain/models/Link';
+export type { LinkProps } from './idef3/domain/models/Link';
+export { Referent, ReferentType } from './idef3/domain/models/Referent';
+export type { ReferentProps } from './idef3/domain/models/Referent';
+export { UOB } from './idef3/domain/models/UOB';
+export type { UOBProps } from './idef3/domain/models/UOB';
+export { Junction } from './idef3/domain/models/Junction';
+export type { JunctionProps } from './idef3/domain/models/Junction';
+export { IDEF3Diagram } from './idef3/domain/models/IDEF3Diagram';
+export type { IDEF3DiagramProps } from './idef3/domain/models/IDEF3Diagram';
+export { IDEF3Model } from './idef3/domain/models/IDEF3Model';
+export type { IDEF3ModelProps } from './idef3/domain/models/IDEF3Model';
+export { IDEF3Rules } from './idef3/domain/rules/IDEF3Rules';
+export type { IDEF3ValidationIssue } from './idef3/domain/rules/IDEF3Rules';
+export {
+  IDEF3Error,
+  UOBNotFoundError,
+  JunctionNotFoundError,
+  LinkNotFoundError,
+  ReferentNotFoundError,
+  DiagramNotFoundError as IDEF3DiagramNotFoundError,
+} from './idef3/domain/errors/IDEF3Error';
+
+export type {
+  UOBDTO,
+  JunctionDTO,
+  LinkDTO,
+  ReferentDTO,
+  DiagramDTO as IDEF3DiagramDTO,
+  ModelDTO as IDEF3ModelDTO,
+} from './idef3/application/dtos/IDEF3DTO';
+
+export type {
+  IIDEF3EditorUseCase,
+  CreateUOBCommand,
+  CreateJunctionCommand,
+  CreateLinkCommand,
+  CreateReferentCommand,
+  DecomposeUOBCommand,
+} from './idef3/application/ports/inbound/IIDEF3EditorUseCase';
+
+export type {
+  IIDEF3DiagramRendererPort,
+  IDEF3SelectionCallback,
+} from './idef3/application/ports/outbound/IIDEF3DiagramRendererPort';
+
+export type { IIDEF3ModelRepositoryPort } from './idef3/application/ports/outbound/IIDEF3ModelRepositoryPort';
+export { IDEF3ApplicationService } from './idef3/application/services/IDEF3ApplicationService';
+export { IDEF3Editor } from './idef3/infrastructure/adapters/inbound/IDEF3Editor';
+export { GoJSIDEF3Adapter } from './idef3/infrastructure/adapters/outbound/gojs/GoJSIDEF3Adapter';
+export { createUOBNodeTemplate } from './idef3/infrastructure/adapters/outbound/gojs/templates/UOBNodeTemplate';
+export { createJunctionNodeTemplate } from './idef3/infrastructure/adapters/outbound/gojs/templates/JunctionNodeTemplate';
+export { createReferentNodeTemplate } from './idef3/infrastructure/adapters/outbound/gojs/templates/ReferentNodeTemplate';
+export { createProcessLinkTemplate } from './idef3/infrastructure/adapters/outbound/gojs/templates/ProcessLinkTemplate';

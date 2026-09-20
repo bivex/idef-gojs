@@ -3,13 +3,72 @@ import {
   RelationshipType,
   Cardinality,
   IDEF0Editor,
+  IDEF3Editor,
 } from '../src/index';
 import { loadRussianEnterpriseModel } from './russian_enterprise_model';
 import { createRussianEnterpriseIDEF0Model } from './russian_enterprise_idef0';
+import { createRussianEnterpriseIDEF3Model } from './russian_enterprise_idef3';
 
 let idef1Editor: IDEF1Editor | null = null;
 let idef0Editor: IDEF0Editor | null = null;
-let activeMode: 'idef0' | 'idef1' = 'idef0';
+let idef3Editor: IDEF3Editor | null = null;
+let activeMode: 'idef3' | 'idef0' | 'idef1' = 'idef3';
+
+// ==========================================
+// IDEF3 Setup
+// ==========================================
+function setupIDEF3() {
+  const container = document.getElementById('diagramDiv');
+  if (!container) return;
+
+  if (idef1Editor) { idef1Editor.destroy(); idef1Editor = null; }
+  if (idef0Editor) { idef0Editor.destroy(); idef0Editor = null; }
+  if (idef3Editor) { idef3Editor.destroy(); idef3Editor = null; }
+
+  container.innerHTML = '';
+  idef3Editor = new IDEF3Editor();
+  idef3Editor.initialize(container);
+
+  const model = createRussianEnterpriseIDEF3Model();
+  idef3Editor.importJSON(JSON.stringify(model.toJSON()));
+
+  const updateIdef3UI = () => {
+    if (!idef3Editor) return;
+    const diag = idef3Editor.getActiveDiagram();
+
+    const breadcrumbEl = document.getElementById('currentScenarioNode');
+    if (breadcrumbEl) {
+      breadcrumbEl.textContent = `${diag.scenarioNumber}: ${diag.title}`;
+    }
+
+    const selectEl = document.getElementById('selectIdef3Diagram') as HTMLSelectElement;
+    if (selectEl) {
+      selectEl.value = diag.id;
+    }
+
+    const uobCountEl = document.getElementById('uobCount');
+    if (uobCountEl) {
+      uobCountEl.textContent = `${diag.uobs.length}`;
+    }
+
+    const junctionCountEl = document.getElementById('junctionCount');
+    if (junctionCountEl) {
+      junctionCountEl.textContent = `${diag.junctions.length}`;
+    }
+  };
+
+  idef3Editor.setOnDiagramChanged(() => {
+    updateIdef3UI();
+    setTimeout(() => {
+      idef3Editor?.autoLayout();
+    }, 50);
+  });
+
+  updateIdef3UI();
+  setTimeout(() => {
+    idef3Editor?.autoLayout();
+  }, 80);
+}
 
 // ==========================================
 // IDEF0 Setup
@@ -18,14 +77,9 @@ function setupIDEF0() {
   const container = document.getElementById('diagramDiv');
   if (!container) return;
 
-  if (idef1Editor) {
-    idef1Editor.destroy();
-    idef1Editor = null;
-  }
-  if (idef0Editor) {
-    idef0Editor.destroy();
-    idef0Editor = null;
-  }
+  if (idef1Editor) { idef1Editor.destroy(); idef1Editor = null; }
+  if (idef0Editor) { idef0Editor.destroy(); idef0Editor = null; }
+  if (idef3Editor) { idef3Editor.destroy(); idef3Editor = null; }
 
   container.innerHTML = '';
   idef0Editor = new IDEF0Editor();
@@ -169,14 +223,9 @@ async function setupIDEF1(modelType: 'ru' | 'en' = 'ru') {
   const container = document.getElementById('diagramDiv');
   if (!container) return;
 
-  if (idef0Editor) {
-    idef0Editor.destroy();
-    idef0Editor = null;
-  }
-  if (idef1Editor) {
-    idef1Editor.destroy();
-    idef1Editor = null;
-  }
+  if (idef0Editor) { idef0Editor.destroy(); idef0Editor = null; }
+  if (idef1Editor) { idef1Editor.destroy(); idef1Editor = null; }
+  if (idef3Editor) { idef3Editor.destroy(); idef3Editor = null; }
 
   container.innerHTML = '';
   const modelName =
@@ -226,30 +275,49 @@ async function setupIDEF1(modelType: 'ru' | 'en' = 'ru') {
 // ==========================================
 // Mode Switcher
 // ==========================================
-function switchMode(mode: 'idef0' | 'idef1') {
+function switchMode(mode: 'idef3' | 'idef0' | 'idef1') {
   activeMode = mode;
+  const tabIdef3 = document.getElementById('tabIdef3');
   const tabIdef0 = document.getElementById('tabIdef0');
   const tabIdef1 = document.getElementById('tabIdef1');
+
+  const tbIdef3 = document.getElementById('toolbarIdef3');
   const tbIdef0 = document.getElementById('toolbarIdef0');
   const tbIdef1 = document.getElementById('toolbarIdef1');
+
+  const sbIdef3 = document.getElementById('sidebarIdef3');
   const sbIdef0 = document.getElementById('sidebarIdef0');
   const sbIdef1 = document.getElementById('sidebarIdef1');
 
-  if (mode === 'idef0') {
+  // Reset tabs
+  tabIdef3?.classList.remove('active');
+  tabIdef0?.classList.remove('active');
+  tabIdef1?.classList.remove('active');
+
+  // Hide toolbars
+  if (tbIdef3) tbIdef3.style.display = 'none';
+  if (tbIdef0) tbIdef0.style.display = 'none';
+  if (tbIdef1) tbIdef1.style.display = 'none';
+
+  // Hide sidebars
+  if (sbIdef3) sbIdef3.style.display = 'none';
+  if (sbIdef0) sbIdef0.style.display = 'none';
+  if (sbIdef1) sbIdef1.style.display = 'none';
+
+  if (mode === 'idef3') {
+    tabIdef3?.classList.add('active');
+    if (tbIdef3) tbIdef3.style.display = 'flex';
+    if (sbIdef3) sbIdef3.style.display = 'flex';
+    setupIDEF3();
+  } else if (mode === 'idef0') {
     tabIdef0?.classList.add('active');
-    tabIdef1?.classList.remove('active');
     if (tbIdef0) tbIdef0.style.display = 'flex';
-    if (tbIdef1) tbIdef1.style.display = 'none';
     if (sbIdef0) sbIdef0.style.display = 'flex';
-    if (sbIdef1) sbIdef1.style.display = 'none';
     setupIDEF0();
   } else {
     tabIdef1?.classList.add('active');
-    tabIdef0?.classList.remove('active');
     if (tbIdef1) tbIdef1.style.display = 'flex';
-    if (tbIdef0) tbIdef0.style.display = 'none';
     if (sbIdef1) sbIdef1.style.display = 'flex';
-    if (sbIdef0) sbIdef0.style.display = 'none';
     setupIDEF1('ru');
   }
 }
@@ -259,8 +327,70 @@ function switchMode(mode: 'idef0' | 'idef1') {
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   // Tabs
+  document.getElementById('tabIdef3')?.addEventListener('click', () => switchMode('idef3'));
   document.getElementById('tabIdef0')?.addEventListener('click', () => switchMode('idef0'));
   document.getElementById('tabIdef1')?.addEventListener('click', () => switchMode('idef1'));
+
+  // ----------------------------------------
+  // IDEF3 Toolbar Handlers
+  // ----------------------------------------
+  document.getElementById('selectIdef3Diagram')?.addEventListener('change', (e: any) => {
+    if (!idef3Editor) return;
+    idef3Editor.setActiveDiagram(e.target.value);
+  });
+
+  document.getElementById('btnIdef3DrillUp')?.addEventListener('click', () => {
+    if (!idef3Editor) return;
+    const ok = idef3Editor.drillUp();
+    if (!ok) {
+      alert('Вы уже находитесь на корневом сценарии процесса.');
+    }
+  });
+
+  document.getElementById('btnIdef3AutoLayout')?.addEventListener('click', () => {
+    idef3Editor?.autoLayout();
+  });
+
+  document.getElementById('btnIdef3ZoomFit')?.addEventListener('click', () => {
+    idef3Editor?.zoomToFit();
+  });
+
+  document.getElementById('btnValidateIdef3')?.addEventListener('click', () => {
+    if (!idef3Editor) return;
+    const issues = idef3Editor.validate();
+    if (issues.length === 0) {
+      alert('✓ Процессная схема полностью корректна по стандарту IDEF3!\n\n- Логика перекрестков (&, X) сбалансирована\n- Все действия (UOB) имеют корректные наименования\n- Отсутствуют некорректные изолированные элементы');
+    } else {
+      const msg = issues.map((i) => `[${i.severity}] ${i.code}: ${i.message}`).join('\n\n');
+      alert(`Результаты проверки IDEF3:\n\n${msg}`);
+    }
+  });
+
+  document.getElementById('btnIdef3ExportJson')?.addEventListener('click', () => {
+    if (!idef3Editor) return;
+    const json = idef3Editor.exportJSON();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'idef3_process_model.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('btnIdef3ImportJson')?.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = async (e: any) => {
+      const file = e.target.files[0];
+      if (file && idef3Editor) {
+        const text = await file.text();
+        idef3Editor.importJSON(text);
+      }
+    };
+    input.click();
+  });
 
   // ----------------------------------------
   // IDEF0 Toolbar Handlers
@@ -292,9 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (issues.length === 0) {
       alert('✓ Диаграмма полностью соответствует стандарту FIPS PUB 183!\n\n- Количество блоков от 3 до 6\n- Все функции имеют Управление (Control) и Выход (Output)\n- Стрелки имеют корректные имена (существительные)');
     } else {
-      const msg = issues
-        .map((i) => `[${i.severity}] ${i.code}: ${i.message}`)
-        .join('\n\n');
+      const msg = issues.map((i) => `[${i.severity}] ${i.code}: ${i.message}`).join('\n\n');
       alert(`Результаты проверки FIPS 183:\n\n${msg}`);
     }
   });
@@ -393,6 +521,6 @@ document.addEventListener('DOMContentLoaded', () => {
     input.click();
   });
 
-  // Initial startup with IDEF0 mode
-  setupIDEF0();
+  // Initial startup with IDEF3 mode
+  setupIDEF3();
 });

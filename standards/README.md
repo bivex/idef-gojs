@@ -1,65 +1,71 @@
-# Официальные спецификации стандартов IDEF (FIPS PUB 183 & FIPS PUB 184)
+# Официальные спецификации стандартов IDEF Suite (IDEF0, IDEF1X, IDEF3)
 
-В этой директории размещены официальные документы государственных стандартов США (National Institute of Standards and Technology - NIST / IEEE):
+В этой директории размещены официальные документы государственных и международных стандартов (NIST / IEEE / KBSI):
 
 - **[FIPS_PUB_183.pdf](./FIPS_PUB_183.pdf)** — **IDEF0**: Integration Definition for Function Modeling (Функциональное моделирование процессов, 4.67 МБ).
 - **[FIPS_PUB_184.doc](./FIPS_PUB_184.doc)** — **IDEF1X**: Integration Definition for Information Modeling (Информационное моделирование данных, 823 КБ).
-- **[FIPS_PUB_184.txt](./FIPS_PUB_184.txt)** — Полная текстовая версия стандарта FIPS 184 (304 КБ) для индексации и верификации правил.
+- **[FIPS_PUB_184.txt](./FIPS_PUB_184.txt)** — Текстовая версия стандарта FIPS 184 (304 КБ) для быстрой индексации и верификации правил.
+- **[IDEF3_Report.pdf](./IDEF3_Report.pdf)** — **IDEF3**: Process Description Capture Method Report (KBSI / IICE, 1.8 МБ).
 
 ---
 
-## 📘 1. Стандарт IDEF0 (FIPS PUB 183) — Функциональное моделирование
-
-### Ключевые положения нотации:
-1. **Функциональный блок (Activity Box)**:
-   - Прямоугольник, представляющий действие, процесс или функцию предприятия.
-   - Имя формулируется в виде **активной глагольной фразы** (Active Verb Phrase).
-   - В правом нижнем углу — номер детализации блока (от `1` до `6`).
-   - Под блоком — код родительского контекста (например, `A0`, `A1`, `A2.1`).
-   - Индикатор декомпозиции (D-number) при наличии дочерней диаграммы.
-2. **Семантика стрелок ICOM**:
-   - **Input (Вход, I)**: Стрелки входят в блок с **ЛЕВОЙ** стороны. Преобразуются функцией в выход.
-   - **Control (Управление, C)**: Стрелки входят в блок с **ВЕРХНЕЙ** стороны. Регламентируют, управляют или ограничивают выполнение функции (стандарты, регламенты, планы).
-   - **Output (Выход, O)**: Стрелки выходят из блока с **ПРАВОЙ** стороны. Результат выполнения функции.
-   - **Mechanism (Механизм, M)**: Стрелки входят в блок с **НИЖНЕЙ** стороны. Ресурсы для исполнения (персонал, станки, ПО).
-   - **Call (Вызов)**: Стрелки выходят из блока **СНИЗУ** и направлены вниз. Ссылка на другую модель или внешнюю подсистему.
-3. **Правило 3-6 блоков (§3.3.2)**:
-   - Каждая диаграмма декомпозиции должна содержать от **3 до 6** функциональных блоков.
-   - Исключение: контекстная диаграмма верхнего уровня **A-0**, содержащая ровно **1** блок **A0**.
-4. **Диагональное доминирование (Diagonal Dominance)**:
-   - Блоки располагаются по диагонали сверху-вниз слева-направо в порядке их системного приоритета и потока управления.
-5. **Туннелирование стрелок (Tunneling, §3.4)**:
-   - Обозначается круглыми скобками `( )` у начала или конца стрелки.
-   - Туннель у источника (`AT_SOURCE`): стрелка не отображается на родительской диаграмме, а возникает на дочерней.
-   - Туннель у цели (`AT_TARGET`): стрелка с родительской диаграммы не переносится в дочернюю декомпозицию.
+## 📘 1. Стандарт IDEF0 (FIPS PUB 183) — Функциональное моделирование процессов
+- **Функциональный блок**: действие/функция (активная глагольная фраза), 4 стороны ICOM (Input, Control, Output, Mechanism).
+- **Правило 3-6 блоков**: на диаграмме декомпозиции от 3 до 6 блоков (на контекстной A-0 — строго 1 блок).
+- **Диагональное доминирование**: ступенчатое расположение блоков от левого верхнего к правому нижнему углу.
+- **Туннелирование**: скрытие стрелок на родительской или дочерней диаграмме `( )`.
 
 ---
 
 ## 📙 2. Стандарт IDEF1X (FIPS PUB 184) — Информационное моделирование данных
+- **Сущности**: независимые (прямоугольные) и зависимые (со скругленными углами).
+- **Атрибуты**: первичные ключи PK (над чертой) и неключевые атрибуты Non-Key (под чертой).
+- **Связи**:
+  - Идентифицирующие (сплошная линия, миграция PK родителя в PK потомка).
+  - Неидентифицирующие (пунктирная линия, миграция в Non-Key).
+  - Опциональные (ромб со стороны родителя).
+  - Связи N:M (точки на обоих концах).
+  - Альтернативные уникальные ключи (AK1, AK2).
+- **Категоризация**: родовая сущность, дискриминатор, полная (две черты) и неполная (одна черта) категоризация подтипов.
 
-### Ключевые положения нотации:
-- **§3.1 Entities**: Независимые (прямоугольные) и зависимые (со скругленными углами) сущности.
-- **§3.4 Attributes**: Разделение на Primary Key (над чертой) и Non-Key (под чертой).
-- **§3.5 Connection Relationships**:
-  - Identifying: сплошная линия, дочерняя зависима, PK мигрирует в PK потомка.
-  - Non-identifying: пунктирная линия, PK мигрирует в Non-Key.
-  - Опциональность: ромб (`Diamond`) на стороне родителя при Nullable FK.
-  - Мощности: точка (0..*), точка с P (1..*), точка с Z (0..1), диапазон.
-- **§3.6 Categorization (Подтипы)**: Родовая сущность, дискриминатор, полная (две черты) и неполная (одна черта) категоризация.
-- **§3.7 Non-Specific (N:M)**: Сплошная линия со сплошными кружками на обоих концах.
-- **§3.9 Foreign Key Migration & Role Names**: Автоматическая миграция ключей и ролевые имена при рекурсивных связях.
+---
+
+## 📗 3. Стандарт IDEF3 (KBSI Report) — Описание технологических процессов и сценариев
+- **Единица работы / Действие (Unit of Behavior, UOB)**:
+  - Прямоугольник, разделенный горизонтальной чертой.
+  - Верхняя часть: наименование операции (глагольная фраза).
+  - Нижняя левая часть: номер шага процесса (1, 2, 2.1).
+  - Нижняя правая часть: идентификатор UOB# (UOB-1, UOB-101) и метка декомпозиции.
+- **Логические перекрестки (Junctions)**:
+  - **AND (&)**: одновременный запуск/слияние всех ветвей.
+  - **OR (O)**: запуск/слияние одной или нескольких ветвей.
+  - **XOR (X)**: исключающее ветвление (строго один исход).
+  - **Синхронность**: одинарная вертикальная полоса (асинхронный), двойная вертикальная полоса (синхронный).
+  - **Направление**: Fan-Out (разветвление) и Fan-In (слияние).
+- **Типы связей (Links)**:
+  - **Связь предшествования (Precedence)**: сплошная линия с одной стрелкой.
+  - **Относительная связь (Relational)**: пунктирная линия со стрелкой и текстовой пометкой.
+  - **Поток объектов (Object Flow)**: сплошная линия со сдвоенной стрелкой.
+- **Референты (Referents)**:
+  - Ссылки на состояние объекта `[Объект: Состояние]`, вызов другого сценария, безусловный переход `[GOTO: UOB]` или примечание.
+- **Декомпозиция**:
+  - Раскрытие сложного шага процесса в детальную вложенную процессную схему.
 
 ---
 
 ## 🔗 Соответствие кодовой базе репозитория
 
-| Стандарт | Раздел | Реализующий модуль в репозитории |
+| Нотация | Раздел стандарта | Реализующий модуль в `src/` |
 |---|---|---|
-| **IDEF0** | Activity & ICOM Ports | `src/idef0/domain/models/Activity.ts`, `src/idef0/infrastructure/adapters/outbound/gojs/templates/ActivityNodeTemplate.ts` |
+| **IDEF3** | UOB (Unit of Behavior) | `src/idef3/domain/models/UOB.ts`, `src/idef3/infrastructure/adapters/outbound/gojs/templates/UOBNodeTemplate.ts` |
+| **IDEF3** | Junctions (&, O, X, Sync/Async) | `src/idef3/domain/models/Junction.ts`, `src/idef3/infrastructure/adapters/outbound/gojs/templates/JunctionNodeTemplate.ts` |
+| **IDEF3** | Links (Precedence, Relational, Object Flow) | `src/idef3/domain/models/Link.ts`, `src/idef3/infrastructure/adapters/outbound/gojs/templates/ProcessLinkTemplate.ts` |
+| **IDEF3** | Referents (Object States, GOTO, Scenarios) | `src/idef3/domain/models/Referent.ts`, `src/idef3/infrastructure/adapters/outbound/gojs/templates/ReferentNodeTemplate.ts` |
+| **IDEF3** | Scenario Hierarchy & Decomposition | `src/idef3/domain/models/IDEF3Model.ts`, `src/idef3/domain/models/IDEF3Diagram.ts` |
+| **IDEF3** | Rules & Flow Validation | `src/idef3/domain/rules/IDEF3Rules.ts` |
+| **IDEF0** | Function Boxes & ICOM Ports | `src/idef0/domain/models/Activity.ts`, `src/idef0/infrastructure/adapters/outbound/gojs/templates/ActivityNodeTemplate.ts` |
 | **IDEF0** | ICOM Arrows & Tunneling | `src/idef0/domain/models/Arrow.ts`, `src/idef0/infrastructure/adapters/outbound/gojs/templates/ArrowLinkTemplate.ts` |
-| **IDEF0** | Hierarchy & Decomposition | `src/idef0/domain/models/IDEF0Model.ts`, `src/idef0/domain/models/IDEF0Diagram.ts` |
-| **IDEF0** | FIPS 183 Rules (3-6 boxes, DAG) | `src/idef0/domain/rules/IDEF0Rules.ts` |
-| **IDEF0** | Diagonal Layout Engine | `src/idef0/infrastructure/adapters/outbound/gojs/GoJSIDEF0Adapter.ts` |
+| **IDEF0** | FIPS 183 Validation Rules | `src/idef0/domain/rules/IDEF0Rules.ts` |
 | **IDEF1X** | Entities & Attributes | `src/domain/models/Entity.ts`, `src/domain/models/Attribute.ts` |
-| **IDEF1X** | Relationships & Migration | `src/domain/models/Relationship.ts`, `src/domain/rules/IDEF1Rules.ts` |
+| **IDEF1X** | Identifying / Non-Identifying Relations | `src/domain/models/Relationship.ts`, `src/domain/rules/IDEF1Rules.ts` |
 | **IDEF1X** | Categorization / Subtypes | `src/domain/models/Categorization.ts` |
