@@ -1,61 +1,18 @@
-import {
-  IDEF1Editor,
-  RelationshipType,
-  Cardinality,
-  IDEF0Editor,
-  IDEF3Editor,
-  IDEF4Editor,
-  IDEF5Editor,
-  IDEF6Editor,
-  IDEF8Editor,
-  IDEF9Editor,
-  IDEF10Editor,
-  ScreenType,
-  ScreenState,
-  ActionModality,
-  ResponseType,
-  PrivilegeLevel,
-  InteractionLinkType,
-  IssueStatus,
-  AlternativeStatus,
-  CriterionType,
-  CriterionWeight,
-  ArgumentType,
-  ArgumentStrength,
-  RationaleLinkType,
-  ConstraintType,
-  ConstraintSeverity,
-  ConstraintStatus,
-  ControlledObjectType,
-  MechanismType,
-  DocumentType,
-  ConstraintLinkType,
-  ComponentType,
-  ComponentLifecycle,
-  NodeType,
-  InterfaceProtocol,
-  InterfaceRole,
-  ArtifactType,
-  ArchitectureLinkType,
-} from '../src/index';
-import { loadRussianEnterpriseModel } from './russian_enterprise_model';
-import { createRussianEnterpriseIDEF0Model } from './russian_enterprise_idef0';
-import { createRussianEnterpriseIDEF3Model } from './russian_enterprise_idef3';
-import { createRussianEnterpriseIDEF4Model } from './russian_enterprise_idef4';
-import { loadRussianEnterpriseIDEF5Demo } from './russian_enterprise_idef5';
-import { loadRussianEnterpriseIDEF6Demo } from './russian_enterprise_idef6';
-import { loadRussianEnterpriseIDEF8Demo } from './russian_enterprise_idef8';
-import { setupIDEF9 as loadIDEF9Demo } from './russian_enterprise_idef9';
-import { setupIDEF10 as loadIDEF10Demo } from './russian_enterprise_idef10';
+import { IDEF10Editor } from '../src/idef10/infrastructure/adapters/inbound/IDEF10Editor';
+import { ComponentType, ComponentLifecycle } from '../src/idef10/domain/models/IDEF10Component';
+import { NodeType } from '../src/idef10/domain/models/IDEF10ExecutionNode';
+import { InterfaceProtocol } from '../src/idef10/domain/models/IDEF10Interface';
+import { ArtifactType } from '../src/idef10/domain/models/IDEF10Artifact';
+import { ArchitectureLinkType } from '../src/idef10/domain/models/IDEF10Link';
 
-let idef1Editor: IDEF1Editor | null = null;
-let idef0Editor: IDEF0Editor | null = null;
-let idef3Editor: IDEF3Editor | null = null;
-let idef4Editor: IDEF4Editor | null = null;
-let idef5Editor: IDEF5Editor | null = null;
-let idef6Editor: IDEF6Editor | null = null;
-let idef8Editor: IDEF8Editor | null = null;
-let idef9Editor: IDEF9Editor | null = null;
+let idef1Editor: any = null;
+let idef0Editor: any = null;
+let idef3Editor: any = null;
+let idef4Editor: any = null;
+let idef5Editor: any = null;
+let idef6Editor: any = null;
+let idef8Editor: any = null;
+let idef9Editor: any = null;
 let idef10Editor: IDEF10Editor | null = null;
 let activeMode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1' = 'idef10';
 
@@ -233,115 +190,13 @@ function setupIDEF10() {
 // ==========================================
 // IDEF9 Setup (KBSI Business Rules & Constraints)
 // ==========================================
-function setupIDEF9() {
+async function setupIDEF9() {
   destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
 
-  idef9Editor = new IDEF9Editor();
-  idef9Editor.initialize(container);
-  idef9Editor.createModel(
-    'metal-avia-constraints-v1',
-    'IDEF9: Ограничения производства лопаток ГТД — ОАО «Металл-Авиа»'
-  );
-
-  // Load demo data
-  const docGOST = idef9Editor.addSourceDocument({
-    code: 'ГОСТ Р 55892',
-    name: 'ГОСТ Р 55892-2013 — Термообработка никелевых сплавов',
-    documentType: DocumentType.STATE_STANDARD,
-    x: 50, y: 80,
-  });
-  const docOST = idef9Editor.addSourceDocument({
-    code: 'ОСТ 1 90218',
-    name: 'ОСТ 1 90218-76 — Лопатки турбин авиадвигателей',
-    documentType: DocumentType.INDUSTRY_CODE,
-    x: 50, y: 280,
-  });
-  const docTK = idef9Editor.addSourceDocument({
-    code: 'ТК РФ ст.103',
-    name: 'Трудовой кодекс РФ — Ст. 103 Сменная работа',
-    documentType: DocumentType.LAW_REGULATION,
-    x: 50, y: 480,
-  });
-  const cTemp = idef9Editor.addConstraint({
-    code: 'CR-01',
-    name: 'Температурный режим закалки лопатки',
-    statement: 'T_закалки ∈ [1050°C, 1080°C] при выдержке τ = 2±0.1 ч.',
-    constraintType: ConstraintType.TECHNICAL,
-    severity: ConstraintSeverity.MANDATORY,
-    x: 380, y: 80,
-  });
-  const cTool = idef9Editor.addConstraint({
-    code: 'CR-02',
-    name: 'Износ режущего инструмента ЧПУ',
-    statement: 'VB_инструмента ≤ 0.3 мм',
-    constraintType: ConstraintType.TECHNICAL,
-    severity: ConstraintSeverity.MANDATORY,
-    x: 380, y: 260,
-  });
-  const cShift = idef9Editor.addConstraint({
-    code: 'CR-03',
-    name: 'Продолжительность смены у термоагрегата',
-    statement: 'Оператор работает не более 12 ч. непрерывно',
-    constraintType: ConstraintType.REGULATORY,
-    severity: ConstraintSeverity.MANDATORY,
-    x: 380, y: 440,
-  });
-  const cSLA = idef9Editor.addConstraint({
-    code: 'CR-04',
-    name: 'SLA отклика MES на аварийный сигнал',
-    statement: 'T_resp ≤ 2 сек',
-    constraintType: ConstraintType.TIME,
-    severity: ConstraintSeverity.CONDITIONAL,
-    x: 380, y: 620,
-  });
-  const objThermo = idef9Editor.addControlledObject({
-    name: 'Термообработка — Закалка лопатки',
-    objectType: ControlledObjectType.PROCESS,
-    description: 'Электровакуумная печь ПАП-6',
-    x: 720, y: 80,
-  });
-  const objBlade = idef9Editor.addControlledObject({
-    name: 'Лопатка турбины 1-й ступени ГТД',
-    objectType: ControlledObjectType.PRODUCT,
-    description: 'Сплав ЖС6У, ОСТ 1 90218-76',
-    x: 720, y: 300,
-  });
-  const objOperator = idef9Editor.addControlledObject({
-    name: 'Операторы термического участка',
-    objectType: ControlledObjectType.PERSONNEL,
-    x: 720, y: 520,
-  });
-  const mechPLC = idef9Editor.addEnforcementMechanism({
-    name: 'ПЛК Siemens S7-1500 (блокировка нагрева)',
-    mechanismType: MechanismType.AUTOMATED_PLC,
-    x: 1060, y: 80,
-  });
-  const mechMES = idef9Editor.addEnforcementMechanism({
-    name: 'MES Opcenter — контроль инструмента',
-    mechanismType: MechanismType.SOFTWARE_RULE,
-    x: 1060, y: 280,
-  });
-  const mechERP = idef9Editor.addEnforcementMechanism({
-    name: 'Аудит 1С:ERP — рабочее время',
-    mechanismType: MechanismType.ERP_AUDIT,
-    x: 1060, y: 480,
-  });
-
-  idef9Editor.addLink({ sourceId: cTemp.id, targetId: docGOST.id, type: ConstraintLinkType.DERIVED_FROM });
-  idef9Editor.addLink({ sourceId: cShift.id, targetId: docTK.id, type: ConstraintLinkType.DERIVED_FROM });
-  idef9Editor.addLink({ sourceId: cTemp.id, targetId: objThermo.id, type: ConstraintLinkType.CONSTRAINS });
-  idef9Editor.addLink({ sourceId: cTool.id, targetId: objBlade.id, type: ConstraintLinkType.CONSTRAINS });
-  idef9Editor.addLink({ sourceId: cShift.id, targetId: objOperator.id, type: ConstraintLinkType.CONSTRAINS });
-  idef9Editor.addLink({ sourceId: cTemp.id, targetId: mechPLC.id, type: ConstraintLinkType.ENFORCED_BY });
-  idef9Editor.addLink({ sourceId: cTool.id, targetId: mechMES.id, type: ConstraintLinkType.ENFORCED_BY });
-  idef9Editor.addLink({ sourceId: cShift.id, targetId: mechERP.id, type: ConstraintLinkType.ENFORCED_BY });
-  idef9Editor.addLink({ sourceId: cSLA.id, targetId: mechMES.id, type: ConstraintLinkType.ENFORCED_BY });
-  idef9Editor.addLink({
-    sourceId: cTemp.id, targetId: cSLA.id, type: ConstraintLinkType.CONFLICTS_WITH,
-    label: 'SLA под угрозой при аварии печи',
-  });
+  const { setupIDEF9: loadIDEF9 } = await import('./russian_enterprise_idef9');
+  idef9Editor = loadIDEF9(container);
 
   const updateIdef9UI = () => {
     if (!idef9Editor) return;
@@ -367,10 +222,13 @@ function setupIDEF9() {
 // ==========================================
 // IDEF8 Setup (KBSI Human-System Interaction)
 // ==========================================
-function setupIDEF8() {
+async function setupIDEF8() {
   destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
+
+  const { IDEF8Editor } = await import('../src/idef8/infrastructure/adapters/inbound/IDEF8Editor');
+  const { loadRussianEnterpriseIDEF8Demo } = await import('./russian_enterprise_idef8');
 
   idef8Editor = new IDEF8Editor();
   idef8Editor.initialize(container);
@@ -408,10 +266,13 @@ function setupIDEF8() {
 // ==========================================
 // IDEF6 Setup (KBSI Design Rationale)
 // ==========================================
-function setupIDEF6() {
+async function setupIDEF6() {
   destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
+
+  const { IDEF6Editor } = await import('../src/idef6/infrastructure/adapters/inbound/IDEF6Editor');
+  const { loadRussianEnterpriseIDEF6Demo } = await import('./russian_enterprise_idef6');
 
   idef6Editor = new IDEF6Editor();
   idef6Editor.initialize(container);
@@ -449,10 +310,13 @@ function setupIDEF6() {
 // ==========================================
 // IDEF5 Setup
 // ==========================================
-function setupIDEF5() {
+async function setupIDEF5() {
   destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
+
+  const { IDEF5Editor } = await import('../src/idef5/infrastructure/adapters/inbound/IDEF5Editor');
+  const { loadRussianEnterpriseIDEF5Demo } = await import('./russian_enterprise_idef5');
 
   idef5Editor = new IDEF5Editor();
   idef5Editor.initialize(container);
@@ -465,13 +329,13 @@ function setupIDEF5() {
 
     const kindCountEl = document.getElementById('kindCount');
     if (kindCountEl) {
-      const kindsOnly = diag.kinds.filter((k) => !k.isIndividual);
+      const kindsOnly = diag.kinds.filter((k: any) => !k.isIndividual);
       kindCountEl.textContent = `${kindsOnly.length}`;
     }
 
     const indCountEl = document.getElementById('indCount');
     if (indCountEl) {
-      const indsOnly = diag.kinds.filter((k) => k.isIndividual);
+      const indsOnly = diag.kinds.filter((k: any) => k.isIndividual);
       indCountEl.textContent = `${indsOnly.length}`;
     }
   };
@@ -489,14 +353,16 @@ function setupIDEF5() {
   }, 80);
 }
 
-
 // ==========================================
 // IDEF4 Setup
 // ==========================================
-function setupIDEF4() {
+async function setupIDEF4() {
   destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
+
+  const { IDEF4Editor } = await import('../src/idef4/infrastructure/adapters/inbound/IDEF4Editor');
+  const { createRussianEnterpriseIDEF4Model } = await import('./russian_enterprise_idef4');
 
   idef4Editor = new IDEF4Editor();
   idef4Editor.initialize(container);
@@ -531,10 +397,13 @@ function setupIDEF4() {
 // ==========================================
 // IDEF3 Setup
 // ==========================================
-function setupIDEF3() {
+async function setupIDEF3() {
   destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
+
+  const { IDEF3Editor } = await import('../src/idef3/infrastructure/adapters/inbound/IDEF3Editor');
+  const { createRussianEnterpriseIDEF3Model } = await import('./russian_enterprise_idef3');
 
   idef3Editor = new IDEF3Editor();
   idef3Editor.initialize(container);
@@ -583,10 +452,13 @@ function setupIDEF3() {
 // ==========================================
 // IDEF0 Setup
 // ==========================================
-function setupIDEF0() {
+async function setupIDEF0() {
   destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
+
+  const { IDEF0Editor } = await import('../src/idef0/infrastructure/adapters/inbound/IDEF0Editor');
+  const { createRussianEnterpriseIDEF0Model } = await import('./russian_enterprise_idef0');
 
   idef0Editor = new IDEF0Editor();
   idef0Editor.initialize(container);
@@ -635,7 +507,7 @@ function setupIDEF0() {
 // ==========================================
 // IDEF1X Setup
 // ==========================================
-async function loadDefaultEnglishModel(editor: IDEF1Editor): Promise<void> {
+async function loadDefaultEnglishModel(editor: any): Promise<void> {
   const deptId = await editor.addEntity('DEPARTMENT', {
     isDependent: false,
     position: { x: 80, y: 80 },
@@ -690,30 +562,30 @@ async function loadDefaultEnglishModel(editor: IDEF1Editor): Promise<void> {
   await editor.addRelationship(deptId, empId, {
     name: 'employs',
     inverseName: 'is employed by',
-    type: RelationshipType.NON_IDENTIFYING,
-    cardinality: Cardinality.ONE_OR_MORE,
+    type: 'NON_IDENTIFYING' as any,
+    cardinality: 'ONE_OR_MORE' as any,
     isOptional: true,
   });
 
   await editor.addRelationship(empId, projAssignId, {
     name: 'works on',
     inverseName: 'is staffed by',
-    type: RelationshipType.IDENTIFYING,
-    cardinality: Cardinality.ZERO_OR_MORE,
+    type: 'IDENTIFYING' as any,
+    cardinality: 'ZERO_OR_MORE' as any,
   });
 
   await editor.addRelationship(projId, empId, {
     name: 'participates in',
     inverseName: 'involves',
-    type: RelationshipType.NON_SPECIFIC,
+    type: 'NON_SPECIFIC' as any,
   });
 
   await editor.addRelationship(empId, empId, {
     name: 'manages',
     inverseName: 'reports to',
     roleName: 'manager',
-    type: RelationshipType.NON_IDENTIFYING,
-    cardinality: Cardinality.ZERO_OR_MORE,
+    type: 'NON_IDENTIFYING' as any,
+    cardinality: 'ZERO_OR_MORE' as any,
     isOptional: true,
   });
 
@@ -729,6 +601,10 @@ async function setupIDEF1(modelType: 'ru' | 'en' = 'ru') {
   destroyAllEditors();
   const container = document.getElementById('diagramDiv');
   if (!container) return;
+
+  const { IDEF1Editor } = await import('../src/infrastructure/adapters/inbound/IDEF1Editor');
+  const { loadRussianEnterpriseModel } = await import('./russian_enterprise_model');
+
   const modelName =
     modelType === 'ru'
       ? 'Информационная модель ERP-системы предприятия (IDEF1X)'
@@ -776,7 +652,7 @@ async function setupIDEF1(modelType: 'ru' | 'en' = 'ru') {
 // ==========================================
 // Mode Switcher
 // ==========================================
-function switchMode(mode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
+async function switchMode(mode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'idef4' | 'idef3' | 'idef0' | 'idef1') {
   activeMode = mode;
   const tabIdef10 = document.getElementById('tabIdef10');
   const tabIdef9 = document.getElementById('tabIdef9');
@@ -850,42 +726,42 @@ function switchMode(mode: 'idef10' | 'idef9' | 'idef8' | 'idef6' | 'idef5' | 'id
     tabIdef9?.classList.add('active');
     if (tbIdef9) tbIdef9.style.display = 'flex';
     if (sbIdef9) sbIdef9.style.display = 'flex';
-    setupIDEF9();
+    await setupIDEF9();
   } else if (mode === 'idef8') {
     tabIdef8?.classList.add('active');
     if (tbIdef8) tbIdef8.style.display = 'flex';
     if (sbIdef8) sbIdef8.style.display = 'flex';
-    setupIDEF8();
+    await setupIDEF8();
   } else if (mode === 'idef6') {
     tabIdef6?.classList.add('active');
     if (tbIdef6) tbIdef6.style.display = 'flex';
     if (sbIdef6) sbIdef6.style.display = 'flex';
-    setupIDEF6();
+    await setupIDEF6();
   } else if (mode === 'idef5') {
     tabIdef5?.classList.add('active');
     if (tbIdef5) tbIdef5.style.display = 'flex';
     if (sbIdef5) sbIdef5.style.display = 'flex';
-    setupIDEF5();
+    await setupIDEF5();
   } else if (mode === 'idef4') {
     tabIdef4?.classList.add('active');
     if (tbIdef4) tbIdef4.style.display = 'flex';
     if (sbIdef4) sbIdef4.style.display = 'flex';
-    setupIDEF4();
+    await setupIDEF4();
   } else if (mode === 'idef3') {
     tabIdef3?.classList.add('active');
     if (tbIdef3) tbIdef3.style.display = 'flex';
     if (sbIdef3) sbIdef3.style.display = 'flex';
-    setupIDEF3();
+    await setupIDEF3();
   } else if (mode === 'idef0') {
     tabIdef0?.classList.add('active');
     if (tbIdef0) tbIdef0.style.display = 'flex';
     if (sbIdef0) sbIdef0.style.display = 'flex';
-    setupIDEF0();
+    await setupIDEF0();
   } else {
     tabIdef1?.classList.add('active');
     if (tbIdef1) tbIdef1.style.display = 'flex';
     if (sbIdef1) sbIdef1.style.display = 'flex';
-    setupIDEF1('ru');
+    await setupIDEF1('ru');
   }
 }
 
@@ -921,7 +797,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!name) return;
     idef8Editor.addScreen({
       name,
-      screenType: ScreenType.CONTROL_PANEL,
+      screenType: 'CONTROL_PANEL' as any,
       widgets: [
         { id: `w-${Date.now()}-1`, name: 'Кнопка "Тест привода"', widgetType: 'BUTTON' },
         { id: `w-${Date.now()}-2`, name: 'Шкала тока фазы А (Ампер)', widgetType: 'GAUGE' },
@@ -937,7 +813,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!name) return;
     idef8Editor.addUserAction({
       name,
-      modality: ActionModality.CLICK,
+      modality: 'CLICK' as any,
       x: 550 + Math.random() * 150,
       y: 200 + Math.random() * 150,
     });
@@ -949,7 +825,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!name) return;
     idef8Editor.addSystemResponse({
       name,
-      responseType: ResponseType.STATE_CHANGE,
+      responseType: 'STATE_CHANGE' as any,
       x: 750 + Math.random() * 150,
       y: 200 + Math.random() * 150,
     });
@@ -961,7 +837,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!name) return;
     idef8Editor.addUserRole({
       name,
-      privilegeLevel: PrivilegeLevel.ENGINEER,
+      privilegeLevel: 'ENGINEER' as any,
       x: 100 + Math.random() * 150,
       y: 200 + Math.random() * 150,
     });
@@ -1022,7 +898,7 @@ document.addEventListener('DOMContentLoaded', () => {
     idef6Editor.addIssue({
       name,
       description: 'Инженерная проблема выбора стека протоколов',
-      status: IssueStatus.OPEN,
+      status: 'OPEN' as any,
       x: 100 + Math.random() * 150,
       y: 100 + Math.random() * 150,
     });
@@ -1035,7 +911,7 @@ document.addEventListener('DOMContentLoaded', () => {
     idef6Editor.addAlternative({
       name,
       description: 'Вариант архитектурного решения',
-      status: AlternativeStatus.PROPOSED,
+      status: 'PROPOSED' as any,
       x: 350 + Math.random() * 150,
       y: 100 + Math.random() * 150,
     });
@@ -1048,7 +924,7 @@ document.addEventListener('DOMContentLoaded', () => {
     idef6Editor.addCriterion({
       name,
       description: 'Критерий соответствия требованиям ТЗ',
-      type: CriterionType.CONSTRAINT,
+      type: 'CONSTRAINT' as any,
       x: 600 + Math.random() * 150,
       y: 100 + Math.random() * 150,
     });
@@ -1061,7 +937,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isCon = confirm('Этот аргумент ПРОТИВ (CON)?\n\nНажмите "OK" для аргумента ПРОТИВ (CON),\nили "Отмена" для аргумента ЗА (PRO).');
     idef6Editor.addArgument({
       name,
-      type: isCon ? ArgumentType.CON : ArgumentType.PRO,
+      type: isCon ? ('CON' as any) : ('PRO' as any),
       description: 'Экспертная оценка решения',
       x: 850 + Math.random() * 150,
       y: 100 + Math.random() * 150,
@@ -1453,8 +1329,8 @@ document.addEventListener('DOMContentLoaded', () => {
       code,
       name,
       statement: 'Введите формулировку ограничения',
-      constraintType: ConstraintType.TECHNICAL,
-      severity: ConstraintSeverity.MANDATORY,
+      constraintType: 'TECHNICAL' as any,
+      severity: 'MANDATORY' as any,
       x: 300 + Math.random() * 200,
       y: 100 + Math.random() * 300,
     });
@@ -1466,7 +1342,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!name) return;
     idef9Editor.addControlledObject({
       name,
-      objectType: ControlledObjectType.EQUIPMENT,
+      objectType: 'EQUIPMENT' as any,
       x: 600 + Math.random() * 200,
       y: 100 + Math.random() * 300,
     });
@@ -1478,7 +1354,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!name) return;
     idef9Editor.addEnforcementMechanism({
       name,
-      mechanismType: MechanismType.AUTOMATED_PLC,
+      mechanismType: 'AUTOMATED_PLC' as any,
       x: 900 + Math.random() * 200,
       y: 100 + Math.random() * 300,
     });
@@ -1493,7 +1369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     idef9Editor.addSourceDocument({
       code,
       name,
-      documentType: DocumentType.STATE_STANDARD,
+      documentType: 'STATE_STANDARD' as any,
       x: 50 + Math.random() * 100,
       y: 100 + Math.random() * 400,
     });

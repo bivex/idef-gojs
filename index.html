@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IDEF Suite (IDEF0 / IDEF1X / IDEF3 / IDEF4) GoJS Engine (DDD-HEX)</title>
+  <meta name="description" content="IDEF Suite (IDEF0, IDEF1X, IDEF3, IDEF4, IDEF5, IDEF6, IDEF8, IDEF9, IDEF10) — интерактивная веб-среда моделирования архитектуры, процессов и данных на GoJS с чистой архитектурой DDD-HEX.">
+  <title>IDEF Suite (IDEF0 / IDEF1X / IDEF3 / IDEF4 / IDEF5 / IDEF6 / IDEF8 / IDEF9 / IDEF10) GoJS Engine (DDD-HEX)</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -37,8 +38,8 @@
       white-space: nowrap;
     }
     .badge {
-      background: #0284c7;
-      color: #fff;
+      background: #0369a1;
+      color: #ffffff;
       font-size: 0.72rem;
       font-weight: 600;
       padding: 2px 8px;
@@ -103,11 +104,12 @@
       background: #1d4ed8;
     }
     button.success {
-      background: #059669;
-      border-color: #10b981;
+      background: #047857;
+      color: #ffffff;
+      border-color: #059669;
     }
     button.success:hover {
-      background: #047857;
+      background: #065f46;
     }
     select {
       background: #334155;
@@ -140,7 +142,7 @@
       border-radius: 8px;
       padding: 12px;
     }
-    .card h3 {
+    .card h2, .card h3 {
       font-size: 0.88rem;
       font-weight: 600;
       margin-bottom: 8px;
@@ -149,7 +151,7 @@
     .card p, .card li {
       font-size: 0.78rem;
       line-height: 1.4;
-      color: #94a3b8;
+      color: #cbd5e1;
     }
     .card ul {
       margin-left: 18px;
@@ -173,8 +175,8 @@
       color: #38bdf8;
     }
     .stat-lbl {
-      font-size: 0.7rem;
-      color: #64748b;
+      font-size: 0.72rem;
+      color: #94a3b8;
       text-transform: uppercase;
     }
     .breadcrumb-bar {
@@ -355,7 +357,7 @@
     </div>
   </header>
 
-  <div class="main-content">
+  <main class="main-content">
     <!-- IDEF10 Sidebar -->
     <aside class="sidebar" id="sidebarIdef10">
       <div class="breadcrumb-bar" id="idef10Breadcrumb">
@@ -382,7 +384,7 @@
       </div>
 
       <div class="card">
-        <h3>Нотация IDEF10 (Implementation Architecture)</h3>
+        <h2>Нотация IDEF10 (Implementation Architecture)</h2>
         <p><strong>Элементы архитектуры:</strong></p>
         <ul>
           <li><strong>Компонент (Component):</strong> модуль реализации (SERVICE, DATABASE, UI_CLIENT, HARDWARE_DEVICE, MODULE).</li>
@@ -392,16 +394,16 @@
         </ul>
         <p style="margin-top: 8px;"><strong>Типы архитектурных связей:</strong></p>
         <ul>
-          <li><span style="color: #2563eb;">■ calls:</span> сетевой RPC / HTTP / OPC вызов.</li>
-          <li><span style="color: #059669;">■ deploys-on:</span> развертывание компонента на узле/сервере.</li>
-          <li><span style="color: #0d9488;">■ exposes:</span> предоставление сетевого порта/интерфейса.</li>
-          <li><span style="color: #9333ea;">■ reads/writes:</span> чтение/запись в базу данных.</li>
-          <li><span style="color: #4f46e5;">■ packaged-as:</span> сборка компонента в образ/артефакт.</li>
+          <li><span style="color: #93c5fd;">■ calls:</span> сетевой RPC / HTTP / OPC вызов.</li>
+          <li><span style="color: #86efac;">■ deploys-on:</span> развертывание компонента на узле/сервере.</li>
+          <li><span style="color: #5eead4;">■ exposes:</span> предоставление сетевого порта/интерфейса.</li>
+          <li><span style="color: #d8b4fe;">■ reads/writes:</span> чтение/запись в базу данных.</li>
+          <li><span style="color: #a5b4fc;">■ packaged-as:</span> сборка компонента в образ/артефакт.</li>
         </ul>
       </div>
 
       <div class="card">
-        <h3>Правила валидации IDEF10</h3>
+        <h2>Правила валидации IDEF10</h2>
         <ul>
           <li><strong>Развертывание сервисов:</strong> действующие сервисы и БД обязаны быть привязаны к узлу исполнения (DEPLOYS_ON).</li>
           <li><strong>Изоляция компонентов:</strong> компоненты не должны висеть без взаимодействия и интерфейсов.</li>
@@ -411,7 +413,7 @@
       </div>
 
       <div class="card">
-        <h3>Стандарты в репозитории</h3>
+        <h2>Стандарты в репозитории</h2>
         <ul>
           <li><a href="#" style="color: #38bdf8;">IDEF10_Report.pdf (KBSI Architecture)</a></li>
           <li><a href="#" style="color: #38bdf8;">Kubernetes Deployment Architecture</a></li>
@@ -446,7 +448,7 @@
       </div>
 
       <div class="card">
-        <h3>Нотация IDEF9 (Business Rules & Constraints)</h3>
+        <h2>Нотация IDEF9 (Business Rules & Constraints)</h2>
         <p><strong>Концептуальные элементы:</strong></p>
         <ul>
           <li><strong>Ограничение (Constraint):</strong> бизнес-правило с кодом, формулировкой и категорией жёсткости (MANDATORY / CONDITIONAL / WARNING).</li>
@@ -456,16 +458,16 @@
         </ul>
         <p style="margin-top: 8px;"><strong>Типы связей:</strong></p>
         <ul>
-          <li><span style="color: #ef4444;">■ constrains:</span> ограничение накладывается на объект/процесс.</li>
-          <li><span style="color: #22c55e;">■ enforced-by:</span> ограничение контролируется механизмом.</li>
-          <li><span style="color: #f59e0b;">■ derived-from:</span> ограничение выведено из документа/ГОСТа.</li>
-          <li><span style="color: #c084fc;">■ conflicts-with:</span> противоречие между ограничениями.</li>
-          <li><span style="color: #94a3b8;">■ supersedes:</span> новое ограничение замещает устаревшее.</li>
+          <li><span style="color: #fca5a5;">■ constrains:</span> ограничение накладывается на объект/процесс.</li>
+          <li><span style="color: #86efac;">■ enforced-by:</span> ограничение контролируется механизмом.</li>
+          <li><span style="color: #fde047;">■ derived-from:</span> ограничение выведено из документа/ГОСТа.</li>
+          <li><span style="color: #d8b4fe;">■ conflicts-with:</span> противоречие между ограничениями.</li>
+          <li><span style="color: #cbd5e1;">■ supersedes:</span> новое ограничение замещает устаревшее.</li>
         </ul>
       </div>
 
       <div class="card">
-        <h3>Правила валидации IDEF9</h3>
+        <h2>Правила валидации IDEF9</h2>
         <ul>
           <li><strong>Механизм принуждения:</strong> MANDATORY-ограничения обязаны иметь хотя бы один ENFORCED_BY-механизм.</li>
           <li><strong>Привязка к объекту:</strong> каждое ограничение должно иметь хотя бы один CONSTRAINS-переход.</li>
@@ -475,7 +477,7 @@
       </div>
 
       <div class="card">
-        <h3>Стандарты в репозитории</h3>
+        <h2>Стандарты в репозитории</h2>
         <ul>
           <li><a href="#" style="color: #38bdf8;">IDEF9_Report.pdf (1.2 MB)</a></li>
           <li><a href="#" style="color: #38bdf8;">ГОСТ Р 55892-2013 Термообработка.pdf</a></li>
@@ -502,7 +504,7 @@
       </div>
 
       <div class="card">
-        <h3>Нотация IDEF8 (Human-System Interaction)</h3>
+        <h2>Нотация IDEF8 (Human-System Interaction)</h2>
         <p><strong>Концептуальные элементы интерфейса:</strong></p>
         <ul>
           <li><strong>Экран / Окно (Screen/Dialog):</strong> объект взаимодействия (DASHBOARD, CONTROL_PANEL, FORM, MODAL_DIALOG, REPORT_VIEW).</li>
@@ -512,16 +514,16 @@
         </ul>
         <p style="margin-top: 8px;"><strong>Связи взаимодействия (Transitions):</strong></p>
         <ul>
-          <li><span style="color: #60a5fa;">■ navigates-to:</span> переход к целевому экрану.</li>
-          <li><span style="color: #f59e0b;">■ triggers:</span> действие запускает реакцию системы.</li>
-          <li><span style="color: #ef4444;">■ opens-modal:</span> вызов модального окна аварии/блокировки.</li>
-          <li><span style="color: #94a3b8;">■ returns-to:</span> закрытие диалога / возврат назад.</li>
-          <li><span style="color: #c084fc;">■ performed-by:</span> действие выполняется ролью.</li>
+          <li><span style="color: #93c5fd;">■ navigates-to:</span> переход к целевому экрану.</li>
+          <li><span style="color: #fde047;">■ triggers:</span> действие запускает реакцию системы.</li>
+          <li><span style="color: #fca5a5;">■ opens-modal:</span> вызов модального окна аварии/блокировки.</li>
+          <li><span style="color: #cbd5e1;">■ returns-to:</span> закрытие диалога / возврат назад.</li>
+          <li><span style="color: #d8b4fe;">■ performed-by:</span> действие выполняется ролью.</li>
         </ul>
       </div>
 
       <div class="card">
-        <h3>Правила валидации IDEF8</h3>
+        <h2>Правила валидации IDEF8</h2>
         <ul>
           <li><strong>Защита от блокировки (Modal Trap):</strong> модальный экран обязан иметь переход возврата/закрытия.</li>
           <li><strong>Обработка действий:</strong> каждое действие пользователя обязано вызывать переход или реакцию системы.</li>
@@ -530,7 +532,7 @@
       </div>
 
       <div class="card">
-        <h3>Стандарты в репозитории</h3>
+        <h2>Стандарты в репозитории</h2>
         <ul>
           <li><a href="#" style="color: #38bdf8;">IDEF5_Report.pdf (1.4 MB)</a></li>
           <li><a href="#" style="color: #38bdf8;">IDEF4_Report.pdf (1.6 MB)</a></li>
@@ -559,7 +561,7 @@
       </div>
 
       <div class="card">
-        <h3>Нотация IDEF6 (Design Rationale)</h3>
+        <h2>Нотация IDEF6 (Design Rationale)</h2>
         <p><strong>Элементы фиксации проектных решений:</strong></p>
         <ul>
           <li><strong>Вопрос (Issue):</strong> <code>? ВОПРОС</code> архитектурная проблема или дилемма (Статус: OPEN/RESOLVED/REJECTED).</li>
@@ -569,16 +571,16 @@
         </ul>
         <p style="margin-top: 8px;"><strong>Типы связей обоснования:</strong></p>
         <ul>
-          <li><span style="color: #60a5fa;">■ responds-to:</span> альтернатива отвечает на вопрос.</li>
-          <li><span style="color: #34d399;">■ supports:</span> аргумент ЗА выбранный вариант.</li>
-          <li><span style="color: #f87171;">■ objects-to:</span> аргумент ПРОТИВ варианта.</li>
-          <li><span style="color: #c084fc;">■ evaluates:</span> критерий оценивает альтернативу.</li>
-          <li><span style="color: #10b981; font-weight: bold;">■ resolves:</span> принятое финальное решение.</li>
+          <li><span style="color: #93c5fd;">■ responds-to:</span> альтернатива отвечает на вопрос.</li>
+          <li><span style="color: #86efac;">■ supports:</span> аргумент ЗА выбранный вариант.</li>
+          <li><span style="color: #fca5a5;">■ objects-to:</span> аргумент ПРОТИВ варианта.</li>
+          <li><span style="color: #d8b4fe;">■ evaluates:</span> критерий оценивает альтернативу.</li>
+          <li><span style="color: #86efac; font-weight: bold;">■ resolves:</span> принятое финальное решение.</li>
         </ul>
       </div>
 
       <div class="card">
-        <h3>Правила валидации IDEF6</h3>
+        <h2>Правила валидации IDEF6</h2>
         <ul>
           <li><strong>Закрытие вопроса:</strong> решенный вопрос обязан иметь ровно одну принятую (ACCEPTED) альтернативу.</li>
           <li><strong>Целостность графа:</strong> выявление разорванных или висячих связей.</li>
@@ -587,7 +589,7 @@
       </div>
 
       <div class="card">
-        <h3>Стандарты в репозитории</h3>
+        <h2>Стандарты в репозитории</h2>
         <ul>
           <li><a href="#" style="color: #38bdf8;">IDEF5_Report.pdf (1.4 MB)</a></li>
           <li><a href="#" style="color: #38bdf8;">IDEF4_Report.pdf (1.6 MB)</a></li>
@@ -616,7 +618,7 @@
       </div>
 
       <div class="card">
-        <h3>Нотация IDEF5 (Ontology Description)</h3>
+        <h2>Нотация IDEF5 (Ontology Description)</h2>
         <p><strong>Элементы онтологической схемы:</strong></p>
         <ul>
           <li><strong>Вид (Kind):</strong> <code>⭘ ВИД</code> понятие или класс сущностей реального мира.</li>
@@ -629,7 +631,7 @@
       </div>
 
       <div class="card">
-        <h3>Правила валидации IDEF5</h3>
+        <h2>Правила валидации IDEF5</h2>
         <ul>
           <li><strong>Ацикличность таксономии:</strong> проверка запрета циклических связей (subkind-of).</li>
           <li><strong>Уникальность понятий:</strong> запрет дублирования наименований видов.</li>
@@ -638,7 +640,7 @@
       </div>
 
       <div class="card">
-        <h3>Стандарты в репозитории</h3>
+        <h2>Стандарты в репозитории</h2>
         <ul>
           <li><a href="#" style="color: #38bdf8;">IDEF5_Report.pdf (1.4 MB)</a></li>
           <li><a href="#" style="color: #38bdf8;">IDEF4_Report.pdf (1.6 MB)</a></li>
@@ -667,7 +669,7 @@
       </div>
 
       <div class="card">
-        <h3>Нотация IDEF4 (Object-Oriented Design)</h3>
+        <h2>Нотация IDEF4 (Object-Oriented Design)</h2>
         <p><strong>Элементы диаграммы классов (Class Submodel):</strong></p>
         <ul>
           <li><strong>Класс:</strong> карточка из 3 секций (Заголовок со стереотипом, атрибуты, методы).</li>
@@ -680,7 +682,7 @@
       </div>
 
       <div class="card">
-        <h3>Правила валидации IDEF4</h3>
+        <h2>Правила валидации IDEF4</h2>
         <ul>
           <li><strong>Ацикличность наследования:</strong> запрет циклических графов в иерархии классов.</li>
           <li><strong>Абстрактные методы:</strong> запрет нереализованных абстрактных методов в конкретных классах.</li>
@@ -689,7 +691,7 @@
       </div>
 
       <div class="card">
-        <h3>Стандарты в репозитории</h3>
+        <h2>Стандарты в репозитории</h2>
         <ul>
           <li><a href="#" style="color: #38bdf8;">IDEF4_Report.pdf (1.6 MB)</a></li>
           <li><a href="#" style="color: #38bdf8;">IDEF3_Report.pdf (1.8 MB)</a></li>
@@ -717,7 +719,7 @@
       </div>
 
       <div class="card">
-        <h3>Нотация IDEF3 (Process Capture)</h3>
+        <h2>Нотация IDEF3 (Process Capture)</h2>
         <ul>
           <li><strong>UOB:</strong> шаг процесса (наименование, номер, UOB#).</li>
           <li><strong>Перекресток & (AND):</strong> параллельный запуск/слияние (J1, J2).</li>
@@ -746,12 +748,12 @@
       </div>
 
       <div class="card">
-        <h3>Нотация IDEF0 (FIPS PUB 183)</h3>
+        <h2>Нотация IDEF0 (FIPS PUB 183)</h2>
         <ul>
-          <li><span style="color: #60a5fa;">■ Вход (Input, Слева):</span> материалы/сырье.</li>
-          <li><span style="color: #fbbf24;">■ Управление (Control, Сверху):</span> стандарты/планы.</li>
-          <li><span style="color: #34d399;">■ Выход (Output, Справа):</span> продукция/отчеты.</li>
-          <li><span style="color: #a78bfa;">■ Механизм (Mechanism, Снизу):</span> персонал/станки.</li>
+          <li><span style="color: #93c5fd;">■ Вход (Input, Слева):</span> материалы/сырье.</li>
+          <li><span style="color: #fde047;">■ Управление (Control, Сверху):</span> стандарты/планы.</li>
+          <li><span style="color: #86efac;">■ Выход (Output, Справа):</span> продукция/отчеты.</li>
+          <li><span style="color: #d8b4fe;">■ Механизм (Mechanism, Снизу):</span> персонал/станки.</li>
         </ul>
       </div>
     </aside>
@@ -770,7 +772,7 @@
       </div>
 
       <div class="card">
-        <h3>Нотация IDEF1X (FIPS 184)</h3>
+        <h2>Нотация IDEF1X (FIPS 184)</h2>
         <ul>
           <li><strong>Прямые углы:</strong> Независимая сущность</li>
           <li><strong>Скругленные углы:</strong> Зависимая сущность</li>
@@ -782,7 +784,7 @@
     </aside>
 
     <div id="diagramDiv"></div>
-  </div>
+  </main>
 
   <script type="module" src="/demo/main.ts"></script>
 </body>

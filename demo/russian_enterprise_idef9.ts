@@ -13,9 +13,9 @@ import { MechanismType } from '../src/idef9/domain/models/IDEF9EnforcementMechan
 import { DocumentType } from '../src/idef9/domain/models/IDEF9SourceDocument';
 import { ConstraintLinkType } from '../src/idef9/domain/models/IDEF9Link';
 
-export function setupIDEF9(): IDEF9Editor {
+export function setupIDEF9(container: HTMLElement | string = 'diagramDiv'): IDEF9Editor {
   const editor = new IDEF9Editor();
-  editor.initialize('diagram-canvas-idef9');
+  editor.initialize(container);
 
   editor.createModel(
     'metal-avia-constraints-v1',
