@@ -1,0 +1,439 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "project": {
+    "name": "EdgeGuard-4K",
+    "version": "1.0.0",
+    "codename": "CORTEX-VISION-GATEKEEPER",
+    "description": "Прод-уровневая система умного аппаратного видеодомофона/видеоглазка с мгновенным холодным стартом (<10 мс), аппаратной детекцией движения на ПЛИС (LUT4), OSD-оверлеем в HDMI 720p/60Hz, управлением замком Wiegand/Relay и интеграцией в Home Assistant через Cortex-M3 + MQTT.",
+    "target_platform": {
+      "board": "Sipeed Tang Nano 4K",
+      "fpga_device": "Gowin GW1NSR-LV4C (GW1NSR-UV4CQN48PC6/I5)",
+      "fpga_package": "QFN48P",
+      "lut4_count": 4608,
+      "flip_flops": 3456,
+      "block_ram_kbits": 180,
+      "hard_ip": {
+        "mcu": "ARM Cortex-M3 (до 100 МГц, AHB/APB bus)",
+        "psram_sip": "64 Mbit (8 MByte) 16-bit CellularRAM / pSRAM (до 166 МГц)",
+        "flash_user_kbits": 2048,
+        "dsp_multiplier_18x18": 2
+      },
+      "toolchains": [
+        "Gowin EDA V1.9.9+ (Gowin Synthesis + PnR)",
+        "Open-Source Flow: Yosys + nextpnr-gowin + openFPGALoader",
+        "Arm GNU Toolchain (arm-none-eabi-gcc) for Cortex-M3 firmware"
+      ]
+    },
+    "home_use_case": {
+      "category": "Smart Home / Physical Security & Access Control",
+      "location": "Входная дверь / Тамбур / Прихожая",
+      "advantages_over_rpi_and_esp32": [
+        "Мгновенный холодный старт: картинка на мониторе и детекция активны через 8.4 мс после подачи питания (у Raspberry Pi 25-45 сек загрузки Linux).",
+        "Нулевой риск повреждения SD-карты: прошивка зашита в аппаратный NOR-Flash микросхемы.",
+        "Аппаратный конвейер компьютерного зрения: вычисление 3x3 фильтра Собеля и дифференциальной матрицы движения на частоте пикселей без нагрева и пропуска кадров (60 FPS @ 720p).",
+        "Аппаратный OSD (On-Screen Display): нулевая задержка вывода статусов датчиков дома поверх живого видеопотока через прямой HDMI выход на настенный экран в коридоре.",
+        "Аппаратная отказоустойчивость: Cortex-M3 изолирован от сетевых атак, связь с внешней сетью идет через экранированный UART-шлюз с Home Assistant."
+      ]
+    }
+  },
+
+  "hardware_constraints": {
+    "clock_inputs": {
+      "clk_27mhz": { "pin": "45", "io_standard": "LVCMOS33", "pull_mode": "NONE", "description": "Бортовой кварцевый генератор 27.000 МГц" }
+    },
+    "onboard_peripherals": {
+      "key_s1_user": { "pin": "14", "io_standard": "LVCMOS33", "pull_mode": "UP", "description": "Пользовательская кнопка (Звонок / Ручное открытие)" },
+      "key_s2_reset": { "pin": "15", "io_standard": "LVCMOS33", "pull_mode": "UP", "description": "Системный сброс (Sys Reset M3 & FPGA)" },
+      "led_status_green": { "pin": "10", "io_standard": "LVCMOS33", "drive": "8mA", "description": "Индикатор нормальной работы / Heartbeat" },
+      "led_alert_red": { "pin": "11", "io_standard": "LVCMOS33", "drive": "8mA", "description": "Индикатор тревоги / Срабатывание датчика движения" }
+    },
+    "hdmi_dvi_tx": {
+      "description": "Интерфейс HDMI (DVI-D) с прямым формированием дифференциальных пар TMDS",
+      "tmds_clk_p": { "pin": "28", "io_standard": "LVDS25", "direction": "OUTPUT" },
+      "tmds_clk_n": { "pin": "27", "io_standard": "LVDS25", "direction": "OUTPUT" },
+      "tmds_data0_p": { "pin": "30", "io_standard": "LVDS25", "direction": "OUTPUT", "channel": "Blue / Sync" },
+      "tmds_data0_n": { "pin": "29", "io_standard": "LVDS25", "direction": "OUTPUT" },
+      "tmds_data1_p": { "pin": "32", "io_standard": "LVDS25", "direction": "OUTPUT", "channel": "Green" },
+      "tmds_data1_n": { "pin": "31", "io_standard": "LVDS25", "direction": "OUTPUT" },
+      "tmds_data2_p": { "pin": "35", "io_standard": "LVDS25", "direction": "OUTPUT", "channel": "Red" },
+      "tmds_data2_n": { "pin": "34", "io_standard": "LVDS25", "direction": "OUTPUT" }
+    },
+    "camera_ov2640_dvp": {
+      "cam_pclk": { "pin": "22", "io_standard": "LVCMOS33", "description": "Pixel Clock от сенсора (до 24 МГц)" },
+      "cam_xclk": { "pin": "33", "io_standard": "LVCMOS33", "drive": "8mA", "description": "Master Clock для камеры от PLL ПЛИС (24 МГц)" },
+      "cam_href": { "pin": "40", "io_standard": "LVCMOS33", "description": "Строчный синхроимпульс / Line Valid" },
+      "cam_vsync": { "pin": "41", "io_standard": "LVCMOS33", "description": "Кадровый синхроимпульс / Frame Valid" },
+      "cam_data": {
+        "d0": { "pin": "44", "io_standard": "LVCMOS33" },
+        "d1": { "pin": "43", "io_standard": "LVCMOS33" },
+        "d2": { "pin": "42", "io_standard": "LVCMOS33" },
+        "d3": { "pin": "39", "io_standard": "LVCMOS33" },
+        "d4": { "pin": "38", "io_standard": "LVCMOS33" },
+        "d5": { "pin": "26", "io_standard": "LVCMOS33" },
+        "d6": { "pin": "25", "io_standard": "LVCMOS33" },
+        "d7": { "pin": "24", "io_standard": "LVCMOS33" }
+      },
+      "cam_scl": { "pin": "46", "io_standard": "LVCMOS33", "pull_mode": "UP", "description": "Шина SCCB (I2C) Clock для конфигурации регистров" },
+      "cam_sda": { "pin": "47", "io_standard": "LVCMOS33", "pull_mode": "UP", "description": "Шина SCCB (I2C) Data для конфигурации регистров" },
+      "cam_pwdn": { "pin": "13", "io_standard": "LVCMOS33", "description": "Power Down (0 = Normal, 1 = Sleep)" },
+      "cam_reset_n": { "pin": "16", "io_standard": "LVCMOS33", "description": "Active Low Hardware Reset" }
+    },
+    "home_automation_io": {
+      "uart_ha_tx": { "pin": "18", "io_standard": "LVCMOS33", "description": "UART TX к ESP32/Ethernet-мосту (115200 или 921600 бод)" },
+      "uart_ha_rx": { "pin": "19", "io_standard": "LVCMOS33", "description": "UART RX от Home Assistant" },
+      "door_lock_relay": { "pin": "20", "io_standard": "LVCMOS33", "drive": "16mA", "description": "Выход управления твердотельным реле электрозамка двери (NO/NC)" },
+      "wiegand_d0": { "pin": "21", "io_standard": "LVCMOS33", "pull_mode": "UP", "description": "Вход D0 считывателя RFID карт/домофонного ключа (Wiegand-26/34)" },
+      "wiegand_d1": { "pin": "23", "io_standard": "LVCMOS33", "pull_mode": "UP", "description": "Вход D1 считывателя RFID карт/домофонного ключа" },
+      "pir_sensor_in": { "pin": "48", "io_standard": "LVCMOS33", "pull_mode": "DOWN", "description": "Аппаратный вход ИК-датчика движения (PIR)" },
+      "tamper_switch": { "pin": "17", "io_standard": "LVCMOS33", "pull_mode": "UP", "description": "Геркон тампера вскрытия корпуса вызывной панели" }
+    }
+  },
+
+  "fpga_architecture": {
+    "clock_tree": {
+      "pll_sys": {
+        "input_clk_mhz": 27.0,
+        "vco_freq_mhz": 500.0,
+        "clkout0_mhz": 83.333,
+        "purpose_clkout0": "Тактирование контроллера PSRAM, шины AHB/APB и ядра Cortex-M3",
+        "clkout1_mhz": 24.0,
+        "purpose_clkout1": "Тактирование сенсора OV2640 (XCLK)"
+      },
+      "pll_video": {
+        "input_clk_mhz": 27.0,
+        "clkout_pixel_mhz": 74.25,
+        "clkout_serial_mhz": 371.25,
+        "purpose": "Формирование видеосигнала HDMI 720p @ 60Hz (Pixel Clock 74.25 MHz, 5x TMDS Clock 371.25 MHz через OSER10)"
+      }
+    },
+
+    "pipeline_stages": [
+      {
+        "stage": 1,
+        "name": "DVP Video Ingest & Dual-Clock FIFO",
+        "description": "Захват 8-битного потока DVP камеры на тактовой частоте PCLK (до 24 МГц), объединение байт в формат RGB565 / YUV422, выравнивание по строкам и передача через асинхронный FIFO в тактовый домен системы 83.3 МГц.",
+        "resources": { "luts": 210, "ffs": 180, "bram_18k": 1 }
+      },
+      {
+        "stage": 2,
+        "name": "Real-time Edge & Motion Coprocessor",
+        "description": "Аппаратный консилиум детекции движения: буфер на 3 строки для расчета градиента яркости 3x3 Собеля + дифференциальный временной анализ с предыдущим кадром по 16 независимым зонам интереса (ROI 4x4 сетка). Формирует битовую маску тревоги и вычисляет габариты Bounding Box объекта.",
+        "latency_pixels": 3,
+        "resources": { "luts": 780, "ffs": 520, "bram_18k": 3 }
+      },
+      {
+        "stage": 3,
+        "name": "Triple-Buffer PSRAM Arbiter & DMA",
+        "description": "Контроллер 64-мегабитной SiP PSRAM с разделением доступа TDM: порт непрерывной записи камеры (Burst 64), порт чтения видеокадра HDMI генератором (Burst 128) и порт Cortex-M3 для чтения снимков/записи иконок OSD.",
+        "bandwidth_utilization": "68% @ 83.3 MHz 16-bit DDR (266 MB/s пиковая пропускная способность)",
+        "resources": { "luts": 840, "ffs": 610, "bram_18k": 2 }
+      },
+      {
+        "stage": 4,
+        "name": "Hardware OSD Overlay Blender",
+        "description": "Смешивание видеопотока из PSRAM со слоем аппаратной графики: отрисовка рамки детектора движения (Bounding Box), часов реального времени, баннера уведомления от Home Assistant ('Курьер у двери', 'Протечка в ванной!', 'Замок открыт') и полупрозрачной подложки.",
+        "color_depth": "RGB888 (24-bit)",
+        "resources": { "luts": 420, "ffs": 290, "bram_18k": 2 }
+      },
+      {
+        "stage": 5,
+        "name": "HDMI DVI-D 720p60 Encoder (OSER10)",
+        "description": "Кодеры TMDS 8b/10b для каналов R, G, B с синхроимпульсами HSYNC/VSYNC. Десятикратная сериализация на примитивах Gowin OSER10 с выводом на дифференциальные буферы LVDS25.",
+        "resolution": "1280x720 @ 60 FPS (Zero Latency < 16.6 ms)",
+        "resources": { "luts": 360, "ffs": 220, "bram_18k": 0 }
+      }
+    ],
+
+    "total_estimated_fpga_utilization": {
+      "lut4": "2,610 / 4,608 (56.6%)",
+      "flip_flops": "1,820 / 3,456 (52.6%)",
+      "block_ram_18k": "8 / 10 (80.0%)",
+      "hard_ip_used": ["CORTEX_M3", "PSRAM_SIP", "PLL_ADV (x2)", "OSER10 (x4)"]
+    }
+  },
+
+  "cortex_m3_subsystem": {
+    "firmware_stack": "FreeRTOS V10 / Baremetal Low-Latency Scheduler",
+    "ahb_apb_memory_map": {
+      "internal_code_flash": { "base": "0x00000000", "size": "256 KB" },
+      "internal_sram": { "base": "0x20000000", "size": "32 KB" },
+      "apb_peripherals_base": "0x40000000",
+      "registers": {
+        "CAM_SCCB_CTRL": {
+          "address": "0x40001000",
+          "description": "Регистр управления I2C/SCCB контроллером камеры OV2640 (инициализация матриц экспозиции, баланса белого, разрешения)"
+        },
+        "MOTION_CTRL_REG": {
+          "address": "0x40002000",
+          "fields": [
+            { "bits": "0", "name": "ENABLE", "desc": "Включение аппаратного блока детектора движения" },
+            { "bits": "7:1", "name": "SOBEL_THRESHOLD", "desc": "Порог чувствительности фильтра Собеля (0-127)" },
+            { "bits": "15:8", "name": "DIFF_THRESHOLD", "desc": "Порог межкадровой разности пикселей" },
+            { "bits": "31:16", "name": "ACTIVE_ROI_MASK", "desc": "Битовая маска 16 зон интереса (4х4 сетка окна кадра)" }
+          ]
+        },
+        "MOTION_STATUS_REG": {
+          "address": "0x40002004",
+          "access": "RO",
+          "fields": [
+            { "bits": "15:0", "name": "TRIGGERED_ROI_MASK", "desc": "Маска зон, в которых зафиксировано превышение порога движения" },
+            { "bits": "31:16", "name": "TOTAL_MOTION_PIXELS", "desc": "Счетчик сработавших пикселей текущего кадра" }
+          ]
+        },
+        "MOTION_BBOX_COORD": {
+          "address": "0x40002008",
+          "access": "RO",
+          "fields": [
+            { "bits": "11:0", "name": "X_MIN", "desc": "Левая граница Bounding Box" },
+            { "bits": "23:12", "name": "X_MAX", "desc": "Правая граница Bounding Box" }
+          ]
+        },
+        "OSD_BANNER_CTRL": {
+          "address": "0x40003000",
+          "fields": [
+            { "bits": "0", "name": "SHOW_BANNER", "desc": "1 = Отображать верхний HUD баннер" },
+            { "bits": "1", "name": "SHOW_BBOX", "desc": "1 = Отображать аппаратную рамку вокруг движущегося объекта" },
+            { "bits": "3:2", "name": "BANNER_COLOR", "desc": "00=Green, 01=Yellow, 10=Red Alarm, 11=Blue Info" },
+            { "bits": "31:8", "name": "TEXT_BUFFER_PTR", "desc": "Смещение в BRAM шрифтового генератора ASCII строк" }
+          ]
+        },
+        "DOOR_SECURITY_CTRL": {
+          "address": "0x40005000",
+          "fields": [
+            { "bits": "0", "name": "RELAY_LOCK", "desc": "1 = Замкнуть реле отпирания электрозамка двери" },
+            { "bits": "1", "name": "BEEP_BUZZER", "desc": "1 = Акустический сигнал подтверждения/тревоги" },
+            { "bits": "2", "name": "TAMPER_STATE", "access": "RO", "desc": "Статус геркона вскрытия (0=OK, 1=Вскрыт)" },
+            { "bits": "3", "name": "PIR_STATE", "access": "RO", "desc": "Аппаратный статус PIR-сенсора человека" }
+          ]
+        },
+        "WIEGAND_DATA_REG": {
+          "address": "0x40005004",
+          "access": "RO",
+          "fields": [
+            { "bits": "0", "name": "NEW_CARD_FLAG", "desc": "Флаг считывания новой RFID-карты (Wiegand)" },
+            { "bits": "31:1", "name": "CARD_FACILITY_AND_ID", "desc": "24 бита кода идентификатора ключа" }
+          ]
+        }
+      }
+    },
+
+    "embedded_software_tasks": [
+      {
+        "name": "Task_Camera_Manager",
+        "rate": "На старте + по событию смены освещения",
+        "function": "Инициализирует OV2640 по SCCB, загружает оптимальную гамму, настраивает Auto-Exposure и FPS (30/60)."
+      },
+      {
+        "name": "Task_Access_Control",
+        "rate": "Прерывание по спаду импульса Wiegand (ISR)",
+        "function": "Принимает импульсы Wiegand D0/D1 от считывателя ключей у двери, декодирует 26/34 бита, сверяет с локальным белым списком в защищенном Flash и при совпадении замыкает реле замка на 3000 мс."
+      },
+      {
+        "name": "Task_Vision_Analytics",
+        "rate": "Синхронизировано с VSYNC (60 Гц)",
+        "function": "Опрашивает MOTION_STATUS_REG. При детекции движения фильтрует ложные шумы (тени, шевеление листвы за окном через алгоритм устойчивости во времени) и отправляет тревожное событие в Home Assistant."
+      },
+      {
+        "name": "Task_HA_Bridge_UART",
+        "rate": "100 Гц",
+        "function": "Двунаправленный обмен с домашним сервером Home Assistant по протоколу JSON-over-UART: отправка телеметрии, прием команд открытия замка и текстовых баннеров для вывода на экран (OSD)."
+      }
+    ]
+  },
+
+  "home_assistant_integration": {
+    "protocol": "MQTT via ESP32/Wi-Fi/Ethernet bridge OR Native USB-CDC",
+    "mqtt_discovery_devices": [
+      {
+        "component": "binary_sensor",
+        "name": "EdgeGuard Motion",
+        "topic": "homeassistant/binary_sensor/edgeguard_door/config",
+        "payload": {
+          "name": "Детектор движения у двери (FPGA Hardware)",
+          "state_topic": "edgeguard/telemetry/motion",
+          "device_class": "motion",
+          "value_template": "{{ value_json.motion_detected }}",
+          "json_attributes_topic": "edgeguard/telemetry/motion",
+          "device": {
+            "identifiers": ["tang_nano_4k_edgeguard_01"],
+            "name": "Прихожая Видеоглазок Tang Nano 4K",
+            "model": "Sipeed Tang Nano 4K (GW1NSR-LV4C)",
+            "manufacturer": "Custom FPGA Systems"
+          }
+        }
+      },
+      {
+        "component": "lock",
+        "name": "EdgeGuard Door Lock",
+        "topic": "homeassistant/lock/edgeguard_lock/config",
+        "payload": {
+          "name": "Электрозамок входной двери",
+          "command_topic": "edgeguard/command/lock",
+          "state_topic": "edgeguard/telemetry/lock_state",
+          "payload_lock": "LOCK",
+          "payload_unlock": "UNLOCK",
+          "state_locked": "LOCKED",
+          "state_unlocked": "UNLOCKED"
+        }
+      },
+      {
+        "component": "binary_sensor",
+        "name": "EdgeGuard Tamper Alert",
+        "topic": "homeassistant/binary_sensor/edgeguard_tamper/config",
+        "payload": {
+          "name": "Тампер вскрытия вызывной панели",
+          "state_topic": "edgeguard/telemetry/tamper",
+          "device_class": "tamper"
+        }
+      },
+      {
+        "component": "sensor",
+        "name": "EdgeGuard RFID Card",
+        "topic": "homeassistant/sensor/edgeguard_rfid/config",
+        "payload": {
+          "name": "Код последнего считанного RFID ключа",
+          "state_topic": "edgeguard/telemetry/rfid_card",
+          "icon": "mdi:badge-account-horizontal"
+        }
+      }
+    ],
+    "example_ha_automation_yaml": [
+      "alias: 'Дверной звонок: Вывод тревожного баннера на экран в прихожей'",
+      "trigger:",
+      "  - platform: state",
+      "    entity_id: binary_sensor.edgeguard_motion",
+      "    to: 'on'",
+      "action:",
+      "  - service: mqtt.publish",
+      "    data:",
+      "      topic: 'edgeguard/command/osd_banner'",
+      "      payload: '{\"banner_text\": \"ОБНАРУЖЕНО ДВИЖЕНИЕ У ДВЕРИ\", \"color\": \"yellow\", \"timeout_sec\": 10}'",
+      "  - service: notify.mobile_app_all_family",
+      "    data:",
+      "      message: 'Кто-то подошел к входной двери! Экран активирован.'"
+    ]
+  },
+
+  "idef10_system_architecture": {
+    "diagram_id": "diag-edgeguard-m4k",
+    "title": "Архитектура развертывания EdgeGuard-4K на Sipeed Tang Nano 4K (IDEF10)",
+    "execution_nodes": [
+      {
+        "id": "node-fpga-fabric",
+        "name": "Gowin GW1NSR-LV4C Fabric (4608 LUTs)",
+        "nodeType": "DEVICE",
+        "os": "Hardware RTL (Verilog HDL)",
+        "hardware": "Gowin 55nm FPGA Fabric",
+        "processingCapacity": "74.25 MHz Pixel Clock / 371.25 MHz TMDS Serializer"
+      },
+      {
+        "id": "node-cortex-m3",
+        "name": "Embedded Hard ARM Cortex-M3",
+        "nodeType": "EXECUTION_ENVIRONMENT",
+        "os": "FreeRTOS Embedded Microkernel",
+        "hardware": "32-bit Cortex-M3 Core @ 83.3 MHz",
+        "processingCapacity": "100 DMIPS, 32KB SRAM, 256KB User Flash"
+      },
+      {
+        "id": "node-psram-sip",
+        "name": "In-Package 64Mbit CellularRAM",
+        "nodeType": "DEVICE",
+        "os": "SiP Multi-Chip Package",
+        "hardware": "8 MByte 16-bit DDR PSRAM",
+        "processingCapacity": "266 MB/s Triple-Buffer Arbiter"
+      },
+      {
+        "id": "node-home-server",
+        "name": "Home Assistant OS Home Server",
+        "nodeType": "SERVER",
+        "os": "Linux / Home Assistant Supervised",
+        "hardware": "Home Automation Controller / RPi / x86 NUC",
+        "processingCapacity": "MQTT Broker, Zigbee Coordinator, Automation Engine"
+      }
+    ],
+    "components": [
+      {
+        "id": "comp-dvp-ingest",
+        "name": "DVP Camera Capture & Frame Sync",
+        "componentType": "MODULE",
+        "technology": "Verilog HDL (Dual-Clock FIFO + Gray Counter)",
+        "executionNodeId": "node-fpga-fabric"
+      },
+      {
+        "id": "comp-sobel-motion",
+        "name": "Sobel 3x3 Edge & Multi-Zone Motion Engine",
+        "componentType": "MODULE",
+        "technology": "Verilog Hardware DSP Pipeline",
+        "executionNodeId": "node-fpga-fabric"
+      },
+      {
+        "id": "comp-osd-hdmi",
+        "name": "OSD Blender & TMDS HDMI 720p60 TX",
+        "componentType": "MODULE",
+        "technology": "Gowin OSER10 + 8b10b DVI Encoder",
+        "executionNodeId": "node-fpga-fabric"
+      },
+      {
+        "id": "comp-firmware-controller",
+        "name": "Access Control & Event Telemetry Engine",
+        "componentType": "SERVICE",
+        "technology": "C / Embedded FreeRTOS",
+        "executionNodeId": "node-cortex-m3"
+      },
+      {
+        "id": "comp-ha-gateway",
+        "name": "Home Assistant MQTT Integration Bridge",
+        "componentType": "SERVICE",
+        "technology": "Python / MQTT Discovery Protocol",
+        "executionNodeId": "node-home-server"
+      }
+    ],
+    "interfaces": [
+      {
+        "id": "if-dvp-bus",
+        "name": "8-bit DVP Parallel Bus + PCLK/HREF/VSYNC",
+        "protocol": "DVP",
+        "direction": "INBOUND",
+        "isSynchronous": true
+      },
+      {
+        "id": "if-apb-bridge",
+        "name": "ARM APB3 Interconnect Bus",
+        "protocol": "AMBA APB3 32-bit",
+        "direction": "BIDIRECTIONAL",
+        "isSynchronous": true
+      },
+      {
+        "id": "if-hdmi-out",
+        "name": "HDMI DVI-D RGB888 720p60",
+        "protocol": "TMDS / DVI 1.0",
+        "direction": "OUTBOUND",
+        "isSynchronous": true
+      },
+      {
+        "id": "if-uart-mqtt",
+        "name": "UART Stream / MQTT JSON Payloads",
+        "protocol": "UART 115200bps -> MQTT over Wi-Fi",
+        "direction": "BIDIRECTIONAL",
+        "isSynchronous": false
+      }
+    ],
+    "links": [
+      { "id": "lnk-1", "sourceId": "comp-dvp-ingest", "targetId": "comp-sobel-motion", "linkType": "DATA_FLOW", "label": "Luminance & RGB Pixel Stream" },
+      { "id": "lnk-2", "sourceId": "comp-sobel-motion", "targetId": "comp-firmware-controller", "linkType": "DEPENDS_ON", "label": "APB Status Regs & BBox Coords" },
+      { "id": "lnk-3", "sourceId": "comp-firmware-controller", "targetId": "comp-osd-hdmi", "linkType": "CALL", "label": "OSD Overlay Text & Alarm Reticle" },
+      { "id": "lnk-4", "sourceId": "comp-firmware-controller", "targetId": "comp-ha-gateway", "linkType": "COMMUNICATION", "label": "MQTT Events, RFID, Door Lock Commands" }
+    ]
+  },
+
+  "bom_and_wiring": {
+    "estimated_cost_usd": 28.50,
+    "components": [
+      { "item": "Sipeed Tang Nano 4K Board", "qty": 1, "approx_cost_usd": 15.00, "source": "AliExpress / Sipeed Store" },
+      { "item": "OV2640 2MP Camera Sensor FPC (DVP 24-pin)", "qty": 1, "approx_cost_usd": 4.00, "source": "Included with Tang Nano 4K kit" },
+      { "item": "1-Channel 5V Optocoupler Solid State Relay Module", "qty": 1, "approx_cost_usd": 1.50, "purpose": "Управление замком двери" },
+      { "item": "Wiegand-26 RFID Keypad/Reader", "qty": 1, "approx_cost_usd": 6.00, "purpose": "Считыватель карт/брелоков снаружи" },
+      { "item": "ESP-01S or ESP32-C3 Mini (UART to Wi-Fi)", "qty": 1, "approx_cost_usd": 2.00, "purpose": "Мост MQTT для Home Assistant" }
+    ]
+  }
+}
