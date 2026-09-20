@@ -86,7 +86,7 @@ export function createArrowLinkTemplate(): go.Link {
           stroke: '#0F172A',
           margin: new go.Margin(2, 6, 2, 6),
           wrap: go.TextBlock.WrapFit,
-          maxWidth: 160,
+          maxSize: new go.Size(160, NaN),
           editable: true,
         },
         new go.Binding('text', 'name').makeTwoWay()

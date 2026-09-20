@@ -50,7 +50,7 @@ export function createBoundaryNodeTemplate(): go.Node {
           stroke: '#334155',
           textAlign: 'center',
           wrap: go.TextBlock.WrapFit,
-          maxWidth: 140,
+          maxSize: new go.Size(140, NaN),
         },
         new go.Binding('text', 'name')
       )
